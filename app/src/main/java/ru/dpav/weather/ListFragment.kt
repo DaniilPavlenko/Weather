@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
 import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -127,6 +128,10 @@ class ListFragment : Fragment(), MapFragment.OnWeatherGotCallback {
                 mWind.text = context.getString(R.string.detail_wind, city.wind!!.speed.toInt())
                 mCloudy.text = context.getString(R.string.detail_cloudy, city.clouds!!.all)
                 mPressure.text = context.getString(R.string.detail_pressure, city.main.pressure.toInt())
+                mDetailInfo.setOnClickListener{
+                    val cityDetailFragment = CityDetailFragment.newInstance(city)
+                    cityDetailFragment.show((context as AppCompatActivity).supportFragmentManager, "dialog_city2")
+                }
             }
 
             fun closeDetail() {
