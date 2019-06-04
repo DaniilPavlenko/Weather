@@ -8,6 +8,7 @@ import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
@@ -37,15 +38,19 @@ import ru.dpav.weather.util.Util.Companion.isGooglePlayServicesAvailable
 import java.io.IOException
 
 class MapFragment : Fragment(), OnMapReadyCallback {
-    private lateinit var mMap: GoogleMap
-    private lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
-    private var mSearchMarker: Marker? = null
-    private lateinit var mLastLatLng: LatLng
-    private var mMarkers: LinkedHashMap<Int, Marker> = LinkedHashMap()
-    private lateinit var mUpdateScreen: FrameLayout
+    private lateinit var mMap : GoogleMap
+    private lateinit var mFusedLocationProviderClient : FusedLocationProviderClient
+    private var mSearchMarker : Marker? = null
+    private lateinit var mLastLatLng : LatLng
+    private var mMarkers : LinkedHashMap<Int, Marker> = LinkedHashMap()
+    private var mCities : List<City> = ArrayList()
+    private lateinit var mUpdateScreen : FrameLayout
+    private var isInfoWindowOpened : Boolean = false
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-        savedState: Bundle?): View? {
+    override fun onCreateView(
+        inflater : LayoutInflater, container : ViewGroup?,
+        savedState : Bundle?
+    ) : View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
         mUpdateScreen = view.findViewById(R.id.map_update_layout)
         if (isGooglePlayServicesAvailable(activity!!)) {
@@ -54,7 +59,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         } else {
             setUpdateScreen(false)
         }
-        val mapFragment: SupportMapFragment? = childFragmentManager.findFragmentById(R.id.map) as? SupportMapFragment
+        val mapFragment : SupportMapFragment? = childFragmentManager.findFragmentById(R.id.map) as? SupportMapFragment
         mapFragment?.getMapAsync(this)
         if (savedState != null) {
             arguments = savedState
@@ -64,7 +69,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         return view
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
+    override fun onSaveInstanceState(outState : Bundle) {
         if (::mMap.isInitialized && ::mLastLatLng.isInitialized) {
             outState.putDouble(ARG_CAMERA_LATITUDE, mMap.cameraPosition.target.latitude)
             outState.putDouble(ARG_CAMERA_LONGITUDE, mMap.cameraPosition.target.longitude)
@@ -74,75 +79,97 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    override fun onMapReady(googleMap: GoogleMap?) {
+    override fun onMapReady(googleMap : GoogleMap?) {
         mMap = googleMap ?: return
         mMap.uiSettings.isMapToolbarEnabled = false
         mMap.setOnMapClickListener {
-            setSearchMarker(it)
-            moveCameraTo(it, mMap.cameraPosition.zoom)
+            if (!isInfoWindowOpened) {
+                setSearchMarker(it)
+                moveCameraTo(it, mMap.cameraPosition.zoom)
+            } else {
+                isInfoWindowOpened = false
+            }
         }
         mMap.setOnMarkerClickListener {
             if (it.tag == MARKER_SEARCH_TAG) {
                 return@setOnMarkerClickListener true
             }
             it.showInfoWindow()
+            isInfoWindowOpened = true
             true
         }
         mMap.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
-            override fun getInfoWindow(marker: Marker?): View? = null
+            override fun getInfoWindow(marker : Marker?) : View? = null
             @SuppressLint("InflateParams")
-            override fun getInfoContents(marker: Marker?): View? {
+            override fun getInfoContents(marker : Marker?) : View? {
                 marker ?: return null
                 val view = layoutInflater.inflate(R.layout.info_window_weather, null)
-
-                val title: TextView = view.findViewById(R.id.info_window_title)
+                val title : TextView = view.findViewById(R.id.info_window_title)
                 title.text = marker.title
                 val icon = Util.getWeatherIconByName(marker.snippet.split("icon=")[1])
                 title.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0)
-                val snippet: TextView = view.findViewById(R.id.info_window_snippet)
+                val snippet : TextView = view.findViewById(R.id.info_window_snippet)
                 snippet.text = marker.snippet.split("icon=")[0]
                 return view
             }
         })
+        mMap.setOnInfoWindowClickListener {
+            var position = 0
+            for (i in 0 until mCities.size) {
+                if (mCities[i].name == it.title) {
+                    position = i
+                }
+            }
+            val cityFragment = CityDetailFragment.newInstance(mCities[position])
+            cityFragment.show(activity?.supportFragmentManager, "dialog_city")
+        }
         if (arguments != null) {
             moveCameraTo(
-                LatLng(arguments!!.getDouble(ARG_CAMERA_LATITUDE),
-                    arguments!!.getDouble(ARG_CAMERA_LONGITUDE)),
+                LatLng(
+                    arguments!!.getDouble(ARG_CAMERA_LATITUDE),
+                    arguments!!.getDouble(ARG_CAMERA_LONGITUDE)
+                ),
                 arguments!!.getFloat(ARG_CAMERA_ZOOM)
             )
-            setSearchMarker(LatLng(arguments!!.getDouble(ARG_POINT_LATITUDE),
-                arguments!!.getDouble(ARG_POINT_LONGITUDE)))
+            setSearchMarker(
+                LatLng(
+                    arguments!!.getDouble(ARG_POINT_LATITUDE),
+                    arguments!!.getDouble(ARG_POINT_LONGITUDE)
+                )
+            )
         } else {
             moveToStartPosition()
         }
     }
 
-    private fun setSearchMarker(latLng: LatLng) {
+    private fun setSearchMarker(latLng : LatLng) {
         mSearchMarker?.remove()
-        mSearchMarker = mMap.addMarker(MarkerOptions()
-            .position(latLng)
-            .icon(bitmapDescriptorFromVector(activity!!, R.drawable.marker_search)))
+        mSearchMarker = mMap.addMarker(
+            MarkerOptions()
+                .position(latLng)
+                .icon(bitmapDescriptorFromVector(activity!!, R.drawable.marker_search))
+        )
         mSearchMarker?.tag = MARKER_SEARCH_TAG
         mLastLatLng = latLng
         setUpdateScreen(true)
         getWeather(latLng)
     }
 
-    private fun getWeather(latLng: LatLng) {
+    private fun getWeather(latLng : LatLng) {
         activity ?: return
         WeatherApi.getInstance().getWeatherByCoordinates(activity as Context, latLng,
             object : Callback<WeatherResponse> {
-                override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
+                override fun onFailure(call : Call<WeatherResponse>, t : Throwable) {
                     if (t is IOException) {
                         view?.let {
                             Snackbar.make(it, R.string.connection_error, Snackbar.LENGTH_INDEFINITE)
-                                .setAction(R.string.retry) { getWeather(latLng) }
+                                .setAction(R.string.retry) {getWeather(latLng)}
                                 .show()
                         }
                     }
                 }
 
-                override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
+                override fun onResponse(call : Call<WeatherResponse>, response : Response<WeatherResponse>) {
                     activity ?: return
                     val cities = response.body()?.cities
                     if (cities == null) {
@@ -157,22 +184,30 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             })
     }
 
-    private fun updateMapMarkers(cities: List<City>?) {
-        mMarkers.values.forEach { (it).remove() }
+    private fun updateMapMarkers(cities : List<City>?) {
+        mMarkers.values.forEach {(it).remove()}
         mMarkers.clear()
-        cities?.forEach {
+        if (cities == null) {
+            return
+        }
+        mCities = cities
+        mCities.forEach {
             val latLng = LatLng(it.coordinates!!.latitude, it.coordinates.longitude)
-            mMarkers[it.id] = mMap.addMarker(MarkerOptions()
-                .position(latLng)
-                .icon(bitmapDescriptorFromVector(activity as Context, R.drawable.marker_city))
-                .title(it.name)
-                .snippet(getString(R.string.marker_snippet,
-                    it.main!!.temp.toInt(),
-                    it.wind!!.speed.toInt(),
-                    it.clouds!!.all,
-                    it.main.pressure.toInt(),
-                    it.weather!![0].icon)
-                )
+            mMarkers[it.id] = mMap.addMarker(
+                MarkerOptions()
+                    .position(latLng)
+                    .icon(bitmapDescriptorFromVector(activity as Context, R.drawable.marker_city))
+                    .title(it.name)
+                    .snippet(
+                        getString(
+                            R.string.marker_snippet,
+                            it.main!!.temp.toInt(),
+                            it.wind!!.speed.toInt(),
+                            it.clouds!!.all,
+                            it.main.pressure.toInt(),
+                            it.weather!![0].icon
+                        )
+                    )
             )
         }
     }
@@ -180,7 +215,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private fun moveToStartPosition() {
         if (hasLocationPermission()) {
             if (!isLocationEnabled()) {
-                view?.let { itView ->
+                view?.let {itView ->
                     Snackbar.make(itView, R.string.geo_disabled, Snackbar.LENGTH_LONG).show()
                 }
                 moveToDefaultPosition()
@@ -194,7 +229,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private fun isLocationEnabled() = try {
         val lm = context?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
-    } catch (e: Exception) {
+    } catch (e : Exception) {
         false
     }
 
@@ -203,13 +238,13 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         locationRequest.interval = 0
         locationRequest.numUpdates = 1
-        val googleApiClient: GoogleApiClient = GoogleApiClient.Builder(activity!!).addApi(LocationServices.API)
+        val googleApiClient : GoogleApiClient = GoogleApiClient.Builder(activity!!).addApi(LocationServices.API)
             .addConnectionCallbacks(object : GoogleApiClient.ConnectionCallbacks {
-                override fun onConnectionSuspended(p0: Int) {}
+                override fun onConnectionSuspended(p0 : Int) {}
                 @SuppressLint("MissingPermission")
-                override fun onConnected(p0: Bundle?) {
+                override fun onConnected(p0 : Bundle?) {
                     mFusedLocationProviderClient.requestLocationUpdates(locationRequest, object : LocationCallback() {
-                        override fun onLocationResult(location: LocationResult?) {
+                        override fun onLocationResult(location : LocationResult?) {
                             location?.let {
                                 val latLng = LatLng(it.lastLocation.latitude, it.lastLocation.longitude)
                                 setSearchMarker(latLng)
@@ -226,14 +261,18 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private fun askPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!hasLocationPermission()) {
-                requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION),
-                    REQUEST_PERMISSIONS_LOCATION)
+                requestPermissions(
+                    arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ),
+                    REQUEST_PERMISSIONS_LOCATION
+                )
             }
         }
     }
 
-    private fun hasLocationPermission(): Boolean {
+    private fun hasLocationPermission() : Boolean {
         activity?.let {
             return ContextCompat.checkSelfPermission(it as Context, Manifest.permission.ACCESS_FINE_LOCATION) ==
                     PackageManager.PERMISSION_GRANTED
@@ -244,21 +283,25 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private fun moveToDefaultPosition() {
         val defaultLatLng = LatLng(
             getString(R.string.defaultLatitude).toDouble(),
-            getString(R.string.defaultLongitude).toDouble())
+            getString(R.string.defaultLongitude).toDouble()
+        )
         setSearchMarker(defaultLatLng)
         moveCameraTo(defaultLatLng, DEFAULT_ZOOM)
     }
 
-    private fun moveCameraTo(latLng: LatLng, zoom: Float) {
+    private fun moveCameraTo(latLng : LatLng, zoom : Float) {
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom))
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int,
-        permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode : Int,
+        permissions : Array<out String>, grantResults : IntArray
+    ) {
         when (requestCode) {
             REQUEST_PERMISSIONS_LOCATION -> {
                 if (grantResults.isNotEmpty()
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                ) {
                     moveToStartPosition()
                 }
             }
@@ -266,17 +309,17 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    fun setUpdateScreen(isVisible: Boolean) {
+    fun setUpdateScreen(isVisible : Boolean) {
         mUpdateScreen.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     interface OnWeatherGotCallback {
-        fun onWeatherGot(cities: List<City>?)
+        fun onWeatherGot(cities : List<City>?)
     }
 
     companion object {
-        private const val REQUEST_PERMISSIONS_LOCATION: Int = 111
-        private const val DEFAULT_ZOOM: Float = 10.5F
+        private const val REQUEST_PERMISSIONS_LOCATION : Int = 111
+        private const val DEFAULT_ZOOM : Float = 10.5F
         private const val MARKER_SEARCH_TAG = 5
         private const val ARG_CAMERA_LATITUDE = "camera_latitude"
         private const val ARG_CAMERA_LONGITUDE = "camera_longitude"
@@ -285,6 +328,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         private const val ARG_POINT_LONGITUDE = "point_longitude"
 
         @JvmStatic
-        fun newInstance(): MapFragment = MapFragment()
+        fun newInstance() : MapFragment = MapFragment()
     }
 }

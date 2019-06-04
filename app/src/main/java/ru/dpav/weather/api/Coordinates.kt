@@ -1,14 +1,35 @@
 package ru.dpav.weather.api
 
+import android.os.Parcel
+import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-class Coordinates {
-    @SerializedName("lat")
-    @Expose
-    internal val latitude: Double = 0.0
+data class Coordinates(
+    @SerializedName("lat") @Expose val latitude: Double,
+    @SerializedName("lon") @Expose val longitude: Double): Parcelable {
 
-    @SerializedName("lon")
-    @Expose
-    internal val longitude: Double = 0.0
+    constructor(parcel: Parcel): this(
+        parcel.readDouble(),
+        parcel.readDouble()
+    )
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeDouble(latitude)
+        parcel.writeDouble(longitude)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR: Parcelable.Creator<Coordinates> {
+        override fun createFromParcel(parcel: Parcel): Coordinates {
+            return Coordinates(parcel)
+        }
+
+        override fun newArray(size: Int): Array<Coordinates?> {
+            return arrayOfNulls(size)
+        }
+    }
 }

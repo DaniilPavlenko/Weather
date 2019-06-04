@@ -1,35 +1,50 @@
 package ru.dpav.weather.api
 
+import android.os.Parcel
+import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-class City {
-    @SerializedName("id")
-    @Expose
-    internal val id: Int = 0
+data class City(
+    @SerializedName("id") @Expose val id: Int,
+    @SerializedName("name") @Expose val name: String?,
+    @SerializedName("coord") @Expose val coordinates: Coordinates?,
+    @SerializedName("main") @Expose val main: MainWeatherInfo?,
+    @SerializedName("wind") @Expose val wind: Wind?,
+    @Expose val clouds: Clouds?,
+    @SerializedName("weather") @Expose val weather: List<Weather>?): Parcelable {
 
-    @SerializedName("name")
-    @Expose
-    internal val name: String? = null
+    constructor(parcel: Parcel): this(
+        parcel.readInt(),
+        parcel.readString(),
+        parcel.readParcelable(Coordinates::class.java.classLoader),
+        parcel.readParcelable(MainWeatherInfo::class.java.classLoader),
+        parcel.readParcelable(Wind::class.java.classLoader),
+        parcel.readParcelable(Clouds::class.java.classLoader),
+        parcel.createTypedArrayList(Weather)
+    )
 
-    @SerializedName("coord")
-    @Expose
-    internal val coordinates: Coordinates? = null
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(id)
+        parcel.writeString(name)
+        parcel.writeParcelable(coordinates, flags)
+        parcel.writeParcelable(main, flags)
+        parcel.writeParcelable(wind, flags)
+        parcel.writeParcelable(clouds, flags)
+        parcel.writeTypedList(weather)
+    }
 
-    @SerializedName("main")
-    @Expose
-    internal val main: MainWeatherInfo? = null
+    override fun describeContents(): Int {
+        return 0
+    }
 
-    @SerializedName("wind")
-    @Expose
-    internal val wind: Wind? = null
+    companion object CREATOR: Parcelable.Creator<City> {
+        override fun createFromParcel(parcel: Parcel): City {
+            return City(parcel)
+        }
 
-    @SerializedName("clouds")
-    @Expose
-    internal val clouds: Clouds? = null
-
-    @SerializedName("weather")
-    @Expose
-    internal val weather: List<Weather>? = null
-
+        override fun newArray(size: Int): Array<City?> {
+            return arrayOfNulls(size)
+        }
+    }
 }
