@@ -14,16 +14,20 @@ import android.widget.TextView
 import ru.dpav.weather.api.City
 import ru.dpav.weather.util.Util
 
-class ListFragment : Fragment(), MapFragment.OnWeatherGotCallback {
+class ListFragment: Fragment(), MapFragment.OnWeatherGotCallback {
     private lateinit var mRecyclerView: RecyclerView
     private var mCities: ArrayList<City> = ArrayList()
+    private var savedOpenedPosition: Int = -1
 
     override fun onCreateView(inflater: LayoutInflater,
         container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_list, container, false)
         mRecyclerView = view.findViewById(R.id.cities_recycler_view)
         val viewManager = LinearLayoutManager(activity)
-        val viewAdapter = CitiesAdapter(mRecyclerView, mCities)
+        val viewAdapter = CitiesAdapter(savedOpenedPosition, mRecyclerView, mCities)
+        if (savedInstanceState != null) {
+            savedOpenedPosition = savedInstanceState.getInt(ARG_OPENED_POSITION, -1)
+        }
         with(mRecyclerView) {
             setHasFixedSize(true)
             layoutManager = viewManager
@@ -32,16 +36,23 @@ class ListFragment : Fragment(), MapFragment.OnWeatherGotCallback {
         return view
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt(ARG_OPENED_POSITION, (mRecyclerView.adapter as CitiesAdapter).openedPosition)
+    }
+
     override fun onWeatherGot(cities: List<City>?) {
         cities?.let {
             (mRecyclerView.adapter as CitiesAdapter).setCities(cities)
         }
+        if (savedOpenedPosition != -1) {
+            (mRecyclerView.adapter as CitiesAdapter).openedPosition = savedOpenedPosition
+            mRecyclerView.smoothScrollToPosition(savedOpenedPosition)
+            savedOpenedPosition = -1
+        }
     }
 
-    private class CitiesAdapter(private var recyclerView: RecyclerView,
-        private var cities: ArrayList<City>) : RecyclerView.Adapter<CitiesAdapter.CityHolder>() {
-
-        private var openedPosition = -1
+    private class CitiesAdapter(var openedPosition: Int, private var recyclerView: RecyclerView,
+        private var cities: ArrayList<City>): RecyclerView.Adapter<CitiesAdapter.CityHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, index: Int): CityHolder {
             val view = LayoutInflater.from(parent.context).inflate(R.layout.item_row_city, parent, false)
@@ -54,7 +65,7 @@ class ListFragment : Fragment(), MapFragment.OnWeatherGotCallback {
 
         override fun onBindViewHolder(holder: CityHolder, index: Int) {
             val city = cities[index]
-            holder.bind(city, openedPosition == index) { position ->
+            holder.bind(city, openedPosition == index) {position ->
                 if (openedPosition > -1) {
                     val cityHolder = recyclerView.findViewHolderForAdapterPosition(openedPosition) as? CityHolder
                     cityHolder?.closeDetail()
@@ -72,7 +83,7 @@ class ListFragment : Fragment(), MapFragment.OnWeatherGotCallback {
             notifyDataSetChanged()
         }
 
-        class CityHolder(item: View) : RecyclerView.ViewHolder(item) {
+        class CityHolder(item: View): RecyclerView.ViewHolder(item) {
             private var mTitle: TextView = item.findViewById(R.id.city_detail_title)
             private var mTemperature: TextView = item.findViewById(R.id.city_detail_temperature)
             private var mWind: TextView = item.findViewById(R.id.city_detail_wind)
@@ -88,7 +99,7 @@ class ListFragment : Fragment(), MapFragment.OnWeatherGotCallback {
                 }
                 mDetailInfo.animate()
                     .translationY(translationY)
-                    .setListener(object : Animator.AnimatorListener {
+                    .setListener(object: Animator.AnimatorListener {
                         override fun onAnimationCancel(p0: Animator?) {}
                         override fun onAnimationRepeat(p0: Animator?) {}
 
@@ -128,7 +139,7 @@ class ListFragment : Fragment(), MapFragment.OnWeatherGotCallback {
                 mWind.text = context.getString(R.string.detail_wind, city.wind!!.speed.toInt())
                 mCloudy.text = context.getString(R.string.detail_cloudy, city.clouds!!.all)
                 mPressure.text = context.getString(R.string.detail_pressure, city.main.pressure.toInt())
-                mDetailInfo.setOnClickListener{
+                mDetailInfo.setOnClickListener {
                     val cityDetailFragment = CityDetailFragment.newInstance(city)
                     cityDetailFragment.show((context as AppCompatActivity).supportFragmentManager, "dialog_city2")
                 }
@@ -145,6 +156,8 @@ class ListFragment : Fragment(), MapFragment.OnWeatherGotCallback {
     }
 
     companion object {
+        private const val ARG_OPENED_POSITION: String = "opened_position"
+
         @JvmStatic
         fun newInstance(): ListFragment {
             return ListFragment()
