@@ -8,7 +8,6 @@ import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
@@ -46,6 +45,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private var mCities : List<City> = ArrayList()
     private lateinit var mUpdateScreen : FrameLayout
     private var isInfoWindowOpened : Boolean = false
+    private lateinit var openedWindowMarkerPosition: LatLng
 
     override fun onCreateView(
         inflater : LayoutInflater, container : ViewGroup?,
@@ -76,6 +76,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             outState.putFloat(ARG_CAMERA_ZOOM, mMap.cameraPosition.zoom)
             outState.putDouble(ARG_POINT_LATITUDE, mLastLatLng.latitude)
             outState.putDouble(ARG_POINT_LONGITUDE, mLastLatLng.longitude)
+            outState.putParcelableArrayList(ARG_CITIES_DATA, mCities as ArrayList)
+            if (isInfoWindowOpened) {
+                outState.putParcelable(ARG_OPENED_INFO_WINDOW, openedWindowMarkerPosition)
+            }
         }
     }
 
@@ -110,6 +114,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 title.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0)
                 val snippet : TextView = view.findViewById(R.id.info_window_snippet)
                 snippet.text = marker.snippet.split("icon=")[0]
+                openedWindowMarkerPosition = marker.position
                 return view
             }
         })
@@ -152,7 +157,31 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         mSearchMarker?.tag = MARKER_SEARCH_TAG
         mLastLatLng = latLng
         setUpdateScreen(true)
-        getWeather(latLng)
+        if (arguments != null && arguments!!.containsKey(ARG_CITIES_DATA)) {
+            val cities: List<City> = arguments!!.getParcelableArrayList(ARG_CITIES_DATA)!!
+            updateMapMarkers(cities)
+            setCitiesForList(cities)
+            val openedWindow:LatLng? = arguments!!.getParcelable(ARG_OPENED_INFO_WINDOW)
+            openedWindow?.let {
+                openedWindowMarkerPosition = openedWindow
+                mMarkers.forEach {
+                    if (it.value.position == openedWindowMarkerPosition) {
+                        it.value.showInfoWindow()
+                        openedWindowMarkerPosition = it.value.position
+                    }
+                }
+                isInfoWindowOpened = true
+            }
+            arguments?.remove(ARG_CITIES_DATA)
+            setUpdateScreen(false)
+        } else {
+            getWeather(latLng)
+        }
+    }
+
+    private fun setCitiesForList(cities: List<City>){
+        val listFragment = activity?.supportFragmentManager?.fragments!![1] as ListFragment
+        listFragment.onWeatherGot(cities)
     }
 
     private fun getWeather(latLng : LatLng) {
@@ -178,8 +207,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                     }
                     updateMapMarkers(cities)
                     setUpdateScreen(false)
-                    val listFragment = activity?.supportFragmentManager?.fragments!![1] as ListFragment
-                    listFragment.onWeatherGot(cities)
+                    setCitiesForList(cities)
                 }
             })
     }
@@ -226,11 +254,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    private fun isLocationEnabled() = try {
-        val lm = context?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
-    } catch (e : Exception) {
-        false
+    private fun isLocationEnabled(): Boolean{
+        val manager = activity!!.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                || manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
     private fun getLocation() {
@@ -247,8 +274,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                         override fun onLocationResult(location : LocationResult?) {
                             location?.let {
                                 val latLng = LatLng(it.lastLocation.latitude, it.lastLocation.longitude)
-                                setSearchMarker(latLng)
-                                moveCameraTo(latLng, DEFAULT_ZOOM)
+                                activity?.let {
+                                    setSearchMarker(latLng)
+                                    moveCameraTo(latLng, DEFAULT_ZOOM)
+                                }
                             }
                         }
                     }, null)
@@ -326,6 +355,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         private const val ARG_CAMERA_ZOOM = "camera_zoom"
         private const val ARG_POINT_LATITUDE = "point_latitude"
         private const val ARG_POINT_LONGITUDE = "point_longitude"
+        private const val ARG_CITIES_DATA = "cities_data"
+        private const val ARG_OPENED_INFO_WINDOW = "opened_window"
 
         @JvmStatic
         fun newInstance() : MapFragment = MapFragment()
