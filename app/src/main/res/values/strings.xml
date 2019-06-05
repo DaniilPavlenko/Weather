@@ -19,5 +19,5 @@
     <string name="connection_error">Отсутствует подключение</string>
     <string name="retry">Повторить</string>
     <string name="geo_disabled">Геолокация отключена</string>
-    <string name="close">Закрыть</string>
+    <string name="back">Назад</string>
 </resources>
