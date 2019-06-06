@@ -37,7 +37,7 @@ import ru.dpav.weather.util.Util.Companion.bitmapDescriptorFromVector
 import ru.dpav.weather.util.Util.Companion.isGooglePlayServicesAvailable
 import java.io.IOException
 
-class MapFragment : Fragment(), OnMapReadyCallback {
+class MapFragment: Fragment(), OnMapReadyCallback, WeatherApi.ResponseListener {
     private lateinit var mMap : GoogleMap
     private lateinit var mFusedLocationProviderClient : FusedLocationProviderClient
     private var mSearchMarker : Marker? = null
@@ -81,7 +81,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
 
     override fun onSaveInstanceState(outState : Bundle) {
-        if (::mMap.isInitialized && ::mLastLatLng.isInitialized) {
+        if (::mMap.isInitialized && ::mLastLatLng.isInitialized && mLastLatLng.longitude != 0e0) {
             outState.putDouble(ARG_CAMERA_LATITUDE, mMap.cameraPosition.target.latitude)
             outState.putDouble(ARG_CAMERA_LONGITUDE, mMap.cameraPosition.target.longitude)
             outState.putFloat(ARG_CAMERA_ZOOM, mMap.cameraPosition.zoom)
@@ -95,6 +95,11 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 outState.putParcelable(ARG_OPENED_INFO_WINDOW, openedWindowMarkerPosition)
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        WeatherApi.getInstance().detachListener()
     }
 
     override fun onMapReady(googleMap : GoogleMap?) {
@@ -162,6 +167,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         } else {
             moveToStartPosition()
         }
+        WeatherApi.getInstance().attachListener(this)
     }
 
     private fun setSearchMarker(latLng : LatLng) {
@@ -216,20 +222,31 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 }
 
                 override fun onResponse(call : Call<WeatherResponse>, response : Response<WeatherResponse>) {
-                    activity ?: return
-                    val cities = response.body()?.cities
-                    if (cities == null) {
-                        Toast.makeText(activity, response.body()?.message, Toast.LENGTH_SHORT).show()
-                        return
+                    if (activity != null) {
+                        processApiResponse(response)
+                    } else {
+                        WeatherApi.getInstance().setUnfinishedResponse(response)
                     }
-                    setUpdateScreen(false)
-                    if (mCities == cities) {
-                        return
-                    }
-                    updateMapMarkers(cities)
-                    setCitiesForList(cities)
                 }
             })
+    }
+
+    fun processApiResponse(response: Response<WeatherResponse>){
+        val cities = response.body()?.cities
+        if (cities == null) {
+            Toast.makeText(activity, response.body()?.message, Toast.LENGTH_SHORT).show()
+            return
+        }
+        setUpdateScreen(false)
+        if (isListenGeolocation && mCities == cities) {
+            return
+        }
+        updateMapMarkers(cities)
+        setCitiesForList(cities)
+    }
+
+    override fun onUnfinishedResponse(response: Response<WeatherResponse>) {
+        processApiResponse(response)
     }
 
     private fun updateMapMarkers(cities : List<City>?) {
