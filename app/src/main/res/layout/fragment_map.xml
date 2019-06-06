@@ -8,6 +8,14 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:name="com.google.android.gms.maps.SupportMapFragment"/>
+	<ImageButton
+		android:layout_width="48dp"
+		android:layout_height="48dp"
+		android:id="@+id/location_listen_button"
+		android:background="@drawable/location_button"
+		android:layout_gravity="bottom|end"
+		android:layout_margin="@dimen/margin_small"
+		android:contentDescription="@string/enable_or_disable_geo"/>
 	<FrameLayout
 		android:clickable="true"
 		android:id="@+id/map_update_layout"

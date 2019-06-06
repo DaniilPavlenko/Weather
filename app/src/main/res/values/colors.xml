@@ -6,4 +6,5 @@
     <color name="tabUnselectedTextColor">#bbb</color>
     <color name="white">#fff</color>
     <color name="cityNameColor">#333</color>
+    <color name="disabledLocationButton">#80008577</color>
 </resources>
