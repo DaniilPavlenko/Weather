@@ -41,6 +41,7 @@ class WeatherApi {
 		listener = responseListener
 		unfinishedResponse?.let {
 			listener?.onUnfinishedResponse(it)
+			unfinishedResponse = null
 		}
 	}
 
