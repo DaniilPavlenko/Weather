@@ -388,12 +388,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, WeatherApi.ResponseListener 
 	}
 
 	private fun enableGeoListen() {
-		if (isLocationEnabled()) {
+		if (isLocationEnabled() && hasLocationPermission()) {
 			mLocationListenButton.isActivated = true
 			isListenGeolocation = true
-			mLocationListenButton.isActivated = true
 			getLocation()
 		} else {
+			askPermission()
 			showGeoDisabled()
 		}
 	}
@@ -407,7 +407,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, WeatherApi.ResponseListener 
 	private fun disableGeoListen() {
 		mLocationListenButton.isActivated = false
 		isListenGeolocation = false
-		mLocationListenButton.isActivated = false
 	}
 
 	interface OnWeatherGotCallback {
