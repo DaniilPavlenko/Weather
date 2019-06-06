@@ -6,30 +6,30 @@ import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
 data class Coordinates(
-    @SerializedName("lat") @Expose val latitude: Double,
-    @SerializedName("lon") @Expose val longitude: Double): Parcelable {
+	@SerializedName("lat") @Expose val latitude: Double,
+	@SerializedName("lon") @Expose val longitude: Double) : Parcelable {
 
-    constructor(parcel: Parcel): this(
-        parcel.readDouble(),
-        parcel.readDouble()
-    )
+	constructor(parcel: Parcel) : this(
+		parcel.readDouble(),
+		parcel.readDouble()
+	)
 
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeDouble(latitude)
-        parcel.writeDouble(longitude)
-    }
+	override fun writeToParcel(parcel: Parcel, flags: Int) {
+		parcel.writeDouble(latitude)
+		parcel.writeDouble(longitude)
+	}
 
-    override fun describeContents(): Int {
-        return 0
-    }
+	override fun describeContents(): Int {
+		return 0
+	}
 
-    companion object CREATOR: Parcelable.Creator<Coordinates> {
-        override fun createFromParcel(parcel: Parcel): Coordinates {
-            return Coordinates(parcel)
-        }
+	companion object CREATOR : Parcelable.Creator<Coordinates> {
+		override fun createFromParcel(parcel: Parcel): Coordinates {
+			return Coordinates(parcel)
+		}
 
-        override fun newArray(size: Int): Array<Coordinates?> {
-            return arrayOfNulls(size)
-        }
-    }
+		override fun newArray(size: Int): Array<Coordinates?> {
+			return arrayOfNulls(size)
+		}
+	}
 }

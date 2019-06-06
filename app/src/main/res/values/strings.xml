@@ -1,24 +1,25 @@
 <resources>
-    <string name="app_name">Погода</string>
-    <string name="map">Карта</string>
-    <string name="list">Список</string>
-    <string name="google_maps_api_key" translatable="false">AIzaSyDo0D4g2WtPxUlXlF82-OzOl5GvlHPQRtQ</string>
-    <string name="open_weather_api_key" translatable="false">58e49723652bbfd84d7021b8f146c685</string>
-    <string name="defaultLatitude">47.2357137</string>
-    <string name="defaultLongitude">39.701505</string>
-    <string name="marker_snippet" formatted="true">Температура: %+d°C
-        \nВетер: %d м/с
-        \nОблачность: %d%%
-        \nДавление: %d мм
-        icon=%s</string>
-    <string name="detail_temperature">%+d°C</string>
-    <string name="detail_wind">Ветер: %d м/с</string>
-    <string name="detail_cloudy">Облачность: %d%%</string>
-    <string name="detail_humidity">Влажность: %d%%</string>
-    <string name="detail_pressure">Давление: %d мм</string>
-    <string name="connection_error">Отсутствует подключение</string>
-    <string name="retry">Повторить</string>
-    <string name="geo_disabled">Геолокация отключена</string>
-    <string name="back">Назад</string>
+	<string name="app_name">Погода</string>
+	<string name="map">Карта</string>
+	<string name="list">Список</string>
+	<string name="google_maps_api_key" translatable="false">AIzaSyDo0D4g2WtPxUlXlF82-OzOl5GvlHPQRtQ</string>
+	<string name="open_weather_api_key" translatable="false">58e49723652bbfd84d7021b8f146c685</string>
+	<string name="defaultLatitude">47.2357137</string>
+	<string name="defaultLongitude">39.701505</string>
+	<string name="marker_snippet" formatted="true">Температура: %+d°C
+		\nВетер: %d м/с
+		\nОблачность: %d%%
+		\nДавление: %d мм
+		icon=%s
+	</string>
+	<string name="detail_temperature">%+d°C</string>
+	<string name="detail_wind">Ветер: %d м/с</string>
+	<string name="detail_cloudy">Облачность: %d%%</string>
+	<string name="detail_humidity">Влажность: %d%%</string>
+	<string name="detail_pressure">Давление: %d мм</string>
+	<string name="connection_error">Отсутствует подключение</string>
+	<string name="retry">Повторить</string>
+	<string name="geo_disabled">Геолокация отключена</string>
+	<string name="back">Назад</string>
 	<string name="enable_or_disable_geo">Enable or disable geolocation</string>
 </resources>
