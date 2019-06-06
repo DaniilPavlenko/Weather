@@ -5,25 +5,25 @@ import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-data class Clouds(@SerializedName("all") @Expose internal val all: Int): Parcelable {
+data class Clouds(@SerializedName("all") @Expose internal val all: Int) : Parcelable {
 
-    constructor(parcel: Parcel): this(parcel.readInt())
+	constructor(parcel: Parcel) : this(parcel.readInt())
 
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(all)
-    }
+	override fun writeToParcel(parcel: Parcel, flags: Int) {
+		parcel.writeInt(all)
+	}
 
-    override fun describeContents(): Int {
-        return 0
-    }
+	override fun describeContents(): Int {
+		return 0
+	}
 
-    companion object CREATOR: Parcelable.Creator<Clouds> {
-        override fun createFromParcel(parcel: Parcel): Clouds {
-            return Clouds(parcel)
-        }
+	companion object CREATOR : Parcelable.Creator<Clouds> {
+		override fun createFromParcel(parcel: Parcel): Clouds {
+			return Clouds(parcel)
+		}
 
-        override fun newArray(size: Int): Array<Clouds?> {
-            return arrayOfNulls(size)
-        }
-    }
+		override fun newArray(size: Int): Array<Clouds?> {
+			return arrayOfNulls(size)
+		}
+	}
 }
