@@ -14,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import com.google.android.gms.common.api.GoogleApiClient
@@ -45,7 +46,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private var mCities : List<City> = ArrayList()
     private lateinit var mUpdateScreen : FrameLayout
     private var isInfoWindowOpened : Boolean = false
+    private var isListenGeolocation: Boolean = false
     private lateinit var openedWindowMarkerPosition: LatLng
+    private lateinit var mLocationListenButton: ImageButton
 
     override fun onCreateView(
         inflater : LayoutInflater, container : ViewGroup?,
@@ -53,6 +56,14 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     ) : View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
         mUpdateScreen = view.findViewById(R.id.map_update_layout)
+        mLocationListenButton = view.findViewById(R.id.location_listen_button)
+        mLocationListenButton.setOnClickListener {
+            if (mLocationListenButton.isActivated) {
+                disableGeoListen()
+            } else {
+                enableGeoListen()
+            }
+        }
         if (isGooglePlayServicesAvailable(activity!!)) {
             setUpdateScreen(true)
             mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity!!)
@@ -77,6 +88,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             outState.putDouble(ARG_POINT_LATITUDE, mLastLatLng.latitude)
             outState.putDouble(ARG_POINT_LONGITUDE, mLastLatLng.longitude)
             outState.putParcelableArrayList(ARG_CITIES_DATA, mCities as ArrayList)
+            if (isListenGeolocation) {
+                outState.putBoolean(ARG_IS_LISTEN_GEOLOCATION, true)
+            }
             if (isInfoWindowOpened) {
                 outState.putParcelable(ARG_OPENED_INFO_WINDOW, openedWindowMarkerPosition)
             }
@@ -86,8 +100,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap : GoogleMap?) {
         mMap = googleMap ?: return
         mMap.uiSettings.isMapToolbarEnabled = false
+        mMap.uiSettings.isMyLocationButtonEnabled = true
         mMap.setOnMapClickListener {
             if (!isInfoWindowOpened) {
+                disableGeoListen()
                 setSearchMarker(it)
                 moveCameraTo(it, mMap.cameraPosition.zoom)
             } else {
@@ -129,19 +145,20 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             cityFragment.show(activity?.supportFragmentManager, "dialog_city")
         }
         if (arguments != null) {
-            moveCameraTo(
-                LatLng(
+            isListenGeolocation = arguments!!.getBoolean(ARG_IS_LISTEN_GEOLOCATION, false)
+            if (isListenGeolocation) {
+                enableGeoListen()
+            } else {
+                moveCameraTo(LatLng(
                     arguments!!.getDouble(ARG_CAMERA_LATITUDE),
                     arguments!!.getDouble(ARG_CAMERA_LONGITUDE)
-                ),
-                arguments!!.getFloat(ARG_CAMERA_ZOOM)
-            )
-            setSearchMarker(
-                LatLng(
+                ), arguments!!.getFloat(ARG_CAMERA_ZOOM))
+
+                setSearchMarker(LatLng(
                     arguments!!.getDouble(ARG_POINT_LATITUDE),
                     arguments!!.getDouble(ARG_POINT_LONGITUDE)
-                )
-            )
+                ))
+            }
         } else {
             moveToStartPosition()
         }
@@ -156,7 +173,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         )
         mSearchMarker?.tag = MARKER_SEARCH_TAG
         mLastLatLng = latLng
-        setUpdateScreen(true)
         if (arguments != null && arguments!!.containsKey(ARG_CITIES_DATA)) {
             val cities: List<City> = arguments!!.getParcelableArrayList(ARG_CITIES_DATA)!!
             updateMapMarkers(cities)
@@ -186,6 +202,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     private fun getWeather(latLng : LatLng) {
         activity ?: return
+        if (!isListenGeolocation) setUpdateScreen(true)
         WeatherApi.getInstance().getWeatherByCoordinates(activity as Context, latLng,
             object : Callback<WeatherResponse> {
                 override fun onFailure(call : Call<WeatherResponse>, t : Throwable) {
@@ -205,8 +222,11 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                         Toast.makeText(activity, response.body()?.message, Toast.LENGTH_SHORT).show()
                         return
                     }
-                    updateMapMarkers(cities)
                     setUpdateScreen(false)
+                    if (mCities == cities) {
+                        return
+                    }
+                    updateMapMarkers(cities)
                     setCitiesForList(cities)
                 }
             })
@@ -243,9 +263,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private fun moveToStartPosition() {
         if (hasLocationPermission()) {
             if (!isLocationEnabled()) {
-                view?.let {itView ->
-                    Snackbar.make(itView, R.string.geo_disabled, Snackbar.LENGTH_LONG).show()
-                }
+                showGeoDisabled()
                 moveToDefaultPosition()
             }
             getLocation()
@@ -263,9 +281,12 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private fun getLocation() {
         val locationRequest = LocationRequest.create()
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        locationRequest.interval = 0
-        locationRequest.numUpdates = 1
-        val googleApiClient : GoogleApiClient = GoogleApiClient.Builder(activity!!).addApi(LocationServices.API)
+        locationRequest.interval = 5000
+        locationRequest.smallestDisplacement = 1f
+        if (!isListenGeolocation) {
+            locationRequest.numUpdates = 1
+        }
+        val googleApiClient = GoogleApiClient.Builder(activity!!).addApi(LocationServices.API)
             .addConnectionCallbacks(object : GoogleApiClient.ConnectionCallbacks {
                 override fun onConnectionSuspended(p0 : Int) {}
                 @SuppressLint("MissingPermission")
@@ -274,13 +295,29 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                         override fun onLocationResult(location : LocationResult?) {
                             location?.let {
                                 val latLng = LatLng(it.lastLocation.latitude, it.lastLocation.longitude)
-                                activity?.let {
-                                    setSearchMarker(latLng)
-                                    moveCameraTo(latLng, DEFAULT_ZOOM)
+                                if (!::mLastLatLng.isInitialized) {
+                                    mLastLatLng = latLng
+                                    val zoom = if (mMap.cameraPosition.zoom > 3) {
+                                        mMap.cameraPosition.zoom
+                                    } else {
+                                        DEFAULT_ZOOM
+                                    }
+                                    locateToPosition(latLng, zoom)
+                                } else if (isListenGeolocation) {
+                                    locateToPosition(latLng, mMap.cameraPosition.zoom)
+                                } else if (!isListenGeolocation) {
+                                    mFusedLocationProviderClient.removeLocationUpdates(this)
                                 }
                             }
                         }
                     }, null)
+                }
+
+                private fun locateToPosition(latLng: LatLng, zoom: Float) {
+                    activity?.let {
+                        setSearchMarker(latLng)
+                        moveCameraTo(latLng, zoom)
+                    }
                 }
             })
             .build()
@@ -342,6 +379,29 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         mUpdateScreen.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
+    private fun enableGeoListen() {
+        if (isLocationEnabled()) {
+            mLocationListenButton.isActivated = true
+            isListenGeolocation = true
+            mLocationListenButton.isActivated = true
+            getLocation()
+        } else {
+            showGeoDisabled()
+        }
+    }
+
+    private fun showGeoDisabled() {
+        view?.let {itView ->
+            Snackbar.make(itView, R.string.geo_disabled, Snackbar.LENGTH_LONG).show()
+        }
+    }
+
+    private fun disableGeoListen() {
+        mLocationListenButton.isActivated = false
+        isListenGeolocation = false
+        mLocationListenButton.isActivated = false
+    }
+
     interface OnWeatherGotCallback {
         fun onWeatherGot(cities : List<City>?)
     }
@@ -357,6 +417,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         private const val ARG_POINT_LONGITUDE = "point_longitude"
         private const val ARG_CITIES_DATA = "cities_data"
         private const val ARG_OPENED_INFO_WINDOW = "opened_window"
+        private const val ARG_IS_LISTEN_GEOLOCATION = "listen_geolocation"
 
         @JvmStatic
         fun newInstance() : MapFragment = MapFragment()

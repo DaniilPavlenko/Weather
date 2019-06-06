@@ -20,4 +20,5 @@
     <string name="retry">Повторить</string>
     <string name="geo_disabled">Геолокация отключена</string>
     <string name="back">Назад</string>
+	<string name="enable_or_disable_geo">Enable or disable geolocation</string>
 </resources>
