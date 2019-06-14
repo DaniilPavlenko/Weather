@@ -2,6 +2,7 @@ package ru.dpav.weather.presenters
 
 import android.content.Context
 import com.arellomobile.mvp.InjectViewState
+import com.arellomobile.mvp.MvpFacade
 import com.arellomobile.mvp.MvpPresenter
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
@@ -25,8 +26,15 @@ class MapPresenter : MvpPresenter<MapView>() {
 		mContext = context
 	}
 
+	fun onSetMarker(latLng: LatLng) {
+		viewState.setMapMarker(latLng)
+		getWeather(latLng)
+	}
+
 	fun onMapClick(latLng: LatLng) {
 		viewState.setMapMarker(latLng)
+		viewState.showUpdateScreen()
+		viewState.disableLocation()
 		getWeather(latLng)
 	}
 
@@ -35,7 +43,6 @@ class MapPresenter : MvpPresenter<MapView>() {
 	}
 
 	private fun getWeather(latLng: LatLng) {
-		viewState.showUpdateScreen()
 		WeatherApi.getInstance().getWeatherByCoordinates(mContext, latLng,
 			object : Callback<WeatherResponse> {
 				override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
@@ -63,6 +70,7 @@ class MapPresenter : MvpPresenter<MapView>() {
 		mCities = cities
 		viewState.updateMapMarkers(cities)
 		viewState.hideUpdateScreen()
+		(MvpFacade.getInstance().presenterStore.get(ListPresenter.TAG_PRESENTER) as ListPresenter).onCitiesUpdate(cities)
 	}
 
 	fun onMarkerClick(marker: Marker) {
@@ -78,6 +86,7 @@ class MapPresenter : MvpPresenter<MapView>() {
 	}
 
 	fun onLocationEnable() {
+		viewState.showUpdateScreen()
 		viewState.enableLocation()
 	}
 
@@ -98,10 +107,11 @@ class MapPresenter : MvpPresenter<MapView>() {
 	}
 
 	fun onMapReady() {
-		viewState.hideUpdateScreen()
 		if (isFirstCreate) {
 			isFirstCreate = false
 			viewState.moveToStartPosition()
+		} else {
+			viewState.hideUpdateScreen()
 		}
 	}
 

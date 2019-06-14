@@ -3,7 +3,6 @@ package ru.dpav.weather
 import android.animation.Animator
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
-import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -11,13 +10,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.arellomobile.mvp.MvpAppCompatFragment
+import com.arellomobile.mvp.presenter.InjectPresenter
+import com.arellomobile.mvp.presenter.PresenterType
 import ru.dpav.weather.api.City
+import ru.dpav.weather.presenters.ListPresenter
 import ru.dpav.weather.util.Util
+import ru.dpav.weather.views.ListView
 
-class ListFragment : Fragment(), MapFragment.OnWeatherGotCallback {
+class ListFragment : MvpAppCompatFragment(), ListView {
 	private lateinit var mRecyclerView: RecyclerView
 	private var mCities: ArrayList<City> = ArrayList()
 	private var savedOpenedPosition: Int = -1
+
+	@InjectPresenter(type = PresenterType.GLOBAL, tag = TAG_PRESENTER)
+	lateinit var mListPresenter: ListPresenter
 
 	override fun onCreateView(inflater: LayoutInflater,
 		container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -25,9 +32,6 @@ class ListFragment : Fragment(), MapFragment.OnWeatherGotCallback {
 		mRecyclerView = view.findViewById(R.id.cities_recycler_view)
 		val viewManager = LinearLayoutManager(activity)
 		val viewAdapter = CitiesAdapter(savedOpenedPosition, mRecyclerView, mCities)
-		if (savedInstanceState != null) {
-			savedOpenedPosition = savedInstanceState.getInt(ARG_OPENED_POSITION, -1)
-		}
 		with(mRecyclerView) {
 			setHasFixedSize(true)
 			layoutManager = viewManager
@@ -36,19 +40,13 @@ class ListFragment : Fragment(), MapFragment.OnWeatherGotCallback {
 		return view
 	}
 
-	override fun onSaveInstanceState(outState: Bundle) {
-		outState.putInt(ARG_OPENED_POSITION, (mRecyclerView.adapter as CitiesAdapter).openedPosition)
+	override fun updateCitiesList(cities: List<City>) {
+		mCities = cities as ArrayList<City>
+		(mRecyclerView.adapter as CitiesAdapter).setCities(cities)
 	}
 
-	override fun onWeatherGot(cities: List<City>?) {
-		cities?.let {
-			(mRecyclerView.adapter as CitiesAdapter).setCities(cities)
-		}
-		if (savedOpenedPosition != -1) {
-			(mRecyclerView.adapter as CitiesAdapter).openedPosition = savedOpenedPosition
-			mRecyclerView.smoothScrollToPosition(savedOpenedPosition)
-			savedOpenedPosition = -1
-		}
+	override fun onSaveInstanceState(outState: Bundle) {
+		outState.putInt(ARG_OPENED_POSITION, (mRecyclerView.adapter as CitiesAdapter).openedPosition)
 	}
 
 	private class CitiesAdapter(var openedPosition: Int, private var recyclerView: RecyclerView,
@@ -156,6 +154,7 @@ class ListFragment : Fragment(), MapFragment.OnWeatherGotCallback {
 
 	companion object {
 		private const val ARG_OPENED_POSITION: String = "opened_position"
+		const val TAG_PRESENTER: String = "listPresenter"
 
 		@JvmStatic
 		fun newInstance(): ListFragment = ListFragment()
