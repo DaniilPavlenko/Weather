@@ -40,8 +40,6 @@ class MapFragment : MvpMapFragment(), MapView {
 	private var mMarkers: LinkedHashMap<Int, Marker> = LinkedHashMap()
 	private lateinit var mUpdateScreen: FrameLayout
 	private var isInfoWindowOpened: Boolean = false
-	private var isListenGeolocation: Boolean = false
-	private lateinit var openedWindowMarkerPosition: LatLng
 	private lateinit var mLocationListenButton: ImageButton
 	private lateinit var detailFragment: CityDetailFragment
 
@@ -83,7 +81,6 @@ class MapFragment : MvpMapFragment(), MapView {
 		map.uiSettings.isMyLocationButtonEnabled = false
 		map.setOnMapClickListener {
 			if (!isInfoWindowOpened) {
-				mMapPresenter.onLocationDisable()
 				mMapPresenter.onMapClick(it)
 				mMapPresenter.onCameraMoveTo(it, map.cameraPosition.zoom)
 			} else {
@@ -109,7 +106,6 @@ class MapFragment : MvpMapFragment(), MapView {
 				title.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0)
 				val snippet: TextView = view.findViewById(R.id.info_window_snippet)
 				snippet.text = marker.snippet.split("icon=")[0]
-				openedWindowMarkerPosition = marker.position
 				return view
 			}
 		})
@@ -159,11 +155,6 @@ class MapFragment : MvpMapFragment(), MapView {
 		Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
 	}
 
-	private fun setCitiesForList(cities: List<City>) {
-		val listFragment = activity?.supportFragmentManager?.fragments!![1] as ListFragment
-		listFragment.onWeatherGot(cities)
-	}
-
 	override fun updateMapMarkers(cities: List<City>) {
 		mMarkers.values.forEach { (it).remove() }
 		mMarkers.clear()
@@ -186,7 +177,6 @@ class MapFragment : MvpMapFragment(), MapView {
 					)
 			)
 		}
-		setCitiesForList(cities)
 	}
 
 	override fun moveToStartPosition() {
@@ -195,7 +185,7 @@ class MapFragment : MvpMapFragment(), MapView {
 				mMapPresenter.onLocationIsDisabled()
 				mMapPresenter.onMoveToDefaultPosition()
 			}
-			getLocation()
+			getLocation(true)
 		} else {
 			mMapPresenter.onMoveToDefaultPosition()
 		}
@@ -207,12 +197,13 @@ class MapFragment : MvpMapFragment(), MapView {
 			|| manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
 	}
 
-	private fun getLocation() {
+	private fun getLocation(isGetOnce: Boolean) {
 		val locationRequest = LocationRequest.create()
 		locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-		locationRequest.interval = 5000
+		locationRequest.interval = 7000
+		locationRequest.fastestInterval = 4000
 		locationRequest.smallestDisplacement = 1f
-		if (!isListenGeolocation) {
+		if (isGetOnce) {
 			locationRequest.numUpdates = 1
 		}
 		val googleApiClient = GoogleApiClient.Builder(activity!!).addApi(LocationServices.API)
@@ -220,38 +211,37 @@ class MapFragment : MvpMapFragment(), MapView {
 				override fun onConnectionSuspended(p0: Int) {}
 				@SuppressLint("MissingPermission")
 				override fun onConnected(p0: Bundle?) {
-					mFusedLocationProviderClient.requestLocationUpdates(locationRequest, object : LocationCallback() {
-						override fun onLocationResult(location: LocationResult?) {
-							location?.let {
-								val latLng = LatLng(it.lastLocation.latitude, it.lastLocation.longitude)
-								if (!::mLastLatLng.isInitialized) {
-									mLastLatLng = latLng
-									val zoom = if (map.cameraPosition.zoom > 3) {
-										map.cameraPosition.zoom
-									} else {
-										DEFAULT_ZOOM
-									}
-									locateToPosition(latLng, zoom)
-								} else if (isListenGeolocation) {
-									locateToPosition(latLng, map.cameraPosition.zoom)
-								} else if (!isListenGeolocation) {
-									mFusedLocationProviderClient.removeLocationUpdates(this)
-								}
-							}
-						}
-					}, null)
-				}
-
-				private fun locateToPosition(latLng: LatLng, zoom: Float) {
-					activity?.let {
-						mMapPresenter.onMapClick(latLng)
-						mMapPresenter.onCameraMoveTo(latLng, map.cameraPosition.zoom)
-						moveCameraTo(latLng, zoom)
-					}
+					mFusedLocationProviderClient.requestLocationUpdates(locationRequest, mLocationCallBack, null)
 				}
 			})
 			.build()
 		googleApiClient.connect()
+	}
+
+	var mLocationCallBack = object : LocationCallback() {
+		override fun onLocationResult(location: LocationResult?) {
+			location?.let {
+				val latLng = LatLng(it.lastLocation.latitude, it.lastLocation.longitude)
+				if (!::mLastLatLng.isInitialized) {
+					mLastLatLng = latLng
+					val zoom = if (map.cameraPosition.zoom > 3) {
+						map.cameraPosition.zoom
+					} else {
+						DEFAULT_ZOOM
+					}
+					locateToPosition(latLng, zoom)
+					return
+				}
+				locateToPosition(latLng, map.cameraPosition.zoom)
+			}
+		}
+
+		private fun locateToPosition(latLng: LatLng, zoom: Float) {
+			activity?.let {
+				mMapPresenter.onSetMarker(latLng)
+				mMapPresenter.onCameraMoveTo(latLng, zoom)
+			}
+		}
 	}
 
 	override fun askPermission() {
@@ -311,8 +301,7 @@ class MapFragment : MvpMapFragment(), MapView {
 	override fun enableLocation() {
 		if (isLocationEnabled() && hasLocationPermission()) {
 			mLocationListenButton.isActivated = true
-			isListenGeolocation = true
-			getLocation()
+			getLocation(false)
 		} else {
 			askPermission()
 			mMapPresenter.onLocationIsDisabled()
@@ -327,11 +316,7 @@ class MapFragment : MvpMapFragment(), MapView {
 
 	override fun disableLocation() {
 		mLocationListenButton.isActivated = false
-		isListenGeolocation = false
-	}
-
-	interface OnWeatherGotCallback {
-		fun onWeatherGot(cities: List<City>?)
+		mFusedLocationProviderClient.removeLocationUpdates(mLocationCallBack)
 	}
 
 	companion object {
