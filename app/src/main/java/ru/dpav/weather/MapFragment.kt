@@ -8,7 +8,6 @@ import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
@@ -17,38 +16,44 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import com.arellomobile.mvp.presenter.InjectPresenter
+import com.arellomobile.mvp.presenter.PresenterType
+import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.*
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import ru.dpav.weather.api.City
-import ru.dpav.weather.api.WeatherApi
-import ru.dpav.weather.api.WeatherResponse
+import ru.dpav.weather.presenters.MapPresenter
 import ru.dpav.weather.util.Util
 import ru.dpav.weather.util.Util.Companion.bitmapDescriptorFromVector
 import ru.dpav.weather.util.Util.Companion.isGooglePlayServicesAvailable
-import java.io.IOException
+import ru.dpav.weather.views.MapView
 
-class MapFragment : Fragment(), OnMapReadyCallback, WeatherApi.ResponseListener {
-	private lateinit var mMap: GoogleMap
+class MapFragment : MvpMapFragment(), MapView {
+	override val mapContainerId: Int = R.id.map
 	private lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
 	private var mSearchMarker: Marker? = null
 	private lateinit var mLastLatLng: LatLng
 	private var mMarkers: LinkedHashMap<Int, Marker> = LinkedHashMap()
-	private var mCities: List<City> = ArrayList()
 	private lateinit var mUpdateScreen: FrameLayout
 	private var isInfoWindowOpened: Boolean = false
 	private var isListenGeolocation: Boolean = false
 	private lateinit var openedWindowMarkerPosition: LatLng
 	private lateinit var mLocationListenButton: ImageButton
+	private lateinit var detailFragment: CityDetailFragment
+
+	@InjectPresenter(type = PresenterType.GLOBAL)
+	lateinit var mMapPresenter: MapPresenter
+
+	@ProvidePresenter(type = PresenterType.GLOBAL)
+	fun provideMapPresenter(): MapPresenter {
+		val presenter = MapPresenter()
+		presenter.setContext(activity!!.applicationContext)
+		return presenter
+	}
 
 	override fun onCreateView(inflater: LayoutInflater,
 		container: ViewGroup?, savedState: Bundle?): View? {
@@ -57,71 +62,42 @@ class MapFragment : Fragment(), OnMapReadyCallback, WeatherApi.ResponseListener 
 		mLocationListenButton = view.findViewById(R.id.location_listen_button)
 		mLocationListenButton.setOnClickListener {
 			if (mLocationListenButton.isActivated) {
-				disableGeoListen()
+				mMapPresenter.onLocationDisable()
 			} else {
-				enableGeoListen()
+				mMapPresenter.onLocationEnable()
 			}
 		}
 		if (isGooglePlayServicesAvailable(activity!!)) {
-			setUpdateScreen(true)
+			mMapPresenter.onServicesAvailable()
 			mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity!!)
 		} else {
-			setUpdateScreen(false)
+			mMapPresenter.onServicesUnavailable()
 		}
-		val mapFragment: SupportMapFragment? = childFragmentManager.findFragmentById(R.id.map) as? SupportMapFragment
-		mapFragment?.getMapAsync(this)
-		if (savedState != null) {
-			arguments = savedState
-		} else {
-			askPermission()
-		}
+		mMapPresenter.onAskPermission()
 		return view
 	}
 
-	override fun onSaveInstanceState(outState: Bundle) {
-		if (::mMap.isInitialized && ::mLastLatLng.isInitialized && mLastLatLng.longitude != 0e0) {
-			outState.putDouble(ARG_CAMERA_LATITUDE, mMap.cameraPosition.target.latitude)
-			outState.putDouble(ARG_CAMERA_LONGITUDE, mMap.cameraPosition.target.longitude)
-			outState.putFloat(ARG_CAMERA_ZOOM, mMap.cameraPosition.zoom)
-			outState.putDouble(ARG_POINT_LATITUDE, mLastLatLng.latitude)
-			outState.putDouble(ARG_POINT_LONGITUDE, mLastLatLng.longitude)
-			outState.putParcelableArrayList(ARG_CITIES_DATA, mCities as ArrayList)
-			if (isListenGeolocation) {
-				outState.putBoolean(ARG_IS_LISTEN_GEOLOCATION, true)
-			}
-			if (isInfoWindowOpened) {
-				outState.putParcelable(ARG_OPENED_INFO_WINDOW, openedWindowMarkerPosition)
-			}
-		}
-	}
-
-	override fun onDestroy() {
-		super.onDestroy()
-		WeatherApi.getInstance().detachListener()
-	}
-
-	override fun onMapReady(googleMap: GoogleMap?) {
-		mMap = googleMap ?: return
-		mMap.uiSettings.isMapToolbarEnabled = false
-		mMap.uiSettings.isMyLocationButtonEnabled = true
-		mMap.setOnMapClickListener {
+	override fun onMapReady() {
+		super.onMapReady()
+		map.uiSettings.isMapToolbarEnabled = false
+		map.uiSettings.isMyLocationButtonEnabled = false
+		map.setOnMapClickListener {
 			if (!isInfoWindowOpened) {
-				disableGeoListen()
-				setSearchMarker(it)
-				moveCameraTo(it, mMap.cameraPosition.zoom)
+				mMapPresenter.onLocationDisable()
+				mMapPresenter.onMapClick(it)
+				mMapPresenter.onCameraMoveTo(it, map.cameraPosition.zoom)
 			} else {
-				isInfoWindowOpened = false
+				mMapPresenter.onInfoWindowClose()
 			}
 		}
-		mMap.setOnMarkerClickListener {
+		map.setOnMarkerClickListener {
 			if (it.tag == MARKER_SEARCH_TAG) {
 				return@setOnMarkerClickListener true
 			}
-			it.showInfoWindow()
-			isInfoWindowOpened = true
+			mMapPresenter.onMarkerClick(it)
 			true
 		}
-		mMap.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
+		map.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
 			override fun getInfoWindow(marker: Marker?): View? = null
 			@SuppressLint("InflateParams")
 			override fun getInfoContents(marker: Marker?): View? {
@@ -137,65 +113,50 @@ class MapFragment : Fragment(), OnMapReadyCallback, WeatherApi.ResponseListener 
 				return view
 			}
 		})
-		mMap.setOnInfoWindowClickListener {
-			var position = 0
-			for (i in 0 until mCities.size) {
-				if (mCities[i].name == it.title) {
-					position = i
-				}
-			}
-			val cityFragment = CityDetailFragment.newInstance(mCities[position])
-			cityFragment.show(activity?.supportFragmentManager, "dialog_city")
+		map.setOnInfoWindowClickListener {
+			mMapPresenter.onInfoWindowClick(it)
 		}
-		if (arguments != null) {
-			isListenGeolocation = arguments!!.getBoolean(ARG_IS_LISTEN_GEOLOCATION, false)
-			if (isListenGeolocation) {
-				enableGeoListen()
-			} else {
-				moveCameraTo(LatLng(
-					arguments!!.getDouble(ARG_CAMERA_LATITUDE),
-					arguments!!.getDouble(ARG_CAMERA_LONGITUDE)
-				), arguments!!.getFloat(ARG_CAMERA_ZOOM))
-				setSearchMarker(LatLng(
-					arguments!!.getDouble(ARG_POINT_LATITUDE),
-					arguments!!.getDouble(ARG_POINT_LONGITUDE)
-				))
-			}
-		} else {
-			moveToStartPosition()
-		}
-		WeatherApi.getInstance().attachListener(this)
+		mMapPresenter.onMapReady()
 	}
 
-	private fun setSearchMarker(latLng: LatLng) {
+	override fun openInfoWindow(marker: Marker) {
+		isInfoWindowOpened = true
+		mMarkers.forEach {
+			if (it.value.title == marker.title) {
+				it.value.showInfoWindow()
+			}
+		}
+	}
+
+	override fun closeInfoWindow() {
+		isInfoWindowOpened = false
+	}
+
+	override fun showDetailInfo(city: City) {
+		detailFragment = CityDetailFragment.newInstance(city)
+		detailFragment.show(activity?.supportFragmentManager, "dialog_city")
+	}
+
+	override fun setMapMarker(latLng: LatLng) {
 		mSearchMarker?.remove()
-		mSearchMarker = mMap.addMarker(
+		mSearchMarker = map.addMarker(
 			MarkerOptions()
 				.position(latLng)
 				.icon(bitmapDescriptorFromVector(activity!!, R.drawable.marker_search))
 		)
 		mSearchMarker?.tag = MARKER_SEARCH_TAG
-		mLastLatLng = latLng
-		if (arguments != null && arguments!!.containsKey(ARG_CITIES_DATA)) {
-			val cities: List<City> = arguments!!.getParcelableArrayList(ARG_CITIES_DATA)!!
-			updateMapMarkers(cities)
-			setCitiesForList(cities)
-			val openedWindow: LatLng? = arguments!!.getParcelable(ARG_OPENED_INFO_WINDOW)
-			openedWindow?.let {
-				openedWindowMarkerPosition = openedWindow
-				mMarkers.forEach {
-					if (it.value.position == openedWindowMarkerPosition) {
-						it.value.showInfoWindow()
-						openedWindowMarkerPosition = it.value.position
-					}
-				}
-				isInfoWindowOpened = true
-			}
-			arguments?.remove(ARG_CITIES_DATA)
-			setUpdateScreen(false)
-		} else {
-			getWeather(latLng)
+	}
+
+	override fun showConnectionError(latLng: LatLng) {
+		view?.let {
+			Snackbar.make(it, R.string.connection_error, Snackbar.LENGTH_INDEFINITE)
+				.setAction(R.string.retry) { mMapPresenter.onMapClick(latLng) }
+				.show()
 		}
+	}
+
+	override fun showToastError(message: String) {
+		Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
 	}
 
 	private fun setCitiesForList(cities: List<City>) {
@@ -203,59 +164,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, WeatherApi.ResponseListener 
 		listFragment.onWeatherGot(cities)
 	}
 
-	private fun getWeather(latLng: LatLng) {
-		activity ?: return
-		if (!isListenGeolocation) setUpdateScreen(true)
-		WeatherApi.getInstance().getWeatherByCoordinates(activity as Context, latLng,
-			object : Callback<WeatherResponse> {
-				override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
-					if (t is IOException) {
-						view?.let {
-							Snackbar.make(it, R.string.connection_error, Snackbar.LENGTH_INDEFINITE)
-								.setAction(R.string.retry) { getWeather(latLng) }
-								.show()
-						}
-					}
-				}
-
-				override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
-					if (activity != null) {
-						processApiResponse(response)
-					} else {
-						WeatherApi.getInstance().setUnfinishedResponse(response)
-					}
-				}
-			})
-	}
-
-	fun processApiResponse(response: Response<WeatherResponse>) {
-		val cities = response.body()?.cities
-		if (cities == null) {
-			Toast.makeText(activity, response.body()?.message, Toast.LENGTH_SHORT).show()
-			return
-		}
-		setUpdateScreen(false)
-		if (isListenGeolocation && mCities == cities) {
-			return
-		}
-		updateMapMarkers(cities)
-		setCitiesForList(cities)
-	}
-
-	override fun onUnfinishedResponse(response: Response<WeatherResponse>) {
-		processApiResponse(response)
-	}
-
-	private fun updateMapMarkers(cities: List<City>?) {
+	override fun updateMapMarkers(cities: List<City>) {
 		mMarkers.values.forEach { (it).remove() }
 		mMarkers.clear()
-		if (cities == null) {
-			return
-		}
-		mCities = cities
-		mCities.forEach {
+		cities.forEach {
 			val latLng = LatLng(it.coordinates!!.latitude, it.coordinates.longitude)
-			mMarkers[it.id] = mMap.addMarker(
+			mMarkers[it.id] = map.addMarker(
 				MarkerOptions()
 					.position(latLng)
 					.icon(bitmapDescriptorFromVector(activity as Context, R.drawable.marker_city))
@@ -272,17 +186,18 @@ class MapFragment : Fragment(), OnMapReadyCallback, WeatherApi.ResponseListener 
 					)
 			)
 		}
+		setCitiesForList(cities)
 	}
 
-	private fun moveToStartPosition() {
+	override fun moveToStartPosition() {
 		if (hasLocationPermission()) {
 			if (!isLocationEnabled()) {
-				showGeoDisabled()
-				moveToDefaultPosition()
+				mMapPresenter.onLocationIsDisabled()
+				mMapPresenter.onMoveToDefaultPosition()
 			}
 			getLocation()
 		} else {
-			moveToDefaultPosition()
+			mMapPresenter.onMoveToDefaultPosition()
 		}
 	}
 
@@ -311,14 +226,14 @@ class MapFragment : Fragment(), OnMapReadyCallback, WeatherApi.ResponseListener 
 								val latLng = LatLng(it.lastLocation.latitude, it.lastLocation.longitude)
 								if (!::mLastLatLng.isInitialized) {
 									mLastLatLng = latLng
-									val zoom = if (mMap.cameraPosition.zoom > 3) {
-										mMap.cameraPosition.zoom
+									val zoom = if (map.cameraPosition.zoom > 3) {
+										map.cameraPosition.zoom
 									} else {
 										DEFAULT_ZOOM
 									}
 									locateToPosition(latLng, zoom)
 								} else if (isListenGeolocation) {
-									locateToPosition(latLng, mMap.cameraPosition.zoom)
+									locateToPosition(latLng, map.cameraPosition.zoom)
 								} else if (!isListenGeolocation) {
 									mFusedLocationProviderClient.removeLocationUpdates(this)
 								}
@@ -329,7 +244,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, WeatherApi.ResponseListener 
 
 				private fun locateToPosition(latLng: LatLng, zoom: Float) {
 					activity?.let {
-						setSearchMarker(latLng)
+						mMapPresenter.onMapClick(latLng)
+						mMapPresenter.onCameraMoveTo(latLng, map.cameraPosition.zoom)
 						moveCameraTo(latLng, zoom)
 					}
 				}
@@ -338,7 +254,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, WeatherApi.ResponseListener 
 		googleApiClient.connect()
 	}
 
-	private fun askPermission() {
+	override fun askPermission() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			if (!hasLocationPermission()) {
 				requestPermissions(arrayOf(
@@ -357,16 +273,17 @@ class MapFragment : Fragment(), OnMapReadyCallback, WeatherApi.ResponseListener 
 		return false
 	}
 
-	private fun moveToDefaultPosition() {
-		val defaultLatLng = LatLng(
-			getString(R.string.defaultLatitude).toDouble(),
-			getString(R.string.defaultLongitude).toDouble())
-		setSearchMarker(defaultLatLng)
-		moveCameraTo(defaultLatLng, DEFAULT_ZOOM)
+	override fun moveToDefaultPosition(latLng: LatLng) {
+		mMapPresenter.onMapClick(latLng)
+		mMapPresenter.onCameraMoveTo(latLng, DEFAULT_ZOOM)
 	}
 
-	private fun moveCameraTo(latLng: LatLng, zoom: Float) {
-		mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom))
+	override fun moveCameraTo(latLng: LatLng, zoom: Float?) {
+		if (zoom == null) {
+			map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, map.cameraPosition.zoom))
+		} else {
+			map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom))
+		}
 	}
 
 	override fun onRequestPermissionsResult(requestCode: Int,
@@ -383,28 +300,32 @@ class MapFragment : Fragment(), OnMapReadyCallback, WeatherApi.ResponseListener 
 		}
 	}
 
-	private fun setUpdateScreen(isVisible: Boolean) {
-		mUpdateScreen.visibility = if (isVisible) View.VISIBLE else View.GONE
+	override fun showUpdateScreen() {
+		mUpdateScreen.visibility = View.VISIBLE
 	}
 
-	private fun enableGeoListen() {
+	override fun hideUpdateScreen() {
+		mUpdateScreen.visibility = View.GONE
+	}
+
+	override fun enableLocation() {
 		if (isLocationEnabled() && hasLocationPermission()) {
 			mLocationListenButton.isActivated = true
 			isListenGeolocation = true
 			getLocation()
 		} else {
 			askPermission()
-			showGeoDisabled()
+			mMapPresenter.onLocationIsDisabled()
 		}
 	}
 
-	private fun showGeoDisabled() {
+	override fun showLocationIsDisabled() {
 		view?.let { itView ->
 			Snackbar.make(itView, R.string.geo_disabled, Snackbar.LENGTH_LONG).show()
 		}
 	}
 
-	private fun disableGeoListen() {
+	override fun disableLocation() {
 		mLocationListenButton.isActivated = false
 		isListenGeolocation = false
 	}
@@ -417,14 +338,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, WeatherApi.ResponseListener 
 		private const val REQUEST_PERMISSIONS_LOCATION: Int = 111
 		private const val DEFAULT_ZOOM: Float = 10.5F
 		private const val MARKER_SEARCH_TAG = 5
-		private const val ARG_CAMERA_LATITUDE = "camera_latitude"
-		private const val ARG_CAMERA_LONGITUDE = "camera_longitude"
-		private const val ARG_CAMERA_ZOOM = "camera_zoom"
-		private const val ARG_POINT_LATITUDE = "point_latitude"
-		private const val ARG_POINT_LONGITUDE = "point_longitude"
-		private const val ARG_CITIES_DATA = "cities_data"
-		private const val ARG_OPENED_INFO_WINDOW = "opened_window"
-		private const val ARG_IS_LISTEN_GEOLOCATION = "listen_geolocation"
 
 		@JvmStatic
 		fun newInstance(): MapFragment = MapFragment()
