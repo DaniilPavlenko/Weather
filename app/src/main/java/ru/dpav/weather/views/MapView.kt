@@ -32,8 +32,10 @@ interface MapView : MvpView {
 
 	fun moveToDefaultPosition(latLng: LatLng)
 
+	@StateStrategyType(value = AddToEndSingleByTagStateStrategy::class, tag = TAG_LOCATION_LISTEN)
 	fun enableLocation()
 
+	@StateStrategyType(value = AddToEndSingleByTagStateStrategy::class, tag = TAG_LOCATION_LISTEN)
 	fun disableLocation()
 
 	fun showUpdateScreen()
@@ -51,5 +53,6 @@ interface MapView : MvpView {
 
 	companion object {
 		const val TAG_INFO_WINDOW: String = "tagInfoWindow"
+		const val TAG_LOCATION_LISTEN: String = "tagLocationListen"
 	}
 }
