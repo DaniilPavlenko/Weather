@@ -98,9 +98,7 @@ class MapPresenter : MvpPresenter<MapView>() {
 		viewState.showLocationIsDisabled()
 	}
 
-	fun onServicesAvailable() {
-		viewState.showUpdateScreen()
-	}
+	fun onServicesAvailable() {}
 
 	fun onServicesUnavailable() {
 		viewState.hideUpdateScreen()
@@ -110,8 +108,6 @@ class MapPresenter : MvpPresenter<MapView>() {
 		if (isFirstCreate) {
 			isFirstCreate = false
 			viewState.moveToStartPosition()
-		} else {
-			viewState.hideUpdateScreen()
 		}
 	}
 

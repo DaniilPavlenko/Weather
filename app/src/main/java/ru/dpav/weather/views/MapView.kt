@@ -38,8 +38,10 @@ interface MapView : MvpView {
 	@StateStrategyType(value = AddToEndSingleByTagStateStrategy::class, tag = TAG_LOCATION_LISTEN)
 	fun disableLocation()
 
+	@StateStrategyType(AddToEndSingleStrategy::class)
 	fun showUpdateScreen()
 
+	@StateStrategyType(AddToEndSingleStrategy::class)
 	fun hideUpdateScreen()
 
 	fun showConnectionError(latLng: LatLng)
