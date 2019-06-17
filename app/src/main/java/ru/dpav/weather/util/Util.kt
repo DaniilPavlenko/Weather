@@ -29,6 +29,8 @@ class Util {
 				else -> R.drawable.weather_icon_01
 			}
 
+		fun getPressureInMmHg(hpa: Float): Int = (hpa / 1.333f).toInt()
+
 		fun isGooglePlayServicesAvailable(activity: Activity): Boolean {
 			val googleApiAvailability: GoogleApiAvailability = GoogleApiAvailability.getInstance()
 			val status: Int = googleApiAvailability.isGooglePlayServicesAvailable(activity)

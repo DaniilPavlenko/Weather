@@ -21,7 +21,8 @@ import com.arellomobile.mvp.presenter.PresenterType
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.*
-import com.google.android.gms.maps.*
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -171,7 +172,7 @@ class MapFragment : MvpMapFragment(), MapView {
 							it.main!!.temp.toInt(),
 							it.wind!!.speed.toInt(),
 							it.clouds!!.all,
-							it.main.pressure.toInt(),
+							Util.getPressureInMmHg(it.main.pressure),
 							it.weather!![0].icon
 						)
 					)
