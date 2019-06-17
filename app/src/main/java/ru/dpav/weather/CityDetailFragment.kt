@@ -2,16 +2,16 @@ package ru.dpav.weather
 
 import android.app.Dialog
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import ru.dpav.weather.api.City
-import android.graphics.drawable.ColorDrawable
 import android.view.Window
 import android.widget.Button
 import android.widget.TextView
+import ru.dpav.weather.api.City
 import ru.dpav.weather.util.Util
 
 class CityDetailFragment : DialogFragment() {
@@ -33,7 +33,7 @@ class CityDetailFragment : DialogFragment() {
 
 		val temperature = view.findViewById<TextView>(R.id.city_detail_temperature)
 		temperature.text = getString(R.string.detail_temperature, city.main?.temp?.toInt())
-		val icon = Util.getWeatherIconByName(city.weather!![0].icon!!)
+		val icon = Util.getWeatherIconByName(city.weather!![0].icon)
 		temperature.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0)
 
 		view.findViewById<TextView>(R.id.city_detail_title).text = city.name
@@ -45,10 +45,10 @@ class CityDetailFragment : DialogFragment() {
 			getString(R.string.detail_cloudy, city.clouds?.all)
 
 		view.findViewById<TextView>(R.id.city_detail_pressure).text =
-			getString(R.string.detail_pressure, city.main?.pressure?.toInt())
+			getString(R.string.detail_pressure, Util.getPressureInMmHg(city.main!!.pressure))
 
 		view.findViewById<TextView>(R.id.city_detail_humidity).text =
-			getString(R.string.detail_humidity, city.main?.humidity?.toInt())
+			getString(R.string.detail_humidity, city.main.humidity.toInt())
 
 		view.findViewById<Button>(R.id.close_button).setOnClickListener {
 			dialog.cancel()

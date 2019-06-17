@@ -44,7 +44,7 @@ class CityHolder(itemView: View, parentDelegate: MvpDelegate<*>)
 		mTemperature.setCompoundDrawablesWithIntrinsicBounds(0, 0, icon, 0)
 		mWind.text = context.getString(R.string.detail_wind, city.wind!!.speed.toInt())
 		mCloudy.text = context.getString(R.string.detail_cloudy, city.clouds!!.all)
-		mPressure.text = context.getString(R.string.detail_pressure, city.main.pressure.toInt())
+		mPressure.text = context.getString(R.string.detail_pressure, Util.getPressureInMmHg(city.main.pressure))
 		mDetailInfo.visibility = if (isOpened) View.VISIBLE else View.GONE
 		mDetailInfo.setOnClickListener {
 			val cityDetailFragment = CityDetailFragment.newInstance(city)
