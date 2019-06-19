@@ -12,9 +12,12 @@
 		<item name="android:textAllCaps">false</item>
 		<item name="android:textColor">@color/tabUnselectedTextColor</item>
 	</style>
-	<style name="CityDetailInfo">
+	<style name="CityDropDownInfo">
 		<item name="android:textColor">@android:color/white</item>
 		<item name="android:textSize">18sp</item>
 		<item name="android:paddingTop">@dimen/padding_small</item>
+	</style>
+	<style name="CityDetailInfo" parent="CityDropDownInfo">
+		<item name="android:textColor">@color/cityNameColor</item>
 	</style>
 </resources>

@@ -3,37 +3,51 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:orientation="vertical"
 	android:layout_height="wrap_content"
 	android:layout_width="match_parent">
+	<TextView
+		android:id="@+id/city_detail_title"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:maxLines="1"
+		android:ellipsize="end"
+		android:padding="@dimen/padding"
+		android:textSize="@dimen/list_item_title_size"
+		android:textColor="@color/cityNameColor"
+		android:background="@drawable/background_title"
+		tools:text="Ростов-на-Дону"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"/>
 	<android.support.constraint.ConstraintLayout
 		android:id="@+id/city_detail"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
 		android:visibility="gone"
-		app:layout_constraintTop_toBottomOf="@id/city_detail_title"
 		android:background="@drawable/background_detail"
 		android:padding="@dimen/padding"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content">
+		app:layout_constraintTop_toBottomOf="@id/city_detail_title"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent">
 		<TextView
+			android:id="@+id/city_detail_temperature"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_vertical"
 			android:textStyle="bold"
 			android:textColor="@android:color/white"
-			android:id="@+id/city_detail_temperature"
+			android:textSize="@dimen/large_text_size"
+			android:gravity="center_vertical"
+			android:drawableEnd="@drawable/weather_icon_01"
+			android:drawableRight="@drawable/weather_icon_01"
+			tools:text="+15"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
-			app:layout_constraintBottom_toBottomOf="parent"
-			tools:text="+15*"
-			android:textSize="24sp"
-			android:layout_gravity="center_vertical"
-			android:layout_width="wrap_content"
-			android:gravity="center_vertical"
-			android:layout_height="wrap_content"
-			android:drawableEnd="@drawable/weather_icon_01"
-			android:drawableRight="@drawable/weather_icon_01"/>
+			app:layout_constraintBottom_toBottomOf="parent"/>
 		<LinearLayout
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
-			android:id="@+id/linearLayout"
 			app:layout_constraintTop_toTopOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintEnd_toStartOf="@id/city_detail_temperature">
@@ -42,32 +56,20 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				tools:text="Ветер: 8 м/с"
-				style="@style/CityDetailInfo"
-				android:padding="0dp"/>
+				android:padding="0dp"
+				style="@style/CityDropDownInfo"/>
 			<TextView
 				android:id="@+id/city_detail_cloudy"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				style="@style/CityDetailInfo"
-				tools:text="Облачность: 40%"/>
+				tools:text="Облачность: 40%"
+				style="@style/CityDropDownInfo"/>
 			<TextView
 				android:id="@+id/city_detail_pressure"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				style="@style/CityDetailInfo"
-				tools:text="Давление: 1040 мм"/>
+				tools:text="Давление: 760 мм"
+				style="@style/CityDropDownInfo"/>
 		</LinearLayout>
 	</android.support.constraint.ConstraintLayout>
-	<TextView
-		app:layout_constraintTop_toTopOf="parent"
-		android:background="@drawable/background_title"
-		android:id="@+id/city_detail_title"
-		android:padding="@dimen/padding"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:maxLines="1"
-		android:ellipsize="end"
-		android:textSize="20sp"
-		tools:text="Ростов-на-Дону"
-		android:textColor="@color/cityNameColor"/>
 </android.support.constraint.ConstraintLayout>

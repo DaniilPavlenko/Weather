@@ -1,11 +1,9 @@
 package ru.dpav.weather.api
 
-import android.content.Context
 import com.google.android.gms.maps.model.LatLng
 import retrofit2.Callback
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import ru.dpav.weather.R
 
 class WeatherApi {
 	private val retrofit: Retrofit
@@ -17,12 +15,11 @@ class WeatherApi {
 			.build()
 	}
 
-	fun getWeatherByCoordinates(context: Context, latLng: LatLng, callback: Callback<WeatherResponse>) {
+	fun getWeatherByCoordinates(
+		latLng: LatLng,
+		callback: Callback<WeatherResponse>) {
 		val openWeatherService = retrofit.create(OpenWeatherService::class.java)
-		val call = openWeatherService.getWeather(
-			latLng.latitude, latLng.longitude,
-			context.getString(R.string.open_weather_api_key)
-		)
+		val call = openWeatherService.getWeather(latLng.latitude, latLng.longitude)
 		call.enqueue(callback)
 	}
 

@@ -8,42 +8,46 @@ import com.arellomobile.mvp.MvpDelegate
 import com.arellomobile.mvp.MvpFacade
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
+import kotlinx.android.synthetic.main.item_row_city.view.*
 import ru.dpav.weather.api.City
 import ru.dpav.weather.presenters.ListPresenter
 import ru.dpav.weather.util.Util
 import ru.dpav.weather.views.ListView
 
-class CityHolder(itemView: View, parentDelegate: MvpDelegate<*>)
+class CityHolder(
+	itemView: View,
+	parentDelegate: MvpDelegate<*>,
+	private val mParentPresenter: ListPresenter)
 	: MvpViewHolder(parentDelegate, itemView), ListView {
 	private var mCity: City? = null
-	private var mTitle: TextView = itemView.findViewById(R.id.city_detail_title)
-	private var mTemperature: TextView = itemView.findViewById(R.id.city_detail_temperature)
-	private var mWind: TextView = itemView.findViewById(R.id.city_detail_wind)
-	private var mCloudy: TextView = itemView.findViewById(R.id.city_detail_cloudy)
-	private var mPressure: TextView = itemView.findViewById(R.id.city_detail_pressure)
-	private var mDetailInfo: ConstraintLayout = itemView.findViewById(R.id.city_detail)
+	private var mTitle: TextView = itemView.city_detail_title
+	private var mTemperature: TextView = itemView.city_detail_temperature
+	private var mWind: TextView = itemView.city_detail_wind
+	private var mCloudy: TextView = itemView.city_detail_cloudy
+	private var mPressure: TextView = itemView.city_detail_pressure
+	private var mDetailInfo: ConstraintLayout = itemView.city_detail
 
 	@InjectPresenter
-	lateinit var mListPresenter: ListPresenter
+	lateinit var mHolderPresenter: ListPresenter
 
 	@ProvidePresenter
-	fun provideAccountPresenter(): ListPresenter {
+	fun provideListPresenter(): ListPresenter {
 		MvpFacade.getInstance()
 		return ListPresenter(mCity!!.id)
 	}
 
-	fun bind(city: City, position: Int, isOpened: Boolean) {
+	fun bind(city: City, isOpened: Boolean) {
 		destroyMvpDelegate()
 		mCity = city
 		createMvpDelegate()
 		mTitle.text = city.name
-		mTitle.setOnClickListener { onTitleClick(position) }
+		mTitle.setOnClickListener { onTitleClick() }
 		val context = mTitle.context
-		mTemperature.text = context.getString(R.string.detail_temperature, city.main!!.temp.toInt())
-		val icon = Util.getWeatherIconByName(city.weather?.get(0)!!.icon)
+		mTemperature.text = context.getString(R.string.detail_temperature, city.main.temp.toInt())
+		val icon = Util.getWeatherIconByName(city.weather[0].icon)
 		mTemperature.setCompoundDrawablesWithIntrinsicBounds(0, 0, icon, 0)
-		mWind.text = context.getString(R.string.detail_wind, city.wind!!.speed.toInt())
-		mCloudy.text = context.getString(R.string.detail_cloudy, city.clouds!!.all)
+		mWind.text = context.getString(R.string.detail_wind, city.wind.speed.toInt())
+		mCloudy.text = context.getString(R.string.detail_cloudy, city.clouds.cloudy)
 		mPressure.text = context.getString(R.string.detail_pressure, Util.getPressureInMmHg(city.main.pressure))
 		mDetailInfo.visibility = if (isOpened) View.VISIBLE else View.GONE
 		mDetailInfo.setOnClickListener {
@@ -58,15 +62,13 @@ class CityHolder(itemView: View, parentDelegate: MvpDelegate<*>)
 		return if (mCity == null) null else mCity!!.id.toString()
 	}
 
-	private fun onTitleClick(position: Int) {
+	private fun onTitleClick() {
 		if (!isDetailVisible()) {
-			mListPresenter.onShowDropDownInfo(position)
-			(MvpFacade.getInstance().presenterStore.get(ListFragment.TAG_PRESENTER) as ListPresenter)
-				.onShowDropDownInfo(position)
+			mHolderPresenter.onShowDropDownInfo(adapterPosition)
+			mParentPresenter.onShowDropDownInfo(adapterPosition)
 		} else {
-			mListPresenter.onHideDropDownInfo()
-			(MvpFacade.getInstance().presenterStore.get(ListFragment.TAG_PRESENTER) as ListPresenter)
-				.onHideDropDownInfo()
+			mHolderPresenter.onHideDropDownInfo()
+			mParentPresenter.onHideDropDownInfo()
 		}
 	}
 
@@ -78,7 +80,5 @@ class CityHolder(itemView: View, parentDelegate: MvpDelegate<*>)
 		mDetailInfo.visibility = View.GONE
 	}
 
-	override fun updateCitiesList(cities: List<City>) {
-		//Do not need for this class
-	}
+	override fun updateCitiesList(cities: List<City>) {}
 }

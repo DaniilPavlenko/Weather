@@ -3,9 +3,6 @@
 	<string name="map">Карта</string>
 	<string name="list">Список</string>
 	<string name="google_maps_api_key" translatable="false">AIzaSyDo0D4g2WtPxUlXlF82-OzOl5GvlHPQRtQ</string>
-	<string name="open_weather_api_key" translatable="false">58e49723652bbfd84d7021b8f146c685</string>
-	<string name="defaultLatitude">47.2357137</string>
-	<string name="defaultLongitude">39.701505</string>
 	<string name="marker_snippet" formatted="true">Температура: %+d°C
 		\nВетер: %d м/с
 		\nОблачность: %d%%
