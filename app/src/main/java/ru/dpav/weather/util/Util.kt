@@ -26,12 +26,13 @@ class Util {
 				"10n" -> R.drawable.weather_icon_10n
 				"11d", "11n" -> R.drawable.weather_icon_11
 				"13d", "13n" -> R.drawable.weather_icon_13
+				"50d" -> R.drawable.weather_icon_50
 				else -> R.drawable.weather_icon_01
 			}
 
 		fun getPressureInMmHg(hpa: Float): Int = (hpa / 1.333f).toInt()
 
-		fun isGooglePlayServicesAvailable(activity: Activity): Boolean {
+		fun isGooglePlayAvailable(activity: Activity): Boolean {
 			val googleApiAvailability: GoogleApiAvailability = GoogleApiAvailability.getInstance()
 			val status: Int = googleApiAvailability.isGooglePlayServicesAvailable(activity)
 			if (status != ConnectionResult.SUCCESS) {
@@ -43,7 +44,9 @@ class Util {
 			return true
 		}
 
-		fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor {
+		fun bitmapDescriptorFromVector(
+			context: Context,
+			vectorResId: Int): BitmapDescriptor {
 			val vectorDrawable = ContextCompat.getDrawable(context, vectorResId)
 				?: return BitmapDescriptorFactory.defaultMarker()
 			vectorDrawable.setBounds(0, 0, vectorDrawable.intrinsicWidth, vectorDrawable.intrinsicHeight)

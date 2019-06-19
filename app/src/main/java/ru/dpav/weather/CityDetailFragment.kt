@@ -9,8 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
-import android.widget.Button
-import android.widget.TextView
+import kotlinx.android.synthetic.main.fragment_city_detail.view.*
 import ru.dpav.weather.api.City
 import ru.dpav.weather.util.Util
 
@@ -22,55 +21,62 @@ class CityDetailFragment : DialogFragment() {
 		return dialog
 	}
 
-	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+	override fun onCreateView(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
 		savedInstanceState: Bundle?): View? {
 		dialog?.window?.apply {
 			requestFeature(Window.FEATURE_NO_TITLE)
 			setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 		}
 		val view = inflater.inflate(R.layout.fragment_city_detail, container, false)
-		val city: City = arguments!!.getParcelable(ARG_CITY_KEY)!!
+		arguments?.let {
+			view.city_detail_title.text = it.getString(ARG_CITY_NAME)
 
-		val temperature = view.findViewById<TextView>(R.id.city_detail_temperature)
-		temperature.text = getString(R.string.detail_temperature, city.main?.temp?.toInt())
-		val icon = Util.getWeatherIconByName(city.weather!![0].icon)
-		temperature.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0)
+			view.city_detail_temperature.text = getString(R.string.detail_temperature, it.getInt(ARG_TEMPERATURE))
 
-		view.findViewById<TextView>(R.id.city_detail_title).text = city.name
+			val icon = Util.getWeatherIconByName(it.getString(ARG_WEATHER_ICON)!!)
+			view.city_detail_temperature.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0)
 
-		view.findViewById<TextView>(R.id.city_detail_wind).text =
-			getString(R.string.detail_wind, city.wind?.speed?.toInt())
+			view.city_detail_wind.text = getString(R.string.detail_wind, it.getInt(ARG_WIND))
 
-		view.findViewById<TextView>(R.id.city_detail_cloudy).text =
-			getString(R.string.detail_cloudy, city.clouds?.all)
+			view.city_detail_cloudy.text = getString(R.string.detail_cloudy, it.getInt(ARG_CLOUDY))
 
-		view.findViewById<TextView>(R.id.city_detail_pressure).text =
-			getString(R.string.detail_pressure, Util.getPressureInMmHg(city.main!!.pressure))
+			view.city_detail_pressure.text = getString(R.string.detail_pressure, it.getInt(ARG_PRESSURE))
 
-		view.findViewById<TextView>(R.id.city_detail_humidity).text =
-			getString(R.string.detail_humidity, city.main.humidity.toInt())
+			view.city_detail_humidity.text = getString(R.string.detail_humidity, it.getInt(ARG_HUMIDITY))
 
-		view.findViewById<Button>(R.id.close_button).setOnClickListener {
-			dialog.cancel()
+			view.close_button.setOnClickListener { dialog.cancel() }
 		}
 		return view
 	}
 
 	override fun onStart() {
 		super.onStart()
-		val dialog = dialog
-		if (dialog != null) {
-			dialog.window!!.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-			dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+		dialog?.window?.let {
+			it.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+			it.setBackgroundDrawable(ColorDrawable(Color.WHITE))
 		}
 	}
 
 	companion object {
-		private const val ARG_CITY_KEY = "city_key"
+		private const val ARG_CITY_NAME = "city_name"
+		private const val ARG_TEMPERATURE = "temperature"
+		private const val ARG_WEATHER_ICON = "weather_icon"
+		private const val ARG_WIND = "wind"
+		private const val ARG_CLOUDY = "cloudy"
+		private const val ARG_PRESSURE = "pressure"
+		private const val ARG_HUMIDITY = "humidity"
 
 		fun newInstance(city: City): CityDetailFragment = CityDetailFragment().apply {
 			arguments = Bundle().apply {
-				putParcelable(ARG_CITY_KEY, city)
+				putString(ARG_CITY_NAME, city.name)
+				putInt(ARG_TEMPERATURE, city.main.temp.toInt())
+				putString(ARG_WEATHER_ICON, city.weather[0].icon)
+				putInt(ARG_WIND, city.wind.speed.toInt())
+				putInt(ARG_CLOUDY, city.clouds.cloudy)
+				putInt(ARG_PRESSURE, Util.getPressureInMmHg(city.main.pressure))
+				putInt(ARG_HUMIDITY, city.main.humidity.toInt())
 			}
 		}
 	}

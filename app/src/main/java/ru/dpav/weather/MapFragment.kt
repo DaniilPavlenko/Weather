@@ -17,8 +17,6 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import com.arellomobile.mvp.presenter.InjectPresenter
-import com.arellomobile.mvp.presenter.PresenterType
-import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -26,39 +24,34 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import kotlinx.android.synthetic.main.fragment_map.view.*
+import kotlinx.android.synthetic.main.info_window_weather.view.*
 import ru.dpav.weather.api.City
 import ru.dpav.weather.presenters.MapPresenter
 import ru.dpav.weather.util.Util
 import ru.dpav.weather.util.Util.Companion.bitmapDescriptorFromVector
-import ru.dpav.weather.util.Util.Companion.isGooglePlayServicesAvailable
+import ru.dpav.weather.util.Util.Companion.isGooglePlayAvailable
 import ru.dpav.weather.views.MapView
 
 class MapFragment : MvpMapFragment(), MapView {
 	override val mapContainerId: Int = R.id.map
-	private lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
+	private lateinit var mFusedLocation: FusedLocationProviderClient
 	private var mSearchMarker: Marker? = null
-	private lateinit var mLastLatLng: LatLng
+	private var isStartPointShowed: Boolean = false
 	private var mMarkers: LinkedHashMap<Int, Marker> = LinkedHashMap()
 	private lateinit var mUpdateScreen: FrameLayout
-	private var isInfoWindowOpened: Boolean = false
+	private var openedInfoMarker: Marker? = null
 	private lateinit var mLocationListenButton: ImageButton
 	private lateinit var detailFragment: CityDetailFragment
 
-	@InjectPresenter(type = PresenterType.GLOBAL)
+	@InjectPresenter
 	lateinit var mMapPresenter: MapPresenter
-
-	@ProvidePresenter(type = PresenterType.GLOBAL)
-	fun provideMapPresenter(): MapPresenter {
-		val presenter = MapPresenter()
-		presenter.setContext(activity!!.applicationContext)
-		return presenter
-	}
 
 	override fun onCreateView(inflater: LayoutInflater,
 		container: ViewGroup?, savedState: Bundle?): View? {
 		val view = inflater.inflate(R.layout.fragment_map, container, false)
-		mUpdateScreen = view.findViewById(R.id.map_update_layout)
-		mLocationListenButton = view.findViewById(R.id.location_listen_button)
+		mUpdateScreen = view.map_update_layout
+		mLocationListenButton = view.location_listen_button
 		mLocationListenButton.setOnClickListener {
 			if (mLocationListenButton.isActivated) {
 				mMapPresenter.onLocationDisable()
@@ -66,67 +59,72 @@ class MapFragment : MvpMapFragment(), MapView {
 				mMapPresenter.onLocationEnable()
 			}
 		}
-		if (isGooglePlayServicesAvailable(activity!!)) {
+		if (isGooglePlayAvailable(activity!!)) {
 			mMapPresenter.onServicesAvailable()
-			mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity!!)
+			mFusedLocation = LocationServices.getFusedLocationProviderClient(activity!!)
 		} else {
 			mMapPresenter.onServicesUnavailable()
 		}
-		mMapPresenter.onAskPermission()
 		return view
 	}
 
 	override fun onMapReady() {
 		super.onMapReady()
-		map.uiSettings.isMapToolbarEnabled = false
-		map.uiSettings.isMyLocationButtonEnabled = false
-		map.setOnMapClickListener {
-			if (!isInfoWindowOpened) {
-				mMapPresenter.onMapClick(it)
-				mMapPresenter.onCameraMoveTo(it, map.cameraPosition.zoom)
-			} else {
-				mMapPresenter.onInfoWindowClose()
+		with(map) {
+			with(uiSettings) {
+				isMapToolbarEnabled = false
+				isMyLocationButtonEnabled = false
+			}
+			setOnMapClickListener {
+				if (openedInfoMarker == null) {
+					mMapPresenter.onMapClick(it)
+					mMapPresenter.onCameraMoveTo(it, cameraPosition.zoom)
+				} else {
+					mMapPresenter.onInfoWindowClose()
+				}
+			}
+			setOnMarkerClickListener {
+				if (it.tag == MARKER_SEARCH_TAG) {
+					return@setOnMarkerClickListener true
+				}
+				openedInfoMarker = it
+				mMapPresenter.onMarkerClick(it)
+				true
+			}
+			setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
+				override fun getInfoWindow(marker: Marker?): View? = null
+				@SuppressLint("InflateParams")
+				override fun getInfoContents(marker: Marker?): View? {
+					marker ?: return null
+					val view = layoutInflater.inflate(R.layout.info_window_weather, null)
+					val title: TextView = view.info_window_title
+					title.text = marker.title
+					val icon = Util.getWeatherIconByName(marker.snippet.split("icon=")[1])
+					title.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0)
+					val snippet: TextView = view.info_window_snippet
+					snippet.text = marker.snippet.split("icon=")[0]
+					return view
+				}
+			})
+			setOnInfoWindowClickListener {
+				mMapPresenter.onInfoWindowClick(it)
 			}
 		}
-		map.setOnMarkerClickListener {
-			if (it.tag == MARKER_SEARCH_TAG) {
-				return@setOnMarkerClickListener true
-			}
-			mMapPresenter.onMarkerClick(it)
-			true
-		}
-		map.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
-			override fun getInfoWindow(marker: Marker?): View? = null
-			@SuppressLint("InflateParams")
-			override fun getInfoContents(marker: Marker?): View? {
-				marker ?: return null
-				val view = layoutInflater.inflate(R.layout.info_window_weather, null)
-				val title: TextView = view.findViewById(R.id.info_window_title)
-				title.text = marker.title
-				val icon = Util.getWeatherIconByName(marker.snippet.split("icon=")[1])
-				title.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0)
-				val snippet: TextView = view.findViewById(R.id.info_window_snippet)
-				snippet.text = marker.snippet.split("icon=")[0]
-				return view
-			}
-		})
-		map.setOnInfoWindowClickListener {
-			mMapPresenter.onInfoWindowClick(it)
-		}
-		mMapPresenter.onMapReady()
 	}
 
 	override fun openInfoWindow(marker: Marker) {
-		isInfoWindowOpened = true
 		mMarkers.forEach {
 			if (it.value.title == marker.title) {
 				it.value.showInfoWindow()
+				openedInfoMarker = it.value
+				return@forEach
 			}
 		}
 	}
 
 	override fun closeInfoWindow() {
-		isInfoWindowOpened = false
+		openedInfoMarker?.hideInfoWindow()
+		openedInfoMarker = null
 	}
 
 	override fun showDetailInfo(city: City) {
@@ -160,7 +158,7 @@ class MapFragment : MvpMapFragment(), MapView {
 		mMarkers.values.forEach { (it).remove() }
 		mMarkers.clear()
 		cities.forEach {
-			val latLng = LatLng(it.coordinates!!.latitude, it.coordinates.longitude)
+			val latLng = LatLng(it.coordinates.latitude, it.coordinates.longitude)
 			mMarkers[it.id] = map.addMarker(
 				MarkerOptions()
 					.position(latLng)
@@ -169,11 +167,11 @@ class MapFragment : MvpMapFragment(), MapView {
 					.snippet(
 						getString(
 							R.string.marker_snippet,
-							it.main!!.temp.toInt(),
-							it.wind!!.speed.toInt(),
-							it.clouds!!.all,
+							it.main.temp.toInt(),
+							it.wind.speed.toInt(),
+							it.clouds.cloudy,
 							Util.getPressureInMmHg(it.main.pressure),
-							it.weather!![0].icon
+							it.weather[0].icon
 						)
 					)
 			)
@@ -201,9 +199,9 @@ class MapFragment : MvpMapFragment(), MapView {
 	private fun getLocation(isGetOnce: Boolean) {
 		val locationRequest = LocationRequest.create()
 		locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-		locationRequest.interval = 7000
-		locationRequest.fastestInterval = 4000
-		locationRequest.smallestDisplacement = 1f
+		locationRequest.interval = LOCATION_REQUEST_INTERVAL
+		locationRequest.fastestInterval = LOCATION_REQUEST_FAST_INTERVAL
+		locationRequest.smallestDisplacement = LOCATION_REQUEST_DISPLACEMENT
 		if (isGetOnce) {
 			locationRequest.numUpdates = 1
 		}
@@ -212,7 +210,7 @@ class MapFragment : MvpMapFragment(), MapView {
 				override fun onConnectionSuspended(p0: Int) {}
 				@SuppressLint("MissingPermission")
 				override fun onConnected(p0: Bundle?) {
-					mFusedLocationProviderClient.requestLocationUpdates(locationRequest, mLocationCallBack, null)
+					mFusedLocation.requestLocationUpdates(locationRequest, mLocationCallBack, null)
 				}
 			})
 			.build()
@@ -223,12 +221,12 @@ class MapFragment : MvpMapFragment(), MapView {
 		override fun onLocationResult(location: LocationResult?) {
 			location?.let {
 				val latLng = LatLng(it.lastLocation.latitude, it.lastLocation.longitude)
-				if (!::mLastLatLng.isInitialized) {
-					mLastLatLng = latLng
-					val zoom = if (map.cameraPosition.zoom > 3) {
+				if (!isStartPointShowed) {
+					isStartPointShowed = true
+					val zoom = if (map.cameraPosition.zoom > MAP_INIT_ZOOM) {
 						map.cameraPosition.zoom
 					} else {
-						DEFAULT_ZOOM
+						Constants.DEFAULT_ZOOM
 					}
 					locateToPosition(latLng, zoom)
 					return
@@ -248,33 +246,26 @@ class MapFragment : MvpMapFragment(), MapView {
 	override fun askPermission() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			if (!hasLocationPermission()) {
-				requestPermissions(arrayOf(
-					Manifest.permission.ACCESS_FINE_LOCATION,
-					Manifest.permission.ACCESS_COARSE_LOCATION
-				), REQUEST_PERMISSIONS_LOCATION)
+				requestPermissions(
+					arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+					REQUEST_PERMISSIONS_LOCATION
+				)
 			}
 		}
 	}
 
 	private fun hasLocationPermission(): Boolean {
 		activity?.let {
-			return ContextCompat.checkSelfPermission(it as Context, Manifest.permission.ACCESS_FINE_LOCATION) ==
-				PackageManager.PERMISSION_GRANTED
+			return ContextCompat.checkSelfPermission(
+				it as Context,
+				Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 		}
 		return false
 	}
 
-	override fun moveToDefaultPosition(latLng: LatLng) {
-		mMapPresenter.onMapClick(latLng)
-		mMapPresenter.onCameraMoveTo(latLng, DEFAULT_ZOOM)
-	}
-
 	override fun moveCameraTo(latLng: LatLng, zoom: Float?) {
-		if (zoom == null) {
-			map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, map.cameraPosition.zoom))
-		} else {
-			map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom))
-		}
+		val cameraZoom = zoom ?: map.cameraPosition.zoom
+		map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, cameraZoom))
 	}
 
 	override fun onRequestPermissionsResult(requestCode: Int,
@@ -282,8 +273,7 @@ class MapFragment : MvpMapFragment(), MapView {
 		when (requestCode) {
 			REQUEST_PERMISSIONS_LOCATION -> {
 				if (grantResults.isNotEmpty()
-					&& grantResults[0] == PackageManager.PERMISSION_GRANTED
-				) {
+					&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 					moveToStartPosition()
 				}
 			}
@@ -291,21 +281,22 @@ class MapFragment : MvpMapFragment(), MapView {
 		}
 	}
 
-	override fun showUpdateScreen() {
-		mUpdateScreen.visibility = View.VISIBLE
+	override fun showUpdateScreen(isShow: Boolean) {
+		mUpdateScreen.visibility = if (isShow) View.VISIBLE else View.GONE
 	}
 
-	override fun hideUpdateScreen() {
-		mUpdateScreen.visibility = View.GONE
-	}
-
-	override fun enableLocation() {
-		if (isLocationEnabled() && hasLocationPermission()) {
-			mLocationListenButton.isActivated = true
-			getLocation(false)
+	override fun enableLocation(isEnable: Boolean) {
+		if (isEnable) {
+			if (isLocationEnabled() && hasLocationPermission()) {
+				mLocationListenButton.isActivated = true
+				getLocation(false)
+			} else {
+				askPermission()
+				mMapPresenter.onLocationIsDisabled()
+			}
 		} else {
-			askPermission()
-			mMapPresenter.onLocationIsDisabled()
+			mLocationListenButton.isActivated = false
+			mFusedLocation.removeLocationUpdates(mLocationCallBack)
 		}
 	}
 
@@ -315,15 +306,13 @@ class MapFragment : MvpMapFragment(), MapView {
 		}
 	}
 
-	override fun disableLocation() {
-		mLocationListenButton.isActivated = false
-		mFusedLocationProviderClient.removeLocationUpdates(mLocationCallBack)
-	}
-
 	companion object {
+		private const val LOCATION_REQUEST_INTERVAL: Long = 7000
+		private const val LOCATION_REQUEST_FAST_INTERVAL: Long = 4000
+		private const val LOCATION_REQUEST_DISPLACEMENT: Float = 1F
 		private const val REQUEST_PERMISSIONS_LOCATION: Int = 111
-		private const val DEFAULT_ZOOM: Float = 10.5F
 		private const val MARKER_SEARCH_TAG = 5
+		private const val MAP_INIT_ZOOM = 3
 
 		@JvmStatic
 		fun newInstance(): MapFragment = MapFragment()

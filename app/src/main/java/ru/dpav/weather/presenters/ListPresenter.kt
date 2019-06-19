@@ -2,19 +2,17 @@ package ru.dpav.weather.presenters
 
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
-import ru.dpav.weather.api.City
+import ru.dpav.weather.CitiesRepository
 import ru.dpav.weather.views.ListView
+import java.util.*
 
 @InjectViewState
-class ListPresenter() : MvpPresenter<ListView>() {
+class ListPresenter() : MvpPresenter<ListView>(), Observer {
+
 	private var mCode: Int = 0
 
 	constructor(code: Int) : this() {
 		mCode = code
-	}
-
-	fun onCitiesUpdate(cities: List<City>) {
-		viewState.updateCitiesList(cities)
 	}
 
 	fun onShowDropDownInfo(position: Int) {
@@ -25,7 +23,15 @@ class ListPresenter() : MvpPresenter<ListView>() {
 		viewState.hideDropDownInfo()
 	}
 
-	companion object {
-		const val TAG_PRESENTER = "listPresenter"
+	override fun onFirstViewAttach() {
+		if (mCode == 0) {
+			CitiesRepository.addObserver(this)
+		}
+	}
+
+	override fun update(observable: Observable?, arg: Any?) {
+		viewState.updateCitiesList(
+			(observable as CitiesRepository).cities
+		)
 	}
 }

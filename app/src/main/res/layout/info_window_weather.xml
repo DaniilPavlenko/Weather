@@ -10,12 +10,11 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:gravity="center_vertical"
-		android:ellipsize="end"
-		android:textSize="16sp"
+		android:textSize="@dimen/info_window_city_text_size"
 		android:textStyle="bold"
-		tools:text="Ростов-на-Дону"
 		android:drawableStart="@drawable/weather_icon_01"
-		android:drawableLeft="@drawable/weather_icon_01"/>
+		android:drawableLeft="@drawable/weather_icon_01"
+		tools:text="Ростов-на-Дону"/>
 	<TextView
 		android:id="@+id/info_window_snippet"
 		android:layout_width="match_parent"

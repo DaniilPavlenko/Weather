@@ -1,16 +1,14 @@
 package ru.dpav.weather.presenters
 
-import android.content.Context
 import com.arellomobile.mvp.InjectViewState
-import com.arellomobile.mvp.MvpFacade
 import com.arellomobile.mvp.MvpPresenter
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import ru.dpav.weather.R
-import ru.dpav.weather.api.City
+import ru.dpav.weather.CitiesRepository
+import ru.dpav.weather.Constants
 import ru.dpav.weather.api.WeatherApi
 import ru.dpav.weather.api.WeatherResponse
 import ru.dpav.weather.views.MapView
@@ -18,14 +16,6 @@ import java.io.IOException
 
 @InjectViewState
 class MapPresenter : MvpPresenter<MapView>() {
-	private var mCities: List<City> = ArrayList()
-	private var isFirstCreate = true
-	private lateinit var mContext: Context
-
-	fun setContext(context: Context) {
-		mContext = context
-	}
-
 	fun onSetMarker(latLng: LatLng) {
 		viewState.setMapMarker(latLng)
 		getWeather(latLng)
@@ -33,8 +23,8 @@ class MapPresenter : MvpPresenter<MapView>() {
 
 	fun onMapClick(latLng: LatLng) {
 		viewState.setMapMarker(latLng)
-		viewState.showUpdateScreen()
-		viewState.disableLocation()
+		viewState.showUpdateScreen(true)
+		viewState.enableLocation(false)
 		getWeather(latLng)
 	}
 
@@ -43,7 +33,8 @@ class MapPresenter : MvpPresenter<MapView>() {
 	}
 
 	private fun getWeather(latLng: LatLng) {
-		WeatherApi.getInstance().getWeatherByCoordinates(mContext, latLng,
+		WeatherApi.getInstance().getWeatherByCoordinates(
+			latLng,
 			object : Callback<WeatherResponse> {
 				override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
 					if (t is IOException) {
@@ -63,14 +54,13 @@ class MapPresenter : MvpPresenter<MapView>() {
 			response.body()?.message?.let { viewState.showToastError(it) }
 			return
 		}
-		if (mCities == cities) {
-			viewState.hideUpdateScreen()
+		if (CitiesRepository.cities == cities) {
+			viewState.showUpdateScreen(false)
 			return
 		}
-		mCities = cities
+		CitiesRepository.cities = cities
 		viewState.updateMapMarkers(cities)
-		viewState.hideUpdateScreen()
-		(MvpFacade.getInstance().presenterStore.get(ListPresenter.TAG_PRESENTER) as ListPresenter).onCitiesUpdate(cities)
+		viewState.showUpdateScreen(false)
 	}
 
 	fun onMarkerClick(marker: Marker) {
@@ -78,53 +68,49 @@ class MapPresenter : MvpPresenter<MapView>() {
 	}
 
 	fun onInfoWindowClick(marker: Marker) {
-		for (i in 0 until mCities.size) {
-			if (mCities[i].name == marker.title) {
-				viewState.showDetailInfo(mCities[i])
+		CitiesRepository.cities.forEach {
+			if (it.name == marker.title) {
+				viewState.showDetailInfo(it)
+				return@forEach
 			}
 		}
 	}
 
 	fun onLocationEnable() {
-		viewState.showUpdateScreen()
-		viewState.enableLocation()
+		viewState.showUpdateScreen(true)
+		viewState.enableLocation(true)
 	}
 
 	fun onLocationDisable() {
-		viewState.disableLocation()
+		viewState.enableLocation(false)
 	}
 
 	fun onLocationIsDisabled() {
+		viewState.showUpdateScreen(false)
+		viewState.enableLocation(false)
 		viewState.showLocationIsDisabled()
 	}
 
 	fun onServicesAvailable() {}
 
 	fun onServicesUnavailable() {
-		viewState.hideUpdateScreen()
-	}
-
-	fun onMapReady() {
-		if (isFirstCreate) {
-			isFirstCreate = false
-			viewState.moveToStartPosition()
-		}
+		viewState.showUpdateScreen(false)
 	}
 
 	fun onMoveToDefaultPosition() {
-		val defaultLatLng = LatLng(
-			mContext.getString(R.string.defaultLatitude).toDouble(),
-			mContext.getString(R.string.defaultLongitude).toDouble())
-		viewState.moveToDefaultPosition(defaultLatLng)
+		val latLng = LatLng(
+			Constants.DEFAULT_LATITUDE,
+			Constants.DEFAULT_LONGITUDE)
+		onMapClick(latLng)
+		onCameraMoveTo(latLng, Constants.DEFAULT_ZOOM)
 	}
 
 	fun onInfoWindowClose() {
 		viewState.closeInfoWindow()
 	}
 
-	fun onAskPermission() {
-		if (isFirstCreate) {
-			viewState.askPermission()
-		}
+	override fun onFirstViewAttach() {
+		viewState.askPermission()
+		viewState.moveToStartPosition()
 	}
 }

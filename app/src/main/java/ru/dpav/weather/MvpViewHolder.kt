@@ -4,8 +4,9 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import com.arellomobile.mvp.MvpDelegate
 
-abstract class MvpViewHolder(private val mParentDelegate: MvpDelegate<*>, itemView: View)
-	: RecyclerView.ViewHolder(itemView) {
+abstract class MvpViewHolder(
+	private val mParentDelegate: MvpDelegate<*>,
+	itemView: View) : RecyclerView.ViewHolder(itemView) {
 	private var mMvpDelegate: MvpDelegate<*>? = null
 
 	protected val mvpDelegate: MvpDelegate<*>?
