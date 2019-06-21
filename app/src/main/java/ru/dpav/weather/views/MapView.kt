@@ -4,42 +4,28 @@ import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.arellomobile.mvp.viewstate.strategy.OneExecutionStateStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
+import org.osmdroid.util.GeoPoint
 import ru.dpav.weather.api.City
 
-@StateStrategyType(OneExecutionStateStrategy::class)
+@StateStrategyType(AddToEndSingleStrategy::class)
 interface MapView : MvpView {
-	@StateStrategyType(AddToEndSingleStrategy::class)
-	fun setMapMarker(latLng: LatLng)
-
-	@StateStrategyType(AddToEndSingleStrategy::class)
-	fun updateMapMarkers(cities: List<City>)
-
-	@StateStrategyType(AddToEndSingleStrategy::class)
-	fun openInfoWindow(marker: Marker)
-
-	@StateStrategyType(AddToEndSingleStrategy::class)
+	fun setMapMarker(point: GeoPoint)
+	fun updateCitiesMarkers(cities: List<City>)
+	fun openInfoWindow(position: Int)
 	fun closeInfoWindow()
-
-	fun showDetailInfo(city: City)
-
-	fun moveCameraTo(latLng: LatLng, zoom: Float?)
-
-	fun moveToStartPosition()
-
-	@StateStrategyType(AddToEndSingleStrategy::class)
-	fun enableLocation(isEnable: Boolean)
-
-	@StateStrategyType(AddToEndSingleStrategy::class)
-	fun showUpdateScreen(isShow: Boolean)
-
-	fun showConnectionError(latLng: LatLng)
-
-	fun showToastError(message: String)
+	fun setCurrentPosition(point: GeoPoint, zoom: Double)
+	fun enableLocation(enable: Boolean)
+	fun showUpdateScreen(shown: Boolean)
+	fun showConnectionError(shown: Boolean)
 
 	@StateStrategyType(OneExecutionStateStrategy::class)
-	fun showLocationIsDisabled()
+	fun moveCameraTo(point: GeoPoint, zoom: Double?)
+
+	@StateStrategyType(OneExecutionStateStrategy::class)
+	fun setStartPosition()
+
+	@StateStrategyType(OneExecutionStateStrategy::class)
+	fun showSnack(resId: Int)
 
 	@StateStrategyType(OneExecutionStateStrategy::class)
 	fun askPermission()

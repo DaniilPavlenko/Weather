@@ -7,44 +7,50 @@ import com.arellomobile.mvp.MvpDelegate
 import ru.dpav.weather.api.City
 import ru.dpav.weather.presenters.ListPresenter
 
-class CitiesAdapter(
-	var mParentPresenter: ListPresenter,
-	var mMvpDelegate: MvpDelegate<*>,
-	private var recyclerView: RecyclerView,
-	private var cities: ArrayList<City>)
+class CitiesAdapter(var mListPresenter: ListPresenter, var mMvpDelegate: MvpDelegate<*>)
 	: RecyclerView.Adapter<CityHolder>() {
+	private var mRecyclerView: RecyclerView? = null
+	private var mCities: ArrayList<City> = arrayListOf()
+	private var mOpenedPosition = -1
 
-	private var openedPosition = -1
-
-	override fun onCreateViewHolder(parent: ViewGroup, index: Int): CityHolder {
-		val view = LayoutInflater.from(parent.context).inflate(R.layout.item_row_city, parent, false)
-		return CityHolder(view, mMvpDelegate, mParentPresenter)
+	override fun onCreateViewHolder(parent: ViewGroup, position: Int): CityHolder {
+		val view = LayoutInflater.from(parent.context)
+			.inflate(R.layout.item_row_city, parent, false)
+		return CityHolder(view, mMvpDelegate, mListPresenter)
 	}
 
 	override fun getItemCount(): Int {
-		return cities.count()
+		return mCities.count()
 	}
 
-	override fun onBindViewHolder(holder: CityHolder, index: Int) {
-		val city = cities[index]
-		holder.bind(city, index == openedPosition)
+	override fun onBindViewHolder(holder: CityHolder, position: Int) {
+		val city = mCities[position]
+		holder.bind(city, position == mOpenedPosition)
+	}
+
+	override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+		mRecyclerView = recyclerView
+	}
+
+	override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+		mRecyclerView = null
 	}
 
 	fun hideDropDownInfo() {
-		openedPosition = -1
+		mOpenedPosition = -1
 	}
 
 	fun showDropDownInfo(position: Int) {
-		this.notifyItemChanged(openedPosition)
-		openedPosition = position
-		recyclerView.smoothScrollToPosition(position + 1)
+		this.notifyItemChanged(mOpenedPosition)
+		mOpenedPosition = position
+		mRecyclerView?.smoothScrollToPosition(position + 1)
 	}
 
 	fun setCities(newCities: List<City>) {
-		cities.clear()
-		cities.addAll(newCities)
+		mCities.clear()
+		mCities.addAll(newCities)
 		notifyDataSetChanged()
 		hideDropDownInfo()
-		recyclerView.smoothScrollToPosition(0)
+		mRecyclerView?.smoothScrollToPosition(0)
 	}
 }

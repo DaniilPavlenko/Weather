@@ -2,11 +2,13 @@
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:orientation="vertical"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content">
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:padding="@dimen/padding_small"
+	android:background="@drawable/background_info_window">
 	<TextView
-		android:id="@+id/info_window_title"
+		android:id="@+id/infoWindowTitle"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:gravity="center_vertical"
@@ -16,7 +18,7 @@
 		android:drawableLeft="@drawable/weather_icon_01"
 		tools:text="Ростов-на-Дону"/>
 	<TextView
-		android:id="@+id/info_window_snippet"
+		android:id="@+id/infoWindowSnippet"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		tools:text="Детали погоды"/>

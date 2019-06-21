@@ -17,15 +17,15 @@ import ru.dpav.weather.views.ListView
 class CityHolder(
 	itemView: View,
 	parentDelegate: MvpDelegate<*>,
-	private val mParentPresenter: ListPresenter)
-	: MvpViewHolder(parentDelegate, itemView), ListView {
+	private val mParentPresenter: ListPresenter
+) : MvpViewHolder(parentDelegate, itemView), ListView {
 	private var mCity: City? = null
-	private var mTitle: TextView = itemView.city_detail_title
-	private var mTemperature: TextView = itemView.city_detail_temperature
-	private var mWind: TextView = itemView.city_detail_wind
-	private var mCloudy: TextView = itemView.city_detail_cloudy
-	private var mPressure: TextView = itemView.city_detail_pressure
-	private var mDetailInfo: ConstraintLayout = itemView.city_detail
+	private var mTitle: TextView = itemView.cityDetailTitle
+	private var mTemperature: TextView = itemView.cityDetailTemperature
+	private var mWind: TextView = itemView.cityDetailWind
+	private var mCloudy: TextView = itemView.cityDetailCloudy
+	private var mPressure: TextView = itemView.cityDetailPressure
+	private var mDetailInfo: ConstraintLayout = itemView.cityDetail
 
 	@InjectPresenter
 	lateinit var mHolderPresenter: ListPresenter
@@ -40,23 +40,35 @@ class CityHolder(
 		destroyMvpDelegate()
 		mCity = city
 		createMvpDelegate()
+		val context = mTitle.context as AppCompatActivity
+
 		mTitle.text = city.name
 		mTitle.setOnClickListener { onTitleClick() }
-		val context = mTitle.context
-		mTemperature.text = context.getString(R.string.detail_temperature, city.main.temp.toInt())
-		val icon = Util.getWeatherIconByName(city.weather[0].icon)
-		mTemperature.setCompoundDrawablesWithIntrinsicBounds(0, 0, icon, 0)
+
+		with(mTemperature) {
+			val icon = Util.getWeatherIconByName(city.weather[0].icon)
+			text = context.getString(R.string.detail_temperature, city.main.temp.toInt())
+			setCompoundDrawablesWithIntrinsicBounds(0, 0, icon, 0)
+		}
+
 		mWind.text = context.getString(R.string.detail_wind, city.wind.speed.toInt())
+
 		mCloudy.text = context.getString(R.string.detail_cloudy, city.clouds.cloudy)
-		mPressure.text = context.getString(R.string.detail_pressure, Util.getPressureInMmHg(city.main.pressure))
-		mDetailInfo.visibility = if (isOpened) View.VISIBLE else View.GONE
-		mDetailInfo.setOnClickListener {
-			val cityDetailFragment = CityDetailFragment.newInstance(city)
-			cityDetailFragment.show((context as AppCompatActivity).supportFragmentManager, "dialog_city2")
+
+		mPressure.text = context.getString(R.string.detail_pressure,
+			Util.getPressureInMmHg(city.main.pressure))
+
+		with(mDetailInfo) {
+			visibility = if (isOpened) View.VISIBLE else View.GONE
+			setOnClickListener {
+				val cityDetailFragment = CityDetailFragment.newInstance(city)
+				cityDetailFragment.show(context.supportFragmentManager, "dialog_city2")
+			}
 		}
 	}
 
-	private fun isDetailVisible(): Boolean = mDetailInfo.visibility == View.VISIBLE
+	private fun isDetailVisible(): Boolean =
+		mDetailInfo.visibility == View.VISIBLE
 
 	override fun getMvpChildId(): String? {
 		return if (mCity == null) null else mCity!!.id.toString()

@@ -1,7 +1,8 @@
 package ru.dpav.weather
 
+import org.osmdroid.util.GeoPoint
+
 object Constants {
-	const val DEFAULT_LATITUDE: Double = 47.2357137
-	const val DEFAULT_LONGITUDE: Double = 39.701505
-	const val DEFAULT_ZOOM: Float = 10.5F
+	val DEFAULT_POINT = GeoPoint(47.2357137, 39.701505)
+	const val DEFAULT_ZOOM: Double = 10.5
 }

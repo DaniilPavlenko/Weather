@@ -9,7 +9,7 @@ class MainActivity : AppCompatActivity() {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
 		val sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager)
-		view_pager.adapter = sectionsPagerAdapter
-		tabs.setupWithViewPager(view_pager)
+		viewPager.adapter = sectionsPagerAdapter
+		tabs.setupWithViewPager(viewPager)
 	}
 }

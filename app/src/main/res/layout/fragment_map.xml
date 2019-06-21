@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
-	<fragment
+	<org.osmdroid.views.MapView
 		android:id="@+id/map"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:name="com.google.android.gms.maps.SupportMapFragment"/>
+		android:layout_height="match_parent"/>
 	<ImageButton
-		android:id="@+id/location_listen_button"
+		android:id="@+id/locationButton"
 		android:layout_width="@dimen/location_button_size"
 		android:layout_height="@dimen/location_button_size"
 		android:background="@drawable/location_button"
@@ -17,12 +15,12 @@
 		android:layout_margin="@dimen/margin_small"
 		android:contentDescription="@string/enable_or_disable_geo"/>
 	<FrameLayout
-		android:id="@+id/map_update_layout"
-		android:clickable="true"
+		android:id="@+id/mapUpdateLayout"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:background="@color/updateScreenBackground"
-		android:focusable="true">
+		android:clickable="true"
+		android:focusable="true"
+		android:background="@color/updateScreenBackground">
 		<ProgressBar
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
