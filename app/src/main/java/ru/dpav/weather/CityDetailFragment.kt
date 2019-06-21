@@ -14,7 +14,6 @@ import ru.dpav.weather.api.City
 import ru.dpav.weather.util.Util
 
 class CityDetailFragment : DialogFragment() {
-
 	override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 		val dialog = super.onCreateDialog(savedInstanceState)
 		dialog.setTitle("City")
@@ -31,22 +30,29 @@ class CityDetailFragment : DialogFragment() {
 		}
 		val view = inflater.inflate(R.layout.fragment_city_detail, container, false)
 		arguments?.let {
-			view.city_detail_title.text = it.getString(ARG_CITY_NAME)
+			view.cityDetailTitle.text = it.getString(ARG_CITY_NAME)
 
-			view.city_detail_temperature.text = getString(R.string.detail_temperature, it.getInt(ARG_TEMPERATURE))
+			view.cityDetailTemperature.text =
+				getString(R.string.detail_temperature, it.getInt(ARG_TEMPERATURE))
 
 			val icon = Util.getWeatherIconByName(it.getString(ARG_WEATHER_ICON)!!)
-			view.city_detail_temperature.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0)
 
-			view.city_detail_wind.text = getString(R.string.detail_wind, it.getInt(ARG_WIND))
+			view.cityDetailTemperature
+				.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0)
 
-			view.city_detail_cloudy.text = getString(R.string.detail_cloudy, it.getInt(ARG_CLOUDY))
+			view.cityDetailWind.text =
+				getString(R.string.detail_wind, it.getInt(ARG_WIND))
 
-			view.city_detail_pressure.text = getString(R.string.detail_pressure, it.getInt(ARG_PRESSURE))
+			view.cityDetailCloudy.text =
+				getString(R.string.detail_cloudy, it.getInt(ARG_CLOUDY))
 
-			view.city_detail_humidity.text = getString(R.string.detail_humidity, it.getInt(ARG_HUMIDITY))
+			view.cityDetailPressure.text =
+				getString(R.string.detail_pressure, it.getInt(ARG_PRESSURE))
 
-			view.close_button.setOnClickListener { dialog.cancel() }
+			view.cityDetailHumidity.text =
+				getString(R.string.detail_humidity, it.getInt(ARG_HUMIDITY))
+
+			view.closeButton.setOnClickListener { dialog.cancel() }
 		}
 		return view
 	}
@@ -54,7 +60,9 @@ class CityDetailFragment : DialogFragment() {
 	override fun onStart() {
 		super.onStart()
 		dialog?.window?.let {
-			it.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+			it.setLayout(
+				ViewGroup.LayoutParams.MATCH_PARENT,
+				ViewGroup.LayoutParams.MATCH_PARENT)
 			it.setBackgroundDrawable(ColorDrawable(Color.WHITE))
 		}
 	}

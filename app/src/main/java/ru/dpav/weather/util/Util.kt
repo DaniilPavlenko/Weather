@@ -1,18 +1,15 @@
 package ru.dpav.weather.util
 
 import android.app.Activity
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.support.v4.content.ContextCompat
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import ru.dpav.weather.R
 
 class Util {
 	companion object {
+		private const val HPA_TO_MM_HG_COEFFICIENT = 1.333f
+		private const val PLAY_SERVICES_CODE = 2404
+
 		fun getWeatherIconByName(iconName: String) =
 			when (iconName) {
 				"01d" -> R.drawable.weather_icon_01
@@ -30,34 +27,23 @@ class Util {
 				else -> R.drawable.weather_icon_01
 			}
 
-		fun getPressureInMmHg(hpa: Float): Int = (hpa / 1.333f).toInt()
+		fun getPressureInMmHg(hpa: Float): Int =
+			(hpa / HPA_TO_MM_HG_COEFFICIENT).toInt()
 
 		fun isGooglePlayAvailable(activity: Activity): Boolean {
-			val googleApiAvailability: GoogleApiAvailability = GoogleApiAvailability.getInstance()
-			val status: Int = googleApiAvailability.isGooglePlayServicesAvailable(activity)
+			val googleApi = GoogleApiAvailability.getInstance()
+			val status: Int = googleApi.isGooglePlayServicesAvailable(activity)
 			if (status != ConnectionResult.SUCCESS) {
-				if (googleApiAvailability.isUserResolvableError(status)) {
-					googleApiAvailability.getErrorDialog(activity, status, 2404).show()
+				if (googleApi.isUserResolvableError(status)) {
+					googleApi.getErrorDialog(
+						activity,
+						status,
+						PLAY_SERVICES_CODE
+					).show()
 				}
 				return false
 			}
 			return true
-		}
-
-		fun bitmapDescriptorFromVector(
-			context: Context,
-			vectorResId: Int): BitmapDescriptor {
-			val vectorDrawable = ContextCompat.getDrawable(context, vectorResId)
-				?: return BitmapDescriptorFactory.defaultMarker()
-			vectorDrawable.setBounds(0, 0, vectorDrawable.intrinsicWidth, vectorDrawable.intrinsicHeight)
-			val bitmap = Bitmap.createBitmap(
-				vectorDrawable.intrinsicWidth,
-				vectorDrawable.intrinsicHeight,
-				Bitmap.Config.ARGB_8888
-			)
-			val canvas = Canvas(bitmap)
-			vectorDrawable.draw(canvas)
-			return BitmapDescriptorFactory.fromBitmap(bitmap)
 		}
 	}
 }

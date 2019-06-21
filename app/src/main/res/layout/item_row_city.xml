@@ -6,7 +6,7 @@
 	android:layout_height="wrap_content"
 	android:layout_width="match_parent">
 	<TextView
-		android:id="@+id/city_detail_title"
+		android:id="@+id/cityDetailTitle"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:maxLines="1"
@@ -20,17 +20,17 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"/>
 	<android.support.constraint.ConstraintLayout
-		android:id="@+id/city_detail"
+		android:id="@+id/cityDetail"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:visibility="gone"
 		android:background="@drawable/background_detail"
 		android:padding="@dimen/padding"
-		app:layout_constraintTop_toBottomOf="@id/city_detail_title"
+		app:layout_constraintTop_toBottomOf="@id/cityDetailTitle"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent">
 		<TextView
-			android:id="@+id/city_detail_temperature"
+			android:id="@+id/cityDetailTemperature"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_vertical"
@@ -50,22 +50,22 @@
 			android:orientation="vertical"
 			app:layout_constraintTop_toTopOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintEnd_toStartOf="@id/city_detail_temperature">
+			app:layout_constraintEnd_toStartOf="@id/cityDetailTemperature">
 			<TextView
-				android:id="@+id/city_detail_wind"
+				android:id="@+id/cityDetailWind"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				tools:text="Ветер: 8 м/с"
 				android:padding="0dp"
 				style="@style/CityDropDownInfo"/>
 			<TextView
-				android:id="@+id/city_detail_cloudy"
+				android:id="@+id/cityDetailCloudy"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				tools:text="Облачность: 40%"
 				style="@style/CityDropDownInfo"/>
 			<TextView
-				android:id="@+id/city_detail_pressure"
+				android:id="@+id/cityDetailPressure"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				tools:text="Давление: 760 мм"

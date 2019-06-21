@@ -6,7 +6,8 @@ import com.arellomobile.mvp.MvpDelegate
 
 abstract class MvpViewHolder(
 	private val mParentDelegate: MvpDelegate<*>,
-	itemView: View) : RecyclerView.ViewHolder(itemView) {
+	itemView: View
+) : RecyclerView.ViewHolder(itemView) {
 	private var mMvpDelegate: MvpDelegate<*>? = null
 
 	protected val mvpDelegate: MvpDelegate<*>?

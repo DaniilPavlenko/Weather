@@ -1,14 +1,15 @@
 package ru.dpav.weather.presenters
 
+import android.util.Log
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
+import org.osmdroid.util.GeoPoint
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import ru.dpav.weather.CitiesRepository
 import ru.dpav.weather.Constants
+import ru.dpav.weather.R
 import ru.dpav.weather.api.WeatherApi
 import ru.dpav.weather.api.WeatherResponse
 import ru.dpav.weather.views.MapView
@@ -16,34 +17,52 @@ import java.io.IOException
 
 @InjectViewState
 class MapPresenter : MvpPresenter<MapView>() {
-	fun onSetMarker(latLng: LatLng) {
-		viewState.setMapMarker(latLng)
-		getWeather(latLng)
+	private var mErrorConnectionPoint: GeoPoint? = null
+
+	fun onSetMarker(point: GeoPoint) {
+		viewState.setMapMarker(point)
+		getWeather(point)
 	}
 
-	fun onMapClick(latLng: LatLng) {
-		viewState.setMapMarker(latLng)
-		viewState.showUpdateScreen(true)
-		viewState.enableLocation(false)
-		getWeather(latLng)
+	fun onMapClick(point: GeoPoint) {
+		with(viewState) {
+			setMapMarker(point)
+			showUpdateScreen(true)
+			enableLocation(false)
+		}
+		getWeather(point)
 	}
 
-	fun onCameraMoveTo(latLng: LatLng, zoom: Float) {
-		viewState.moveCameraTo(latLng, zoom)
+	fun onRetryConnection() {
+		mErrorConnectionPoint?.let {
+			onMapClick(it)
+		}
 	}
 
-	private fun getWeather(latLng: LatLng) {
-		WeatherApi.getInstance().getWeatherByCoordinates(
-			latLng,
+	fun onSetCurrentPosition(point: GeoPoint, zoom: Double) {
+		viewState.setCurrentPosition(point, zoom)
+	}
+
+	fun onCameraMoveTo(point: GeoPoint, zoom: Double) {
+		viewState.moveCameraTo(point, zoom)
+	}
+
+	private fun getWeather(point: GeoPoint) {
+		WeatherApi.getWeatherByCoordinates(
+			point,
 			object : Callback<WeatherResponse> {
 				override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
 					if (t is IOException) {
-						viewState.showConnectionError(latLng)
+						mErrorConnectionPoint = point
+						viewState.showConnectionError(true)
 					}
 				}
 
-				override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
+				override fun onResponse(
+					call: Call<WeatherResponse>,
+					response: Response<WeatherResponse>) {
 					processApiResponse(response)
+					viewState.showConnectionError(false)
 				}
 			})
 	}
@@ -51,34 +70,28 @@ class MapPresenter : MvpPresenter<MapView>() {
 	fun processApiResponse(response: Response<WeatherResponse>) {
 		val cities = response.body()?.cities
 		if (cities == null) {
-			response.body()?.message?.let { viewState.showToastError(it) }
-			return
-		}
-		if (CitiesRepository.cities == cities) {
-			viewState.showUpdateScreen(false)
+			response.body()?.message?.let {
+				viewState.showSnack(R.string.error_response)
+				Log.e("ApiResponseError", it)
+			}
 			return
 		}
 		CitiesRepository.cities = cities
-		viewState.updateMapMarkers(cities)
-		viewState.showUpdateScreen(false)
-	}
-
-	fun onMarkerClick(marker: Marker) {
-		viewState.openInfoWindow(marker)
-	}
-
-	fun onInfoWindowClick(marker: Marker) {
-		CitiesRepository.cities.forEach {
-			if (it.name == marker.title) {
-				viewState.showDetailInfo(it)
-				return@forEach
-			}
+		with(viewState) {
+			updateCitiesMarkers(cities)
+			showUpdateScreen(false)
 		}
 	}
 
+	fun onMarkerClick(position: Int) {
+		viewState.openInfoWindow(position)
+	}
+
 	fun onLocationEnable() {
-		viewState.showUpdateScreen(true)
-		viewState.enableLocation(true)
+		with(viewState) {
+			showUpdateScreen(true)
+			enableLocation(true)
+		}
 	}
 
 	fun onLocationDisable() {
@@ -86,23 +99,22 @@ class MapPresenter : MvpPresenter<MapView>() {
 	}
 
 	fun onLocationIsDisabled() {
-		viewState.showUpdateScreen(false)
-		viewState.enableLocation(false)
-		viewState.showLocationIsDisabled()
+		with(viewState) {
+			showUpdateScreen(false)
+			enableLocation(false)
+			showSnack(R.string.geo_disabled)
+		}
 	}
-
-	fun onServicesAvailable() {}
 
 	fun onServicesUnavailable() {
 		viewState.showUpdateScreen(false)
 	}
 
 	fun onMoveToDefaultPosition() {
-		val latLng = LatLng(
-			Constants.DEFAULT_LATITUDE,
-			Constants.DEFAULT_LONGITUDE)
-		onMapClick(latLng)
-		onCameraMoveTo(latLng, Constants.DEFAULT_ZOOM)
+		onMapClick(Constants.DEFAULT_POINT)
+		onCameraMoveTo(
+			Constants.DEFAULT_POINT,
+			Constants.DEFAULT_ZOOM)
 	}
 
 	fun onInfoWindowClose() {
@@ -110,7 +122,9 @@ class MapPresenter : MvpPresenter<MapView>() {
 	}
 
 	override fun onFirstViewAttach() {
-		viewState.askPermission()
-		viewState.moveToStartPosition()
+		with(viewState) {
+			askPermission()
+			setStartPosition()
+		}
 	}
 }

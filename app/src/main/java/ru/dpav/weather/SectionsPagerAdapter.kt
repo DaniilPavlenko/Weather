@@ -5,14 +5,8 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 
-private val TAB_TITLES = arrayOf(
-	R.string.map,
-	R.string.list
-)
-
-class SectionsPagerAdapter(private val context: Context,
-	fm: FragmentManager) : FragmentPagerAdapter(fm) {
-
+class SectionsPagerAdapter(private val context: Context, fm: FragmentManager)
+	: FragmentPagerAdapter(fm) {
 	override fun getItem(position: Int): Fragment =
 		when (TAB_TITLES[position]) {
 			R.string.map -> MapFragment.newInstance()
@@ -23,5 +17,12 @@ class SectionsPagerAdapter(private val context: Context,
 	override fun getPageTitle(position: Int): CharSequence? =
 		context.resources.getString(TAB_TITLES[position])
 
-	override fun getCount(): Int = 2
+	override fun getCount(): Int = TAB_TITLES.size
+
+	companion object {
+		private val TAB_TITLES = arrayOf(
+			R.string.map,
+			R.string.list
+		)
+	}
 }

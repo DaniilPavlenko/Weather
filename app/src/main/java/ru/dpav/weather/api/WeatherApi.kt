@@ -1,11 +1,12 @@
 package ru.dpav.weather.api
 
-import com.google.android.gms.maps.model.LatLng
+import org.osmdroid.util.GeoPoint
 import retrofit2.Callback
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class WeatherApi {
+object WeatherApi {
+	private const val BASE_URL = "https://api.openweathermap.org/data/2.5/"
 	private val retrofit: Retrofit
 
 	init {
@@ -16,25 +17,10 @@ class WeatherApi {
 	}
 
 	fun getWeatherByCoordinates(
-		latLng: LatLng,
+		point: GeoPoint,
 		callback: Callback<WeatherResponse>) {
 		val openWeatherService = retrofit.create(OpenWeatherService::class.java)
-		val call = openWeatherService.getWeather(latLng.latitude, latLng.longitude)
+		val call = openWeatherService.getWeather(point.latitude, point.longitude)
 		call.enqueue(callback)
-	}
-
-	companion object {
-		private const val BASE_URL = "https://api.openweathermap.org/data/2.5/"
-		@Volatile
-		private var instance: WeatherApi? = null
-
-		fun getInstance(): WeatherApi {
-			if (instance == null) {
-				synchronized(this) {
-					instance = WeatherApi()
-				}
-			}
-			return instance!!
-		}
 	}
 }
