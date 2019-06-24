@@ -1,12 +1,10 @@
 package ru.dpav.weather.presenters
 
-import android.util.Log
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import org.osmdroid.util.GeoPoint
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import ru.dpav.weather.CitiesRepository
 import ru.dpav.weather.Constants
 import ru.dpav.weather.R
@@ -18,6 +16,12 @@ import java.io.IOException
 @InjectViewState
 class MapPresenter : MvpPresenter<MapView>() {
 	private var mErrorConnectionPoint: GeoPoint? = null
+	private var disposableRequest: Disposable? = null
+
+	override fun onDestroy() {
+		disposableRequest?.dispose()
+		super.onDestroy()
+	}
 
 	fun onSetMarker(point: GeoPoint) {
 		viewState.setMapMarker(point)
@@ -48,34 +52,22 @@ class MapPresenter : MvpPresenter<MapView>() {
 	}
 
 	private fun getWeather(point: GeoPoint) {
-		WeatherApi.getWeatherByCoordinates(
-			point,
-			object : Callback<WeatherResponse> {
-				override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
-					if (t is IOException) {
-						mErrorConnectionPoint = point
-						viewState.showConnectionError(true)
-					}
-				}
-
-				override fun onResponse(
-					call: Call<WeatherResponse>,
-					response: Response<WeatherResponse>) {
-					processApiResponse(response)
-					viewState.showConnectionError(false)
+		disposableRequest = WeatherApi.api
+			.getWeather(point.latitude, point.longitude)
+			.observeOn(AndroidSchedulers.mainThread())
+			.subscribe({
+				processApiResponse(it)
+				viewState.showConnectionError(false)
+			}, {
+				if (it is IOException) {
+					mErrorConnectionPoint = point
+					viewState.showConnectionError(true)
 				}
 			})
 	}
 
-	fun processApiResponse(response: Response<WeatherResponse>) {
-		val cities = response.body()?.cities
-		if (cities == null) {
-			response.body()?.message?.let {
-				viewState.showSnack(R.string.error_response)
-				Log.e("ApiResponseError", it)
-			}
-			return
-		}
+	private fun processApiResponse(response: WeatherResponse) {
+		val cities = response.cities
 		CitiesRepository.cities = cities
 		with(viewState) {
 			updateCitiesMarkers(cities)

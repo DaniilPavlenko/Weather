@@ -1,26 +1,24 @@
 package ru.dpav.weather.api
 
-import org.osmdroid.util.GeoPoint
-import retrofit2.Callback
+import io.reactivex.schedulers.Schedulers
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
 object WeatherApi {
 	private const val BASE_URL = "https://api.openweathermap.org/data/2.5/"
 	private val retrofit: Retrofit
+	val api: OpenWeatherService
 
 	init {
 		retrofit = Retrofit.Builder()
 			.baseUrl(BASE_URL)
 			.addConverterFactory(GsonConverterFactory.create())
+			.addCallAdapterFactory(
+				RxJava2CallAdapterFactory
+					.createWithScheduler(Schedulers.io())
+			)
 			.build()
-	}
-
-	fun getWeatherByCoordinates(
-		point: GeoPoint,
-		callback: Callback<WeatherResponse>) {
-		val openWeatherService = retrofit.create(OpenWeatherService::class.java)
-		val call = openWeatherService.getWeather(point.latitude, point.longitude)
-		call.enqueue(callback)
+		api = retrofit.create(OpenWeatherService::class.java)
 	}
 }
