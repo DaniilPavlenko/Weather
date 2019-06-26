@@ -9,4 +9,5 @@
 	<dimen name="info_window_city_text_size">16sp</dimen>
 	<dimen name="list_item_title_size">20sp</dimen>
 	<dimen name="dropDownListWidth">50dp</dimen>
+	<dimen name="infoWindowMinWidth">200dp</dimen>
 </resources>

@@ -30,4 +30,8 @@
 	<string name="cancel">Отмена</string>
 	<string name="save">Сохранить</string>
 	<string name="editor_of_city">Редактор города</string>
+	<string name="error_valid_name">Название города: минимум 3 символа без пробелов</string>
+	<string name="error_valid_name_spec_chars">Доступны только буквы, пробел, знак тире</string>
+	<string name="error_valid_temp">Температура: допустимый диапазон -90 .. 60</string>
+	<string name="error_valid_pressure">Давление: допустимый диапазон 700 .. 800</string>
 </resources>
