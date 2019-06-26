@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
@@ -57,8 +58,9 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 		}
 
 		saveButton.setOnClickListener {
+			clearCityName()
 			saveCityState()
-			mAddCityPresenter.onSave(mCity)
+			validateData()
 		}
 	}
 
@@ -80,10 +82,14 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 		finish()
 	}
 
+	private fun clearCityName() {
+		var clearName = cityNameEdit.text.toString()
+		clearName = clearName.trim()
+		clearName = clearName.replace(Regex("\\s+"), " ")
+		cityNameEdit.setText(clearName)
+	}
+
 	private fun saveCityState() {
-		if (!::mCity.isInitialized) {
-			mCity = City.getEmpty()
-		}
 		with(mCity) {
 			with(coordinates) {
 				if (latitude == 0e0 && longitude == 0e0) {
@@ -106,17 +112,45 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 
 			wind.speed = getFloatFromEdit(windEdit)
 
-			val icon = getFloatFromSpinner(weatherIconSpinner).toInt()
+			val icon = weatherIconSpinner.selectedItem.toString().toInt()
 			weather[0].icon = Util.getWeatherNameByIcon(icon)
 		}
 		mAddCityPresenter.onDataChanged(mCity)
 	}
 
+	private fun showSnack(message: String) {
+		Snackbar.make(scrollView, message, Snackbar.LENGTH_LONG)
+			.show()
+	}
+
+	private fun validateData() {
+		if (mCity.name.replace(" ", "").length < 3) {
+			showSnack(getString(R.string.error_valid_name))
+			cityNameEdit.requestFocus()
+			return
+		} else if (!mCity.name.matches(Regex("[\\p{L} \\-]*"))) {
+			showSnack(getString(R.string.error_valid_name_spec_chars))
+			cityNameEdit.requestFocus()
+			return
+		}
+		if (mCity.main.temp > 60 || mCity.main.temp < -90) {
+			showSnack(getString(R.string.error_valid_temp))
+			temperatureEdit.requestFocus()
+			return
+		}
+		if (mCity.main.pressure < 700 || mCity.main.pressure > 800) {
+			showSnack(getString(R.string.error_valid_pressure))
+			pressureEdit.requestFocus()
+			return
+		}
+		mAddCityPresenter.onSave(mCity)
+	}
+
 	private fun getFloatFromEdit(edit: EditText): Float {
-		return if (edit.text.isEmpty()) {
-			0f
-		} else {
+		return try {
 			edit.text.toString().toFloat()
+		} catch (e: NumberFormatException) {
+			0f
 		}
 	}
 

@@ -45,7 +45,11 @@ class Util {
 			}
 
 		fun getPressureInMmHg(hpa: Float): Int =
-			(hpa / HPA_TO_MM_HG_COEFFICIENT).toInt()
+			if (hpa > 850) {
+				(hpa / HPA_TO_MM_HG_COEFFICIENT).toInt()
+			} else {
+				hpa.toInt()
+			}
 
 		fun isGooglePlayAvailable(activity: Activity): Boolean {
 			val googleApi = GoogleApiAvailability.getInstance()

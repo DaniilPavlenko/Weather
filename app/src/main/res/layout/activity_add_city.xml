@@ -35,6 +35,7 @@
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:inputType="textPersonName"
+				android:maxLength="50"
 				android:hint="@string/name_of_city"
 				android:layout_margin="@dimen/margin_small"
 				app:layout_constraintEnd_toEndOf="parent"
