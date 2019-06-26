@@ -1,7 +1,7 @@
 package ru.dpav.weather.api
 
 data class MainWeatherInfo(
-	val temp: Float,
-	val pressure: Float,
-	val humidity: Float
+	var temp: Float,
+	var pressure: Float,
+	var humidity: Float
 )

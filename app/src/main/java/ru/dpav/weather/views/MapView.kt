@@ -10,8 +10,9 @@ import ru.dpav.weather.api.City
 @StateStrategyType(AddToEndSingleStrategy::class)
 interface MapView : MvpView {
 	fun setMapMarker(point: GeoPoint)
+	fun addCustomCity(city: City)
 	fun updateCitiesMarkers(cities: List<City>)
-	fun openInfoWindow(position: Int)
+	fun openInfoWindow(cityId: String)
 	fun closeInfoWindow()
 	fun setCurrentPosition(point: GeoPoint, zoom: Double)
 	fun enableLocation(enable: Boolean)

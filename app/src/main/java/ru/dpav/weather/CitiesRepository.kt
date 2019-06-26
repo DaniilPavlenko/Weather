@@ -10,4 +10,16 @@ object CitiesRepository : Observable() {
 			setChanged()
 			notifyObservers()
 		}
+	var customCities: ArrayList<City> = arrayListOf()
+		set(cities) {
+			field = cities
+			setChanged()
+			notifyObservers()
+		}
+
+	fun addCustomCity(city: City) {
+		customCities.add(city)
+		setChanged()
+		notifyObservers()
+	}
 }

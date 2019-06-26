@@ -20,4 +20,11 @@
 	<style name="CityDetailInfo" parent="CityDropDownInfo">
 		<item name="android:textColor">@color/cityNameColor</item>
 	</style>
+	<style name="ButtonCancel" parent="Base.Widget.AppCompat.Button">
+		<item name="android:background">#c00</item>
+		<item name="android:textColor">#fff</item>
+	</style>
+	<style name="ButtonSave" parent="ButtonCancel">
+		<item name="android:background">#0a0</item>
+	</style>
 </resources>
