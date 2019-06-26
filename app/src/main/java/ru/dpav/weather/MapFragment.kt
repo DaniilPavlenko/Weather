@@ -2,7 +2,9 @@ package ru.dpav.weather
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Build
@@ -10,7 +12,6 @@ import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.design.widget.Snackbar
 import android.support.v4.content.ContextCompat
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -41,7 +42,8 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 	private lateinit var mFusedLocation: FusedLocationProviderClient
 	private var isInfoWindowOpened: Boolean = false
 	private lateinit var mUpdateScreen: FrameLayout
-	private lateinit var mMarkers: ArrayList<Marker>
+	private var mMarkers: ArrayList<Marker> = arrayListOf()
+	private var mCustomMarkers: ArrayList<Marker> = arrayListOf()
 
 	@InjectPresenter
 	lateinit var mMapPresenter: MapPresenter
@@ -85,6 +87,17 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		mMap.onResume()
 	}
 
+	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+		if (resultCode != Activity.RESULT_OK) {
+			return
+		}
+		when (requestCode) {
+			REQUEST_NEW_CITY -> {
+				mMapPresenter.onAddCityDone()
+			}
+		}
+	}
+
 	override fun onPause() {
 		super.onPause()
 		val prefs = PreferenceManager.getDefaultSharedPreferences(activity)
@@ -120,7 +133,20 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 			}
 		}, MAP_LISTENER_DELAY))
 		val mReceive: MapEventsReceiver = object : MapEventsReceiver {
-			override fun longPressHelper(p: GeoPoint?): Boolean = false
+			override fun longPressHelper(point: GeoPoint?): Boolean {
+				point?.let {
+					mMapPresenter.onInfoWindowClose()
+					val city = City.getEmpty()
+					with(city.coordinates) {
+						latitude = point.latitude
+						longitude = point.longitude
+					}
+					val addCityActivity = AddCityActivity.newIntent(activity!!, city)
+					startActivityForResult(addCityActivity, REQUEST_NEW_CITY)
+				}
+				return false
+			}
+
 			override fun singleTapConfirmedHelper(point: GeoPoint?): Boolean {
 				point?.let {
 					if (isInfoWindowOpened) {
@@ -133,7 +159,7 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 			}
 		}
 		val eventsOverlay = MapEventsOverlay(mReceive)
-		mMap.overlays.add(OVERLAY_EVENTS, eventsOverlay)
+		mMap.overlays.add(eventsOverlay)
 	}
 
 	override fun setMapMarker(point: GeoPoint) {
@@ -151,50 +177,74 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 	}
 
 	override fun updateCitiesMarkers(cities: List<City>) {
-		mMarkers = arrayListOf()
-		cities.forEachIndexed { position, city ->
-			val marker = Marker(mMap)
-			marker.position = GeoPoint(
-				city.coordinates.latitude,
-				city.coordinates.longitude)
-			marker.icon = ContextCompat.getDrawable(activity!!, R.drawable.marker_city)
-			marker.setAnchor(Marker.ANCHOR_CENTER, 1f)
-			val infoWindow = PopInfoWindow(
-				R.layout.info_window_weather,
-				mMap,
-				position,
-				View.OnClickListener {
-					val detailFragment = CityDetailFragment.newInstance(city)
-					detailFragment.show(activity?.supportFragmentManager, "dialog_city")
-				})
-			marker.infoWindow = infoWindow
-			marker.setOnMarkerClickListener { _, _ ->
-				mMapPresenter.onMarkerClick(position + CITIES_POSITION_OFFSET)
-				return@setOnMarkerClickListener true
-			}
-			mMarkers.add(marker)
-		}
-		if (mMap.overlays.lastIndex >= OVERLAY_CITIES) {
-			mMap.overlays.forEach {
-				if (it is Marker) {
-					it.remove(mMap)
-				}
-			}
-		}
-		if (mMap.overlays.size >= OVERLAY_CITIES) {
-			mMap.overlays.addAll(OVERLAY_CITIES, mMarkers)
-			mMap.invalidate()
-		}
+		addMarkersOnMap(
+			cities,
+			mMarkers,
+			R.drawable.marker_city
+		)
+		addMarkersOnMap(
+			CitiesRepository.customCities,
+			mCustomMarkers,
+			R.drawable.marker_custom
+		)
+		mMap.invalidate()
 	}
 
-	override fun openInfoWindow(position: Int) {
+	private fun addMarkersOnMap(
+		cities: List<City>,
+		markersList: ArrayList<Marker>,
+		markersIcon: Int) {
+		mMap.overlays.removeAll(markersList)
+		markersList.clear()
+		cities.forEachIndexed { _, city ->
+			markersList.add(
+				makeMarker(city, markersIcon)
+			)
+		}
+		mMap.overlays.addAll(markersList)
+	}
+
+	private fun makeMarker(city: City, icon: Int): Marker {
+		val marker = Marker(mMap)
+		marker.id = city.id.toString()
+		marker.position = GeoPoint(
+			city.coordinates.latitude,
+			city.coordinates.longitude)
+		marker.icon = ContextCompat.getDrawable(activity!!, icon)
+		marker.setAnchor(Marker.ANCHOR_CENTER, 1f)
+		val infoWindow = PopInfoWindow(
+			R.layout.info_window_weather,
+			mMap,
+			city,
+			View.OnClickListener {
+				openDetailDialog(city)
+			})
+		marker.infoWindow = infoWindow
+		marker.setOnMarkerClickListener { _, _ ->
+			mMapPresenter.onMarkerClick(marker.id)
+			return@setOnMarkerClickListener true
+		}
+		return marker
+	}
+
+	override fun addCustomCity(city: City) {
+		val marker = makeMarker(city, R.drawable.marker_custom)
+		mCustomMarkers.add(marker)
+		mMap.overlays.add(marker)
+		mMap.invalidate()
+	}
+
+	private fun openDetailDialog(city: City) {
+		val detailFragment = CityDetailFragment.newInstance(city)
+		detailFragment.show(activity?.supportFragmentManager, "dialog_city")
+	}
+
+	override fun openInfoWindow(cityId: String) {
 		closeInfoWindow()
 		isInfoWindowOpened = true
-		if (mMap.overlays.size >= position - 1) {
-			try {
-				(mMap.overlays[position] as Marker).showInfoWindow()
-			} catch (e: ArrayIndexOutOfBoundsException) {
-				Log.e("MapFragment::1", e.localizedMessage, e)
+		mMap.overlays.forEach {
+			if (it is Marker && it.id == cityId) {
+				it.showInfoWindow()
 			}
 		}
 	}
@@ -361,15 +411,14 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 	}
 
 	companion object {
+		private const val REQUEST_NEW_CITY = 1
+
 		private const val LOCATION_REQUEST_INTERVAL: Long = 7000
 		private const val LOCATION_REQUEST_FAST_INTERVAL: Long = 4000
 		private const val LOCATION_REQUEST_DISPLACEMENT: Float = 1F
 		private const val REQUEST_PERMISSIONS: Int = 1
 
-		private const val OVERLAY_EVENTS = 0
 		private const val OVERLAY_SEARCH_POINT = 1
-		private const val OVERLAY_CITIES = 2
-		private const val CITIES_POSITION_OFFSET = 2
 
 		private const val ANIMATION_SPEED: Long = 300
 		private const val MIN_ZOOM_LEVEL: Double = 2e0

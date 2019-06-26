@@ -1,6 +1,6 @@
 package ru.dpav.weather.api
 
 data class Wind(
-	val speed: Float,
-	val deg: Float
+	var speed: Float,
+	var deg: Float
 )

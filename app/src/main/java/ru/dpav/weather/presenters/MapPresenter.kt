@@ -37,6 +37,12 @@ class MapPresenter : MvpPresenter<MapView>() {
 		getWeather(point)
 	}
 
+	fun onAddCityDone() {
+		viewState.addCustomCity(
+			CitiesRepository.customCities.last()
+		)
+	}
+
 	fun onRetryConnection() {
 		mErrorConnectionPoint?.let {
 			onMapClick(it)
@@ -62,6 +68,8 @@ class MapPresenter : MvpPresenter<MapView>() {
 				if (it is IOException) {
 					mErrorConnectionPoint = point
 					viewState.showConnectionError(true)
+				} else {
+					viewState.showSnack(R.string.error_unexpected)
 				}
 			})
 	}
@@ -75,8 +83,8 @@ class MapPresenter : MvpPresenter<MapView>() {
 		}
 	}
 
-	fun onMarkerClick(position: Int) {
-		viewState.openInfoWindow(position)
+	fun onMarkerClick(markerId: String) {
+		viewState.openInfoWindow(markerId)
 	}
 
 	fun onLocationEnable() {

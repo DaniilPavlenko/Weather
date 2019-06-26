@@ -3,6 +3,7 @@ package ru.dpav.weather.presenters
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import ru.dpav.weather.CitiesRepository
+import ru.dpav.weather.api.City
 import ru.dpav.weather.views.ListView
 import java.util.*
 
@@ -30,8 +31,10 @@ class ListPresenter() : MvpPresenter<ListView>(), Observer {
 	}
 
 	override fun update(observable: Observable?, arg: Any?) {
-		viewState.updateCitiesList(
-			(observable as CitiesRepository).cities
-		)
+		val cityRep = observable as CitiesRepository
+		val cities = arrayListOf<City>()
+		cities.addAll(cityRep.cities)
+		cities.addAll(cityRep.customCities)
+		viewState.updateCitiesList(cities)
 	}
 }

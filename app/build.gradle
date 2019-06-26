@@ -35,7 +35,6 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'com.arello-mobile:moxy:1.5.5'
-//    annotationProcessor 'com.arello-mobile:moxy-compiler:1.5.5'
     implementation 'com.arello-mobile:moxy-android:1.5.5'
     implementation 'com.arello-mobile:moxy-app-compat:1.5.5'
     kapt 'com.arello-mobile:moxy-compiler:1.5.5'

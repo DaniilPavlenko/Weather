@@ -27,6 +27,23 @@ class Util {
 				else -> R.drawable.weather_icon_01
 			}
 
+		fun getWeatherNameByIcon(icon: Int): String =
+			when (icon) {
+				R.drawable.weather_icon_01 -> "01d"
+				R.drawable.weather_icon_01n -> "01n"
+				R.drawable.weather_icon_02 -> "02d"
+				R.drawable.weather_icon_02n -> "02n"
+				R.drawable.weather_icon_03 -> "03d"
+				R.drawable.weather_icon_04 -> "04d"
+				R.drawable.weather_icon_09 -> "09d"
+				R.drawable.weather_icon_10 -> "10d"
+				R.drawable.weather_icon_10n -> "10n"
+				R.drawable.weather_icon_11 -> "11d"
+				R.drawable.weather_icon_13 -> "13d"
+				R.drawable.weather_icon_50 -> "50d"
+				else -> "01d"
+			}
+
 		fun getPressureInMmHg(hpa: Float): Int =
 			(hpa / HPA_TO_MM_HG_COEFFICIENT).toInt()
 

@@ -4,17 +4,16 @@ import android.view.View
 import kotlinx.android.synthetic.main.info_window_weather.view.*
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.infowindow.InfoWindow
+import ru.dpav.weather.api.City
 import ru.dpav.weather.util.Util
 
 class PopInfoWindow(
 	layoutResId: Int,
 	mapView: MapView?,
-	private val position: Int,
+	private val city: City,
 	private val onClick: View.OnClickListener
 ) : InfoWindow(layoutResId, mapView) {
 	override fun onOpen(item: Any?) {
-		val city = CitiesRepository.cities[position]
-
 		mView.infoWindowTitle.text = city.name
 
 		val icon = Util.getWeatherIconByName(city.weather[0].icon)
