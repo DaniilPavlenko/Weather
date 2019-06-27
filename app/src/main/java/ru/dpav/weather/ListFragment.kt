@@ -13,6 +13,7 @@ import ru.dpav.weather.presenters.ListPresenter
 import ru.dpav.weather.views.ListView
 
 class ListFragment : MvpAppCompatFragment(), ListView {
+
 	private lateinit var mAdapter: CitiesAdapter
 
 	@InjectPresenter
@@ -42,12 +43,12 @@ class ListFragment : MvpAppCompatFragment(), ListView {
 		mAdapter.setCities(cities)
 	}
 
-	override fun showDropDownInfo(position: Int) {
-		mAdapter.showDropDownInfo(position)
-	}
-
-	override fun hideDropDownInfo() {
-		mAdapter.hideDropDownInfo()
+	override fun toggleDropDownInfo(position: Int, shown: Boolean) {
+		if (shown) {
+			mAdapter.showDropDownInfo(position)
+		} else {
+			mAdapter.hideDropDownInfo()
+		}
 	}
 
 	companion object {

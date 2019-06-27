@@ -7,12 +7,13 @@ import org.osmdroid.views.overlay.infowindow.InfoWindow
 import ru.dpav.weather.api.City
 import ru.dpav.weather.util.Util
 
-class PopInfoWindow(
+open class PopInfoWindow(
 	layoutResId: Int,
 	mapView: MapView?,
 	private val city: City,
 	private val onClick: View.OnClickListener
 ) : InfoWindow(layoutResId, mapView) {
+
 	override fun onOpen(item: Any?) {
 		mView.infoWindowTitle.text = city.name
 

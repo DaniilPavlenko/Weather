@@ -37,6 +37,7 @@ import ru.dpav.weather.presenters.MapPresenter
 import ru.dpav.weather.util.Util.Companion.isGooglePlayAvailable
 
 class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
+
 	lateinit var mMap: MapView
 	private lateinit var mLocationButton: ImageButton
 	private lateinit var mFusedLocation: FusedLocationProviderClient
@@ -93,7 +94,7 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		}
 		when (requestCode) {
 			REQUEST_NEW_CITY -> {
-				mMapPresenter.onAddCityDone()
+				mMapPresenter.saveCity()
 			}
 		}
 	}
@@ -141,8 +142,7 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 						latitude = point.latitude
 						longitude = point.longitude
 					}
-					val addCityActivity = AddCityActivity.newIntent(activity!!, city)
-					startActivityForResult(addCityActivity, REQUEST_NEW_CITY)
+					openEditor(city)
 				}
 				return false
 			}
@@ -204,6 +204,18 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		mMap.overlays.addAll(markersList)
 	}
 
+	private fun openEditor(city: City) {
+		activity?.let { act ->
+			val addCityActivity = if (city.id == 0) {
+				AddCityActivity.newIntent(act, city)
+			} else {
+				mMapPresenter.setEditingMarkerId(city.id.toString())
+				AddCityActivity.newIntent(act, city.id)
+			}
+			startActivityForResult(addCityActivity, REQUEST_NEW_CITY)
+		}
+	}
+
 	private fun makeMarker(city: City, icon: Int): Marker {
 		val marker = Marker(mMap)
 		marker.id = city.id.toString()
@@ -212,13 +224,24 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 			city.coordinates.longitude)
 		marker.icon = ContextCompat.getDrawable(activity!!, icon)
 		marker.setAnchor(Marker.ANCHOR_CENTER, 1f)
-		val infoWindow = PopInfoWindow(
-			R.layout.info_window_weather,
-			mMap,
-			city,
-			View.OnClickListener {
-				openDetailDialog(city)
-			})
+
+		val onClick = View.OnClickListener { openDetailDialog(city) }
+
+		val infoWindow = if (icon == R.drawable.marker_city) {
+			PopInfoWindow(
+				R.layout.info_window_weather,
+				mMap,
+				city,
+				onClick)
+		} else {
+			EditablePopInfo(
+				R.layout.info_window_weather,
+				mMap,
+				city,
+				onClick,
+				View.OnClickListener { openEditor(city) })
+		}
+
 		marker.infoWindow = infoWindow
 		marker.setOnMarkerClickListener { _, _ ->
 			mMapPresenter.onMarkerClick(marker.id)
@@ -229,7 +252,23 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 
 	override fun addCustomCity(city: City) {
 		val marker = makeMarker(city, R.drawable.marker_custom)
+		var editingIndex: Int? = null
+		mCustomMarkers.forEachIndexed { index, it ->
+			if (it.id == marker.id) {
+				editingIndex = index
+				return@forEachIndexed
+			}
+		}
+		editingIndex?.let {
+			mCustomMarkers.removeAt(it)
+		}
 		mCustomMarkers.add(marker)
+		mMap.overlays.forEachIndexed { index, overlay ->
+			if (overlay is Marker
+				&& overlay.id == city.id.toString()) {
+				mMap.overlays.removeAt(index)
+			}
+		}
 		mMap.overlays.add(marker)
 		mMap.invalidate()
 	}

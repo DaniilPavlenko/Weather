@@ -10,6 +10,7 @@ import android.widget.EditText
 import android.widget.Spinner
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
+import com.arellomobile.mvp.presenter.ProvidePresenter
 import kotlinx.android.synthetic.main.activity_add_city.*
 import ru.dpav.weather.api.City
 import ru.dpav.weather.presenters.AddCityPresenter
@@ -18,7 +19,6 @@ import ru.dpav.weather.views.AddCityView
 
 class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 
-	private lateinit var mCity: City
 	private val iconsArray = arrayOf(
 		R.drawable.weather_icon_01,
 		R.drawable.weather_icon_01n,
@@ -37,6 +37,27 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 	@InjectPresenter
 	lateinit var mAddCityPresenter: AddCityPresenter
 
+	@ProvidePresenter
+	fun providePresenter(): AddCityPresenter {
+		val addCityPresenter = AddCityPresenter()
+		intent.extras?.let { it ->
+			val cityId = it.getInt(ARG_CITY_ID, 0)
+			val city: City
+			if (cityId != 0) {
+				city = CitiesRepository.customCities
+					.filter { it.id == cityId }[0]
+			} else {
+				city = City.getEmpty()
+				with(city.coordinates) {
+					latitude = it.getDouble(ARG_LATITUDE)
+					longitude = it.getDouble(ARG_LONGITUDE)
+				}
+			}
+			addCityPresenter.setCity(city)
+		}
+		return addCityPresenter
+	}
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_add_city)
@@ -53,24 +74,33 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 		cloudySpinner.adapter = percentAdapter
 		humiditySpinner.adapter = percentAdapter
 
-		cancelButton.setOnClickListener {
-			finish()
-		}
+		cancelButton.setOnClickListener { finish() }
 
-		saveButton.setOnClickListener {
-			clearCityName()
-			saveCityState()
-			validateData()
-		}
-	}
-
-	override fun onPause() {
-		super.onPause()
-		saveCityState()
+		saveButton.setOnClickListener { validateData() }
 	}
 
 	override fun setCity(city: City) {
-		mCity = city
+		with(city) {
+			cityNameEdit.setText(name)
+
+			temperatureEdit.setText(main.temp.toInt().toString())
+
+			pressureEdit.setText(main.pressure.toString())
+
+			humiditySpinner.setSelection(main.humidity.toInt() - 1)
+
+			cloudySpinner.setSelection(clouds.cloudy - 1)
+
+			windEdit.setText(wind.speed.toInt().toString())
+
+			val icon = Util.getWeatherIconByName(weather[0].icon)
+			iconsArray.forEachIndexed { index, value ->
+				if (value == icon) {
+					weatherIconSpinner.setSelection(index)
+					return@forEachIndexed
+				}
+			}
+		}
 	}
 
 	override fun cancel() {
@@ -83,39 +113,10 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 	}
 
 	private fun clearCityName() {
-		var clearName = cityNameEdit.text.toString()
-		clearName = clearName.trim()
-		clearName = clearName.replace(Regex("\\s+"), " ")
+		val clearName = cityNameEdit.text.toString()
+			.trim()
+			.replace(Regex("\\s+"), " ")
 		cityNameEdit.setText(clearName)
-	}
-
-	private fun saveCityState() {
-		with(mCity) {
-			with(coordinates) {
-				if (latitude == 0e0 && longitude == 0e0) {
-					intent.extras?.let {
-						latitude = it.getDouble(ARG_LATITUDE)
-						longitude = it.getDouble(ARG_LONGITUDE)
-					}
-				}
-			}
-
-			name = cityNameEdit.text.toString()
-
-			main.temp = getFloatFromEdit(temperatureEdit)
-
-			main.pressure = getFloatFromEdit(pressureEdit)
-
-			main.humidity = getFloatFromSpinner(humiditySpinner)
-
-			clouds.cloudy = getFloatFromSpinner(cloudySpinner).toInt()
-
-			wind.speed = getFloatFromEdit(windEdit)
-
-			val icon = weatherIconSpinner.selectedItem.toString().toInt()
-			weather[0].icon = Util.getWeatherNameByIcon(icon)
-		}
-		mAddCityPresenter.onDataChanged(mCity)
 	}
 
 	private fun showSnack(message: String) {
@@ -124,26 +125,47 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 	}
 
 	private fun validateData() {
-		if (mCity.name.replace(" ", "").length < 3) {
+		val cityName = cityNameEdit.text.toString()
+			.replace(" ", "")
+		if (cityName.length < 3) {
 			showSnack(getString(R.string.error_valid_name))
 			cityNameEdit.requestFocus()
 			return
-		} else if (!mCity.name.matches(Regex("[\\p{L} \\-]*"))) {
+		} else if (!cityName.matches(Regex("[\\p{L} \\-]*"))) {
 			showSnack(getString(R.string.error_valid_name_spec_chars))
 			cityNameEdit.requestFocus()
 			return
 		}
-		if (mCity.main.temp > 60 || mCity.main.temp < -90) {
+
+		clearCityName()
+
+		val temperature = getFloatFromEdit(temperatureEdit)
+		if (temperature > 60 || temperature < -90) {
 			showSnack(getString(R.string.error_valid_temp))
 			temperatureEdit.requestFocus()
 			return
 		}
-		if (mCity.main.pressure < 700 || mCity.main.pressure > 800) {
+
+		val pressure = getFloatFromEdit(pressureEdit)
+		if (pressure < 665 || pressure > 815) {
 			showSnack(getString(R.string.error_valid_pressure))
 			pressureEdit.requestFocus()
 			return
 		}
-		mAddCityPresenter.onSave(mCity)
+
+		val city = City.getEmpty()
+		with(city) {
+			name = cityNameEdit.text.toString()
+			main.temp = getFloatFromEdit(temperatureEdit)
+			main.pressure = getFloatFromEdit(pressureEdit)
+			main.humidity = getFloatFromSpinner(humiditySpinner)
+			clouds.cloudy = getFloatFromSpinner(cloudySpinner).toInt()
+			wind.speed = getFloatFromEdit(windEdit)
+			val icon = weatherIconSpinner.selectedItem.toString().toInt()
+			weather[0].icon = Util.getWeatherNameByIcon(icon)
+		}
+
+		mAddCityPresenter.onSave(city)
 	}
 
 	private fun getFloatFromEdit(edit: EditText): Float {
@@ -159,6 +181,7 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 	}
 
 	companion object {
+		private const val ARG_CITY_ID = "cityId"
 		private const val ARG_LATITUDE = "latitude"
 		private const val ARG_LONGITUDE = "longitude"
 
@@ -166,6 +189,12 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 			val intent = Intent(context, AddCityActivity::class.java)
 			intent.putExtra(ARG_LATITUDE, city.coordinates.latitude)
 			intent.putExtra(ARG_LONGITUDE, city.coordinates.longitude)
+			return intent
+		}
+
+		fun newIntent(context: Context, cityId: Int): Intent {
+			val intent = Intent(context, AddCityActivity::class.java)
+			intent.putExtra(ARG_CITY_ID, cityId)
 			return intent
 		}
 	}
