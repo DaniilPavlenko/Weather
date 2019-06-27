@@ -19,6 +19,7 @@ class CityHolder(
 	parentDelegate: MvpDelegate<*>,
 	private val mParentPresenter: ListPresenter
 ) : MvpViewHolder(parentDelegate, itemView), ListView {
+
 	private var mCity: City? = null
 	private var mTitle: TextView = itemView.cityDetailTitle
 	private var mTemperature: TextView = itemView.cityDetailTemperature
@@ -75,21 +76,15 @@ class CityHolder(
 	}
 
 	private fun onTitleClick() {
-		if (!isDetailVisible()) {
-			mHolderPresenter.onShowDropDownInfo(adapterPosition)
-			mParentPresenter.onShowDropDownInfo(adapterPosition)
-		} else {
-			mHolderPresenter.onHideDropDownInfo()
-			mParentPresenter.onHideDropDownInfo()
-		}
+		val isVisible = isDetailVisible()
+		mHolderPresenter.onToggleDropDownInfo(adapterPosition, !isVisible)
+		mParentPresenter.onToggleDropDownInfo(adapterPosition, !isVisible)
 	}
 
-	override fun showDropDownInfo(position: Int) {
-		mDetailInfo.visibility = View.VISIBLE
-	}
-
-	override fun hideDropDownInfo() {
-		mDetailInfo.visibility = View.GONE
+	override fun toggleDropDownInfo(position: Int, shown: Boolean) {
+		mDetailInfo.visibility =
+			if (shown) View.VISIBLE
+			else View.GONE
 	}
 
 	override fun updateCitiesList(cities: List<City>) {}

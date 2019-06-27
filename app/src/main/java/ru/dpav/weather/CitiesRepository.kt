@@ -4,21 +4,31 @@ import ru.dpav.weather.api.City
 import java.util.*
 
 object CitiesRepository : Observable() {
+
 	var cities: List<City> = emptyList()
 		set(cities) {
 			field = cities
-			setChanged()
-			notifyObservers()
+			notifySubscribers()
 		}
 	var customCities: ArrayList<City> = arrayListOf()
 		set(cities) {
 			field = cities
-			setChanged()
-			notifyObservers()
+			notifySubscribers()
 		}
 
 	fun addCustomCity(city: City) {
+		customCities.forEachIndexed { index, it ->
+			if (it.id == city.id) {
+				customCities[index] = city
+				notifySubscribers()
+				return
+			}
+		}
 		customCities.add(city)
+		notifySubscribers()
+	}
+
+	private fun notifySubscribers() {
 		setChanged()
 		notifyObservers()
 	}

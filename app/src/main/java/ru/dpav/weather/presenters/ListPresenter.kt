@@ -16,12 +16,8 @@ class ListPresenter() : MvpPresenter<ListView>(), Observer {
 		mCode = code
 	}
 
-	fun onShowDropDownInfo(position: Int) {
-		viewState.showDropDownInfo(position)
-	}
-
-	fun onHideDropDownInfo() {
-		viewState.hideDropDownInfo()
+	fun onToggleDropDownInfo(position: Int, shown: Boolean) {
+		viewState.toggleDropDownInfo(position, shown)
 	}
 
 	override fun onFirstViewAttach() {

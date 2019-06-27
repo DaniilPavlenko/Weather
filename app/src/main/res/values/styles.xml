@@ -22,9 +22,14 @@
 	</style>
 	<style name="ButtonCancel" parent="Base.Widget.AppCompat.Button">
 		<item name="android:background">#c00</item>
-		<item name="android:textColor">#fff</item>
+		<item name="android:textColor">@android:color/white</item>
 	</style>
 	<style name="ButtonSave" parent="ButtonCancel">
-		<item name="android:background">#0a0</item>
+		<item name="android:background">@color/colorSuccessButton</item>
+	</style>
+	<style name="ButtonEdit">
+		<item name="android:textColor">@android:color/white</item>
+		<item name="android:background">@drawable/background_edit_button</item>
+		<item name="android:textSize">@dimen/detail_temperature_text_size</item>
 	</style>
 </resources>

@@ -15,8 +15,10 @@ import java.io.IOException
 
 @InjectViewState
 class MapPresenter : MvpPresenter<MapView>() {
+
 	private var mErrorConnectionPoint: GeoPoint? = null
 	private var disposableRequest: Disposable? = null
+	private var mEditingMarkerId: String? = null
 
 	override fun onDestroy() {
 		disposableRequest?.dispose()
@@ -37,10 +39,25 @@ class MapPresenter : MvpPresenter<MapView>() {
 		getWeather(point)
 	}
 
-	fun onAddCityDone() {
-		viewState.addCustomCity(
-			CitiesRepository.customCities.last()
-		)
+	fun saveCity() {
+		mEditingMarkerId?.let {
+			with(viewState) {
+				closeInfoWindow()
+				addCustomCity(
+					CitiesRepository.customCities.filter { city ->
+						city.id.toString() == mEditingMarkerId
+					}[0]
+				)
+				openInfoWindow(it)
+			}
+			mEditingMarkerId = null
+			return
+		}
+		viewState.addCustomCity(CitiesRepository.customCities.last())
+	}
+
+	fun setEditingMarkerId(markerId: String) {
+		mEditingMarkerId = markerId
 	}
 
 	fun onRetryConnection() {

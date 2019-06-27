@@ -8,23 +8,28 @@ import ru.dpav.weather.views.AddCityView
 
 @InjectViewState
 class AddCityPresenter : MvpPresenter<AddCityView>() {
+
 	private lateinit var mCity: City
 
-	fun onDataChanged(city: City) {
-		mCity = city
-	}
-
 	fun onSave(city: City) {
+		city.id = mCity.id
+		city.coordinates = mCity.coordinates
 		CitiesRepository.addCustomCity(city)
 		viewState.save()
 	}
 
+	fun setCity(city: City) {
+		mCity = city
+	}
+
 	override fun onFirstViewAttach() {
 		super.onFirstViewAttach()
-		mCity = City.getEmpty()
+		if (mCity.id != 0) {
+			viewState.setCity(mCity)
+			return
+		}
 		mCity.id = CUSTOM_CITY_ID_OFFSET +
 			CitiesRepository.customCities.size
-		viewState.setCity(mCity)
 	}
 
 	companion object {

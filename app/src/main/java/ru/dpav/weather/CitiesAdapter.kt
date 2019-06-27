@@ -9,6 +9,7 @@ import ru.dpav.weather.presenters.ListPresenter
 
 class CitiesAdapter(var mListPresenter: ListPresenter, var mMvpDelegate: MvpDelegate<*>)
 	: RecyclerView.Adapter<CityHolder>() {
+
 	private var mRecyclerView: RecyclerView? = null
 	private var mCities: ArrayList<City> = arrayListOf()
 	private var mOpenedPosition = -1
@@ -47,10 +48,10 @@ class CitiesAdapter(var mListPresenter: ListPresenter, var mMvpDelegate: MvpDele
 	}
 
 	fun setCities(newCities: List<City>) {
+		hideDropDownInfo()
 		mCities.clear()
 		mCities.addAll(newCities)
 		notifyDataSetChanged()
-		hideDropDownInfo()
 		mRecyclerView?.smoothScrollToPosition(0)
 	}
 }
