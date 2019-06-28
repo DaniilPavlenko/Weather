@@ -3,73 +3,73 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_height="wrap_content"
-	android:layout_width="match_parent">
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content">
 	<TextView
 		android:id="@+id/cityDetailTitle"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:maxLines="1"
-		android:ellipsize="end"
-		android:padding="@dimen/padding"
-		android:textSize="@dimen/list_item_title_size"
-		android:textColor="@color/cityNameColor"
 		android:background="@drawable/background_title"
-		tools:text="Ростов-на-Дону"
-		app:layout_constraintTop_toTopOf="parent"
+		android:ellipsize="end"
+		android:maxLines="1"
+		android:padding="@dimen/padding"
+		android:textColor="@color/cityNameColor"
+		android:textSize="@dimen/list_item_title_size"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"/>
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:text="Ростов-на-Дону"/>
 	<android.support.constraint.ConstraintLayout
 		android:id="@+id/cityDetail"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:visibility="gone"
 		android:background="@drawable/background_detail"
 		android:padding="@dimen/padding"
-		app:layout_constraintTop_toBottomOf="@id/cityDetailTitle"
+		android:visibility="gone"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent">
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/cityDetailTitle">
 		<TextView
 			android:id="@+id/cityDetailTemperature"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:textStyle="bold"
-			android:textColor="@android:color/white"
-			android:textSize="@dimen/large_text_size"
-			android:gravity="center_vertical"
 			android:drawableEnd="@drawable/weather_icon_01"
 			android:drawableRight="@drawable/weather_icon_01"
-			tools:text="+15"
+			android:gravity="center_vertical"
+			android:layout_gravity="center_vertical"
+			android:textColor="@android:color/white"
+			android:textSize="@dimen/large_text_size"
+			android:textStyle="bold"
+			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
-			app:layout_constraintBottom_toBottomOf="parent"/>
+			tools:text="+15"/>
 		<LinearLayout
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
-			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintEnd_toStartOf="@id/cityDetailTemperature"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintEnd_toStartOf="@id/cityDetailTemperature">
+			app:layout_constraintTop_toTopOf="parent">
 			<TextView
 				android:id="@+id/cityDetailWind"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				tools:text="Ветер: 8 м/с"
 				android:padding="0dp"
-				style="@style/CityDropDownInfo"/>
+				style="@style/CityDropDownInfo"
+				tools:text="Ветер: 8 м/с"/>
 			<TextView
 				android:id="@+id/cityDetailCloudy"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				tools:text="Облачность: 40%"
-				style="@style/CityDropDownInfo"/>
+				style="@style/CityDropDownInfo"
+				tools:text="Облачность: 40%"/>
 			<TextView
 				android:id="@+id/cityDetailPressure"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				tools:text="Давление: 760 мм"
-				style="@style/CityDropDownInfo"/>
+				style="@style/CityDropDownInfo"
+				tools:text="Давление: 760 мм"/>
 		</LinearLayout>
 	</android.support.constraint.ConstraintLayout>
 </android.support.constraint.ConstraintLayout>

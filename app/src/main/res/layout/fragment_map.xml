@@ -11,16 +11,16 @@
 		android:layout_width="@dimen/location_button_size"
 		android:layout_height="@dimen/location_button_size"
 		android:background="@drawable/location_button"
+		android:contentDescription="@string/enable_or_disable_geo"
 		android:layout_gravity="bottom|end"
-		android:layout_margin="@dimen/margin_small"
-		android:contentDescription="@string/enable_or_disable_geo"/>
+		android:layout_margin="@dimen/margin_small"/>
 	<FrameLayout
 		android:id="@+id/mapUpdateLayout"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
+		android:background="@color/updateScreenBackground"
 		android:clickable="true"
-		android:focusable="true"
-		android:background="@color/updateScreenBackground">
+		android:focusable="true">
 		<ProgressBar
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
