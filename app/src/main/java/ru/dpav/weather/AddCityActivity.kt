@@ -162,8 +162,8 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 
 		clearCityName()
 
-		val temperature = getFloatFromEdit(temperatureEdit)
-		if (temperature < MIN_TEMPERATURE || temperature > MAX_TEMPERATURE) {
+		val temperature = getIntFromEdit(temperatureEdit)
+		if (temperature !in MIN_TEMPERATURE..MAX_TEMPERATURE) {
 			showSnack(getString(R.string.error_valid_temp))
 			temperatureEdit.requestFocus()
 			return
@@ -185,14 +185,14 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 		}
 
 		if (weatherIconPosition == ICON_WIND
-			&& getFloatFromEdit(windEdit).toInt() == 0) {
+			&& getIntFromEdit(windEdit) == 0) {
 			showSnack(getString(R.string.error_valid_wind))
 			windEdit.requestFocus()
 			return
 		}
 
-		val pressure = getFloatFromEdit(pressureEdit)
-		if (pressure < MIN_PRESSURE || pressure > MAX_PRESSURE) {
+		val pressure = getIntFromEdit(pressureEdit)
+		if (pressure !in MIN_PRESSURE..MAX_PRESSURE) {
 			showSnack(getString(R.string.error_valid_pressure))
 			pressureEdit.requestFocus()
 			return
@@ -213,12 +213,16 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 		mAddCityPresenter.onSave(city)
 	}
 
-	private fun getFloatFromEdit(edit: EditText): Float {
-		return try {
-			edit.text.toString().toFloat()
-		} catch (e: NumberFormatException) {
-			0f
-		}
+	private fun getIntFromEdit(edit: EditText) = try {
+		edit.text.toString().toInt()
+	} catch (e: NumberFormatException) {
+		0
+	}
+
+	private fun getFloatFromEdit(edit: EditText) = try {
+		edit.text.toString().toFloat()
+	} catch (e: NumberFormatException) {
+		0f
 	}
 
 	private fun getFloatFromSpinner(spinner: Spinner): Float {
