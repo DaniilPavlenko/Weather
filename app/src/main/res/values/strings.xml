@@ -31,7 +31,7 @@
 	<string name="save">Сохранить</string>
 	<string name="editor_of_city">Редактор города</string>
 	<string name="error_valid_name">Название города: минимум 3 символа без пробелов</string>
-	<string name="error_valid_name_spec_chars">Допустимы только буквы, пробел, знак тире</string>
+	<string name="error_valid_name_spec_chars">Допустимы RU-символы, пробел, знак тире</string>
 	<string name="error_valid_temp">Температура: допустимый диапазон -90 .. +60</string>
 	<string name="error_valid_pressure">Давление: допустимый диапазон 665–815</string>
 	<string name="change">Изменить</string>
@@ -40,4 +40,7 @@
 	<string name="cityNameEditHint">Ростов-на-Дону</string>
 	<string name="windEditHint">м/с</string>
 	<string name="pressureEditHint">мм.рт.ст</string>
+	<string name="error_valid_cloudy">Облачность не может быть равна 0 при текущей погоде</string>
+	<string name="error_valid_humidity">Влажность не может быть равна 0 при текущей погоде</string>
+	<string name="error_valid_wind">Ветер не может быть равен 0 при текущей погоде</string>
 </resources>

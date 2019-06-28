@@ -22,6 +22,7 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 	private val iconsArray = arrayOf(
 		R.drawable.weather_icon_01,
 		R.drawable.weather_icon_01n,
+		R.drawable.weather_icon_50,
 		R.drawable.weather_icon_02,
 		R.drawable.weather_icon_02n,
 		R.drawable.weather_icon_03,
@@ -30,8 +31,7 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 		R.drawable.weather_icon_10,
 		R.drawable.weather_icon_10n,
 		R.drawable.weather_icon_11,
-		R.drawable.weather_icon_13,
-		R.drawable.weather_icon_50
+		R.drawable.weather_icon_13
 	)
 
 	@InjectPresenter
@@ -127,11 +127,11 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 	private fun validateData() {
 		val cityName = cityNameEdit.text.toString()
 			.replace(" ", "")
-		if (cityName.length < 3) {
+		if (cityName.length < MIN_CITY_NAME_LENGTH) {
 			showSnack(getString(R.string.error_valid_name))
 			cityNameEdit.requestFocus()
 			return
-		} else if (!cityName.matches(Regex("[\\p{L} \\-]*"))) {
+		} else if (!cityName.matches(Regex("((?![a-zA-Z])[\\p{L} \\-])*"))) {
 			showSnack(getString(R.string.error_valid_name_spec_chars))
 			cityNameEdit.requestFocus()
 			return
@@ -140,14 +140,36 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 		clearCityName()
 
 		val temperature = getFloatFromEdit(temperatureEdit)
-		if (temperature > 60 || temperature < -90) {
+		if (temperature < MIN_TEMPERATURE || temperature > MAX_TEMPERATURE) {
 			showSnack(getString(R.string.error_valid_temp))
 			temperatureEdit.requestFocus()
 			return
 		}
 
+		val weatherIconPosition = weatherIconSpinner.selectedItemPosition
+		val cloudy = cloudySpinner.selectedItem as Int
+
+		if (weatherIconPosition >= ICON_CLOUDY
+			&& cloudy == 0) {
+			showSnack(getString(R.string.error_valid_cloudy))
+			return
+		}
+
+		val humidity = humiditySpinner.selectedItem as Int
+		if (weatherIconPosition >= ICON_HUMIDITY && humidity == 0) {
+			showSnack(getString(R.string.error_valid_humidity))
+			return
+		}
+
+		if (weatherIconPosition == ICON_WIND
+			&& getFloatFromEdit(windEdit).toInt() == 0) {
+			showSnack(getString(R.string.error_valid_wind))
+			windEdit.requestFocus()
+			return
+		}
+
 		val pressure = getFloatFromEdit(pressureEdit)
-		if (pressure < 665 || pressure > 815) {
+		if (pressure < MIN_PRESSURE || pressure > MAX_PRESSURE) {
 			showSnack(getString(R.string.error_valid_pressure))
 			pressureEdit.requestFocus()
 			return
@@ -184,6 +206,16 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 		private const val ARG_CITY_ID = "cityId"
 		private const val ARG_LATITUDE = "latitude"
 		private const val ARG_LONGITUDE = "longitude"
+
+		private const val MAX_TEMPERATURE = 60
+		private const val MIN_TEMPERATURE = -90
+		private const val MIN_CITY_NAME_LENGTH = 3
+		private const val MIN_PRESSURE = 665
+		private const val MAX_PRESSURE = 815
+
+		private const val ICON_WIND = 2
+		private const val ICON_CLOUDY = 3
+		private const val ICON_HUMIDITY = 7
 
 		fun newIntent(context: Context, city: City): Intent {
 			val intent = Intent(context, AddCityActivity::class.java)

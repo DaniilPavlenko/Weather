@@ -7,7 +7,7 @@ import com.arellomobile.mvp.MvpDelegate
 import ru.dpav.weather.api.City
 import ru.dpav.weather.presenters.ListPresenter
 
-class CitiesAdapter(var mListPresenter: ListPresenter, var mMvpDelegate: MvpDelegate<*>)
+class CitiesAdapter(private var mListPresenter: ListPresenter, private var mMvpDelegate: MvpDelegate<*>)
 	: RecyclerView.Adapter<CityHolder>() {
 
 	private var mRecyclerView: RecyclerView? = null
