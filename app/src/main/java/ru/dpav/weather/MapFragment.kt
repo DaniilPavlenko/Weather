@@ -89,12 +89,16 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 	}
 
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-		if (resultCode != Activity.RESULT_OK) {
-			return
-		}
-		when (requestCode) {
-			REQUEST_NEW_CITY -> {
-				mMapPresenter.saveCity()
+		when (resultCode) {
+			Activity.RESULT_OK -> {
+				when (requestCode) {
+					REQUEST_NEW_CITY -> {
+						mMapPresenter.saveCity()
+					}
+				}
+			}
+			RESULT_REMOVE -> {
+				mMapPresenter.onCustomCityRemoved()
 			}
 		}
 	}
@@ -176,9 +180,9 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		mMap.invalidate()
 	}
 
-	override fun updateCitiesMarkers(cities: List<City>) {
+	override fun updateCitiesMarkers() {
 		addMarkersOnMap(
-			cities,
+			CitiesRepository.cities,
 			mMarkers,
 			R.drawable.marker_city
 		)
@@ -225,21 +229,37 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		marker.icon = ContextCompat.getDrawable(activity!!, icon)
 		marker.setAnchor(Marker.ANCHOR_CENTER, 1f)
 
+		val infoWindow: PopInfoWindow
 		val onClick = View.OnClickListener { openDetailDialog(city) }
 
-		val infoWindow = if (icon == R.drawable.marker_city) {
-			PopInfoWindow(
+		if (icon == R.drawable.marker_city) {
+			infoWindow = PopInfoWindow(
 				R.layout.info_window_weather,
 				mMap,
 				city,
 				onClick)
 		} else {
-			EditablePopInfo(
+			infoWindow = EditablePopInfo(
 				R.layout.info_window_weather,
 				mMap,
 				city,
 				onClick,
 				View.OnClickListener { openEditor(city) })
+
+			marker.isDraggable = true
+			marker.setOnMarkerDragListener(object : Marker.OnMarkerDragListener {
+				override fun onMarkerDragStart(marker: Marker?) {
+					mMapPresenter.onInfoWindowClose()
+				}
+
+				override fun onMarkerDrag(marker: Marker?) {}
+
+				override fun onMarkerDragEnd(marker: Marker?) {
+					marker?.let {
+						mMapPresenter.onCustomCityDragEnd(it)
+					}
+				}
+			})
 		}
 
 		marker.infoWindow = infoWindow
@@ -451,6 +471,7 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 
 	companion object {
 		private const val REQUEST_NEW_CITY = 1
+		const val RESULT_REMOVE = 2
 
 		private const val LOCATION_REQUEST_INTERVAL: Long = 7000
 		private const val LOCATION_REQUEST_FAST_INTERVAL: Long = 4000

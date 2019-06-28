@@ -8,4 +8,5 @@
 	<color name="disabledLocationButton">#80008577</color>
 	<color name="updateScreenBackground">#8a000000</color>
 	<color name="colorSuccessButton">#0a0</color>
+	<color name="colorCancelButton">#c00</color>
 </resources>

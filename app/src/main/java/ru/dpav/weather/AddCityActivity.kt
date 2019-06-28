@@ -1,10 +1,12 @@
 package ru.dpav.weather
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
@@ -101,6 +103,11 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 				}
 			}
 		}
+
+		deleteButton.visibility = View.VISIBLE
+		deleteButton.setOnClickListener {
+			mAddCityPresenter.onRemoveClick()
+		}
 	}
 
 	override fun cancel() {
@@ -110,6 +117,22 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 	override fun save() {
 		setResult(Activity.RESULT_OK)
 		finish()
+	}
+
+	override fun showRemoveDialog(shown: Boolean) {
+		if (!shown) return
+		AlertDialog.Builder(this)
+			.setTitle(getString(R.string.remove))
+			.setMessage(getString(R.string.remove_dialog_question))
+			.setPositiveButton(getString(R.string.remove)) { _, _ ->
+				mAddCityPresenter.onAcceptDialog()
+				setResult(MapFragment.RESULT_REMOVE)
+				finish()
+			}
+			.setNegativeButton(getString(R.string.cancel)) { _, _ ->
+				mAddCityPresenter.onDeclineDialog()
+			}
+			.show()
 	}
 
 	private fun clearCityName() {

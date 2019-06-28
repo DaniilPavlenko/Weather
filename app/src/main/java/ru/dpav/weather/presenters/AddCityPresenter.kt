@@ -22,6 +22,18 @@ class AddCityPresenter : MvpPresenter<AddCityView>() {
 		mCity = city
 	}
 
+	fun onRemoveClick() {
+		viewState.showRemoveDialog(true)
+	}
+
+	fun onAcceptDialog() {
+		CitiesRepository.removeCustomCity(mCity)
+	}
+
+	fun onDeclineDialog() {
+		viewState.showRemoveDialog(false)
+	}
+
 	override fun onFirstViewAttach() {
 		super.onFirstViewAttach()
 		if (mCity.id != 0) {

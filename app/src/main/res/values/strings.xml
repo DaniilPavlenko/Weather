@@ -2,8 +2,11 @@
 	<string name="app_name">Погода</string>
 	<string name="map">Карта</string>
 	<string name="list">Список</string>
-	<string name="google_maps_api_key" translatable="false">AIzaSyDo0D4g2WtPxUlXlF82-OzOl5GvlHPQRtQ</string>
-	<string name="marker_snippet" formatted="true">Температура: %+d°C
+	<string name="google_maps_api_key"
+		translatable="false">AIzaSyDo0D4g2WtPxUlXlF82-OzOl5GvlHPQRtQ
+	</string>
+	<string name="marker_snippet"
+		formatted="true">Температура: %+d°C
 		\nВетер: %d м/с
 		\nОблачность: %d%%
 		\nДавление: %d мм
@@ -19,7 +22,6 @@
 	<string name="back">Назад</string>
 	<string name="enable_or_disable_geo">Enable or disable geolocation</string>
 	<string name="list_empty">Список пуст</string>
-	<string name="error_response">Ошибка на сервере</string>
 	<string name="error_unexpected">Произошла непредвиденная ошибка</string>
 	<string name="name_of_city">Название города</string>
 	<string name="temperature">Температура (-90..+60)</string>
@@ -43,4 +45,6 @@
 	<string name="error_valid_cloudy">Облачность не может быть равна 0 при текущей погоде</string>
 	<string name="error_valid_humidity">Влажность не может быть равна 0 при текущей погоде</string>
 	<string name="error_valid_wind">Ветер не может быть равен 0 при текущей погоде</string>
+	<string name="remove">Удалить</string>
+	<string name="remove_dialog_question">Вы действительно хотите удалить город?</string>
 </resources>

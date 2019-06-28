@@ -28,6 +28,11 @@ object CitiesRepository : Observable() {
 		notifySubscribers()
 	}
 
+	fun removeCustomCity(city: City) {
+		customCities.remove(city)
+		notifySubscribers()
+	}
+
 	private fun notifySubscribers() {
 		setChanged()
 		notifyObservers()

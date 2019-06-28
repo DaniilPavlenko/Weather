@@ -5,9 +5,11 @@ import com.arellomobile.mvp.MvpPresenter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.overlay.Marker
 import ru.dpav.weather.CitiesRepository
 import ru.dpav.weather.Constants
 import ru.dpav.weather.R
+import ru.dpav.weather.api.Coordinates
 import ru.dpav.weather.api.WeatherApi
 import ru.dpav.weather.api.WeatherResponse
 import ru.dpav.weather.views.MapView
@@ -92,10 +94,9 @@ class MapPresenter : MvpPresenter<MapView>() {
 	}
 
 	private fun processApiResponse(response: WeatherResponse) {
-		val cities = response.cities
-		CitiesRepository.cities = cities
+		CitiesRepository.cities = response.cities
 		with(viewState) {
-			updateCitiesMarkers(cities)
+			updateCitiesMarkers()
 			showUpdateScreen(false)
 		}
 	}
@@ -143,5 +144,25 @@ class MapPresenter : MvpPresenter<MapView>() {
 			askPermission()
 			setStartPosition()
 		}
+	}
+
+	fun onCustomCityDragEnd(marker: Marker) {
+		CitiesRepository.customCities.forEachIndexed { index, city ->
+			if (city.id.toString() == marker.id) {
+				CitiesRepository.customCities[index].coordinates =
+					Coordinates(
+						marker.position.latitude,
+						marker.position.longitude
+					)
+			}
+		}
+	}
+
+	fun onCustomCityRemoved() {
+		with(viewState) {
+			closeInfoWindow()
+			updateCitiesMarkers()
+		}
+		mEditingMarkerId = null
 	}
 }
