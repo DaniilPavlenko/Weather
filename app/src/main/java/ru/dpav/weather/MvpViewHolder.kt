@@ -10,7 +10,7 @@ abstract class MvpViewHolder(
 ) : RecyclerView.ViewHolder(itemView) {
 	private var mMvpDelegate: MvpDelegate<*>? = null
 
-	protected val mvpDelegate: MvpDelegate<*>?
+	private val mvpDelegate: MvpDelegate<*>?
 		get() {
 			if (getMvpChildId() == null) {
 				return null
