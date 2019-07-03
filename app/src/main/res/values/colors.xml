@@ -9,4 +9,6 @@
 	<color name="updateScreenBackground">#8a000000</color>
 	<color name="colorSuccessButton">#0a0</color>
 	<color name="colorCancelButton">#c00</color>
+	<color name="cityMarker">#7fbd32</color>
+	<color name="cityMarkerCustom">#56ccdb</color>
 </resources>

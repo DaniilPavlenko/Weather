@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 	<item android:state_activated="true">
-		<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+		<layer-list>
 			<item>
 				<shape android:shape="rectangle">
-					<size android:height="@dimen/location_button_size" android:width="@dimen/location_button_size"/>
+					<size android:height="@dimen/location_button_size"
+						android:width="@dimen/location_button_size"/>
 					<solid android:color="@color/colorPrimary"/>
 					<corners android:radius="10dp"/>
 				</shape>
@@ -13,10 +14,11 @@
 		</layer-list>
 	</item>
 	<item android:state_activated="false">
-		<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+		<layer-list>
 			<item>
 				<shape android:shape="rectangle">
-					<size android:height="@dimen/location_button_size" android:width="@dimen/location_button_size"/>
+					<size android:height="@dimen/location_button_size"
+						android:width="@dimen/location_button_size"/>
 					<solid android:color="@color/disabledLocationButton"/>
 					<corners android:radius="10dp"/>
 				</shape>

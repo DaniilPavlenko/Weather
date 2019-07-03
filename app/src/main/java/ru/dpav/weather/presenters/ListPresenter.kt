@@ -16,7 +16,10 @@ class ListPresenter() : MvpPresenter<ListView>(), Observer {
 		mCode = code
 	}
 
-	fun onToggleDropDownInfo(position: Int, shown: Boolean) {
+	fun onToggleDropDownInfo(
+		position: Int,
+		shown: Boolean
+	) {
 		viewState.toggleDropDownInfo(position, shown)
 	}
 
@@ -26,7 +29,10 @@ class ListPresenter() : MvpPresenter<ListView>(), Observer {
 		}
 	}
 
-	override fun update(observable: Observable?, arg: Any?) {
+	override fun update(
+		observable: Observable?,
+		arg: Any?
+	) {
 		val cityRep = observable as CitiesRepository
 		val cities = arrayListOf<City>()
 		cities.addAll(cityRep.cities)

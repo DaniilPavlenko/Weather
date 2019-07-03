@@ -18,7 +18,10 @@ class CityHolder(
 	itemView: View,
 	parentDelegate: MvpDelegate<*>,
 	private val mParentPresenter: ListPresenter
-) : MvpViewHolder(parentDelegate, itemView), ListView {
+) : MvpViewHolder(
+	parentDelegate,
+	itemView
+), ListView {
 
 	private var mCity: City? = null
 	private var mTitle: TextView = itemView.cityDetailTitle
@@ -47,23 +50,38 @@ class CityHolder(
 		mTitle.setOnClickListener { onTitleClick() }
 
 		with(mTemperature) {
-			val icon = Util.getWeatherIconByName(city.weather[0].icon)
-			text = context.getString(R.string.detail_temperature, city.main.temp.toInt())
+			val icon = Util.Icons
+				.getWeatherIconByName(city.weather[0].icon)
+			text = context.getString(
+				R.string.detail_temperature,
+				city.main.temp.toInt()
+			)
 			setCompoundDrawablesWithIntrinsicBounds(0, 0, icon, 0)
 		}
 
-		mWind.text = context.getString(R.string.detail_wind, city.wind.speed.toInt())
+		mWind.text = context.getString(
+			R.string.detail_wind,
+			city.wind.speed.toInt()
+		)
 
-		mCloudy.text = context.getString(R.string.detail_cloudy, city.clouds.cloudy)
+		mCloudy.text = context.getString(
+			R.string.detail_cloudy,
+			city.clouds.cloudy
+		)
 
-		mPressure.text = context.getString(R.string.detail_pressure,
-			Util.getPressureInMmHg(city.main.pressure))
+		mPressure.text = context.getString(
+			R.string.detail_pressure,
+			Util.getPressureInMmHg(city.main.pressure)
+		)
 
 		with(mDetailInfo) {
 			visibility = if (isOpened) View.VISIBLE else View.GONE
 			setOnClickListener {
-				val cityDetailFragment = CityDetailFragment.newInstance(city)
-				cityDetailFragment.show(context.supportFragmentManager, "dialog_city2")
+				val cityDetailFragment = CityDetailFragment.newInstance(city.id)
+				cityDetailFragment.show(
+					context.supportFragmentManager,
+					"dialog_city2"
+				)
 			}
 		}
 	}
@@ -82,9 +100,11 @@ class CityHolder(
 	}
 
 	override fun toggleDropDownInfo(position: Int, shown: Boolean) {
-		mDetailInfo.visibility =
-			if (shown) View.VISIBLE
-			else View.GONE
+		mDetailInfo.visibility = if (shown) {
+			View.VISIBLE
+		} else {
+			View.GONE
+		}
 	}
 
 	override fun updateCitiesList(cities: List<City>) {}

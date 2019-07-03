@@ -17,7 +17,9 @@ open class PopInfoWindow(
 	override fun onOpen(item: Any?) {
 		mView.infoWindowTitle.text = city.name
 
-		val icon = Util.getWeatherIconByName(city.weather[0].icon)
+		val icon = Util.Icons
+			.getWeatherIconByName(city.weather[0].icon)
+
 		mView.infoWindowTitle
 			.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0)
 

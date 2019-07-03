@@ -9,13 +9,28 @@ class EditablePopInfo(
 	layoutResId: Int,
 	mapView: MapView?,
 	city: City,
-	onClick: View.OnClickListener,
-	private val onEditClick: View.OnClickListener)
-	: PopInfoWindow(layoutResId, mapView, city, onClick) {
+	private val listener: WindowInfoListener
+) : PopInfoWindow(
+	layoutResId,
+	mapView,
+	city,
+	View.OnClickListener { listener.onWindowClick() }
+) {
 
 	override fun onOpen(item: Any?) {
 		super.onOpen(item)
-		mView.infoWindowEditButton.visibility = View.VISIBLE
-		mView.infoWindowEditButton.setOnClickListener(onEditClick)
+		mView.infoWindowButtonsContainer.visibility = View.VISIBLE
+		mView.infoWindowEditButton.setOnClickListener {
+			listener.onEditClick()
+		}
+		mView.infoWindowRemoveButton.setOnClickListener {
+			listener.onRemoveClick()
+		}
+	}
+
+	interface WindowInfoListener {
+		fun onWindowClick()
+		fun onEditClick()
+		fun onRemoveClick()
 	}
 }

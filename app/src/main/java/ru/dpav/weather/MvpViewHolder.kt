@@ -17,7 +17,10 @@ abstract class MvpViewHolder(
 			}
 			if (mMvpDelegate == null) {
 				mMvpDelegate = MvpDelegate(this)
-				mMvpDelegate!!.setParentDelegate(mParentDelegate, getMvpChildId())
+				mMvpDelegate!!.setParentDelegate(
+					mParentDelegate,
+					getMvpChildId()
+				)
 			}
 			return mMvpDelegate
 		}

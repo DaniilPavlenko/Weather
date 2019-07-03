@@ -6,8 +6,10 @@ import android.support.v4.view.ViewPager
 import android.util.AttributeSet
 import android.view.MotionEvent
 
-open class NonSwipeViewPager(context: Context, attrs: AttributeSet)
-	: ViewPager(context, attrs) {
+open class NonSwipeViewPager(
+	context: Context,
+	attrs: AttributeSet
+) : ViewPager(context, attrs) {
 
 	private var enableSwipe: Boolean = false
 

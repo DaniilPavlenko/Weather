@@ -1,0 +1,20 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+	<item>
+		<shape android:shape="oval">
+			<size android:height="@dimen/marker_size_selected"
+				android:width="@dimen/marker_size_selected"/>
+			<padding android:bottom="@dimen/marker_city_border_selected"
+				android:left="@dimen/marker_city_border_selected"
+				android:right="@dimen/marker_city_border_selected"
+				android:top="@dimen/marker_city_border_selected"/>
+			<solid android:color="@android:color/white"/>
+		</shape>
+	</item>
+	<item>
+		<shape android:shape="oval">
+			<size android:height="@dimen/marker_size_selected"
+				android:width="@dimen/marker_size_selected"/>
+			<solid android:color="#56ccdb"/>
+		</shape>
+	</item>
+</layer-list>

@@ -18,6 +18,7 @@ interface MapView : MvpView {
 	fun enableLocation(enable: Boolean)
 	fun showUpdateScreen(shown: Boolean)
 	fun showConnectionError(shown: Boolean)
+	fun showRemoveDialog(shown: Boolean)
 
 	@StateStrategyType(OneExecutionStateStrategy::class)
 	fun moveCameraTo(point: GeoPoint, zoom: Double?)

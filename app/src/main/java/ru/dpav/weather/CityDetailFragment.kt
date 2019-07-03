@@ -23,34 +23,58 @@ class CityDetailFragment : DialogFragment() {
 	override fun onCreateView(
 		inflater: LayoutInflater,
 		container: ViewGroup?,
-		savedInstanceState: Bundle?): View? {
+		savedInstanceState: Bundle?
+	): View? {
 		dialog?.window?.apply {
 			requestFeature(Window.FEATURE_NO_TITLE)
 			setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 		}
 		val view = inflater.inflate(R.layout.fragment_city_detail, container, false)
 		arguments?.let {
-			view.cityDetailTitle.text = it.getString(ARG_CITY_NAME)
 
-			view.cityDetailTemperature.text =
-				getString(R.string.detail_temperature, it.getInt(ARG_TEMPERATURE))
+			val cityId = it.getInt(ARG_CITY_ID)
 
-			val icon = Util.getWeatherIconByName(it.getString(ARG_WEATHER_ICON)!!)
+			val city: City
+			if (CitiesRepository.isCustom(cityId)) {
+				city = CitiesRepository.customCities.first { c -> c.id == cityId }
+			} else {
+				city = CitiesRepository.cities.first { c -> c.id == cityId }
+				city.main.pressure = Util
+					.getPressureInMmHg(city.main.pressure)
+					.toFloat()
+			}
+
+			view.cityDetailTitle.text = city.name
+
+			view.cityDetailTemperature.text = getString(
+				R.string.detail_temperature,
+				city.main.temp.toInt()
+			)
+
+			val icon = Util.Icons.getWeatherIconByName(city.weather[0].icon)
 
 			view.cityDetailTemperature
 				.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0)
 
-			view.cityDetailWind.text =
-				getString(R.string.detail_wind, it.getInt(ARG_WIND))
+			view.cityDetailWind.text = getString(
+				R.string.detail_wind,
+				city.wind.speed.toInt()
+			)
 
-			view.cityDetailCloudy.text =
-				getString(R.string.detail_cloudy, it.getInt(ARG_CLOUDY))
+			view.cityDetailCloudy.text = getString(
+				R.string.detail_cloudy,
+				city.clouds.cloudy
+			)
 
-			view.cityDetailPressure.text =
-				getString(R.string.detail_pressure, it.getInt(ARG_PRESSURE))
+			view.cityDetailPressure.text = getString(
+				R.string.detail_pressure,
+				city.main.pressure.toInt()
+			)
 
-			view.cityDetailHumidity.text =
-				getString(R.string.detail_humidity, it.getInt(ARG_HUMIDITY))
+			view.cityDetailHumidity.text = getString(
+				R.string.detail_humidity,
+				city.main.humidity.toInt()
+			)
 
 			view.closeButton.setOnClickListener { dialog.cancel() }
 		}
@@ -62,30 +86,19 @@ class CityDetailFragment : DialogFragment() {
 		dialog?.window?.let {
 			it.setLayout(
 				ViewGroup.LayoutParams.MATCH_PARENT,
-				ViewGroup.LayoutParams.MATCH_PARENT)
+				ViewGroup.LayoutParams.MATCH_PARENT
+			)
 			it.setBackgroundDrawable(ColorDrawable(Color.WHITE))
 		}
 	}
 
 	companion object {
-		private const val ARG_CITY_NAME = "city_name"
-		private const val ARG_TEMPERATURE = "temperature"
-		private const val ARG_WEATHER_ICON = "weather_icon"
-		private const val ARG_WIND = "wind"
-		private const val ARG_CLOUDY = "cloudy"
-		private const val ARG_PRESSURE = "pressure"
-		private const val ARG_HUMIDITY = "humidity"
-
-		fun newInstance(city: City): CityDetailFragment = CityDetailFragment().apply {
-			arguments = Bundle().apply {
-				putString(ARG_CITY_NAME, city.name)
-				putInt(ARG_TEMPERATURE, city.main.temp.toInt())
-				putString(ARG_WEATHER_ICON, city.weather[0].icon)
-				putInt(ARG_WIND, city.wind.speed.toInt())
-				putInt(ARG_CLOUDY, city.clouds.cloudy)
-				putInt(ARG_PRESSURE, Util.getPressureInMmHg(city.main.pressure))
-				putInt(ARG_HUMIDITY, city.main.humidity.toInt())
+		private const val ARG_CITY_ID = "city_id"
+		fun newInstance(cityId: Int): CityDetailFragment =
+			CityDetailFragment().apply {
+				arguments = Bundle().apply {
+					putInt(ARG_CITY_ID, cityId)
+				}
 			}
-		}
 	}
 }
