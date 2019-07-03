@@ -11,17 +11,17 @@ import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.support.design.widget.Snackbar
-import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageButton
+import androidx.core.content.ContextCompat
 import com.arellomobile.mvp.MvpAppCompatFragment
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.*
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_map.view.*
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.*
@@ -121,7 +121,8 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 			setScrollableAreaLimitLatitude(
 				maxMapLatitude,
 				-maxMapLatitude,
-				(height / 2))
+				(height / 2)
+			)
 			zoomController.setVisibility(
 				CustomZoomButtonsController.Visibility.NEVER
 			)
@@ -220,7 +221,8 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 	private fun addMarkersOnMap(
 		cities: List<City>,
 		markersList: ArrayList<Marker>,
-		markersIcon: Int) {
+		markersIcon: Int
+	) {
 		mMap.overlays.removeAll(markersList)
 		markersList.clear()
 		cities.forEachIndexed { _, city ->
@@ -329,7 +331,8 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		with(mMap) {
 			overlays.forEachIndexed { index, overlay ->
 				if (overlay is Marker &&
-					overlay.id == city.id.toString()) {
+					overlay.id == city.id.toString()
+				) {
 					overlays.removeAt(index)
 				}
 				overlays.add(marker)
@@ -528,7 +531,8 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 			location?.lastLocation?.let {
 				val point = GeoPoint(
 					it.latitude,
-					it.longitude)
+					it.longitude
+				)
 				locateToPosition(point, mMap.zoomLevelDouble)
 			}
 		}
@@ -556,7 +560,8 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		activity?.let {
 			return ContextCompat.checkSelfPermission(
 				it as Context,
-				permissionName) == PackageManager.PERMISSION_GRANTED
+				permissionName
+			) == PackageManager.PERMISSION_GRANTED
 		}
 		return false
 	}
@@ -569,7 +574,8 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		when (requestCode) {
 			REQUEST_PERMISSIONS -> {
 				if (grantResults.isNotEmpty() && grantResults[0] ==
-					PackageManager.PERMISSION_GRANTED) {
+					PackageManager.PERMISSION_GRANTED
+				) {
 					setStartPosition()
 				}
 			}

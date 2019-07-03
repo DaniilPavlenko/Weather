@@ -5,16 +5,16 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v4.content.ContextCompat
-import android.support.v7.content.res.AppCompatResources
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.SeekBar
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_add_city_new.*
 import ru.dpav.weather.api.City
 import ru.dpav.weather.presenters.AddCityPresenter
@@ -66,7 +66,8 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 			return
 		}
 		if (resultCode == Activity.RESULT_OK
-			&& requestCode == REQUEST_ICON) {
+			&& requestCode == REQUEST_ICON
+		) {
 			data?.let {
 				val iconRes = it.getIntExtra(
 					ChooseIconActivity.SELECTED_ICON,

@@ -2,9 +2,9 @@ package ru.dpav.weather
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.support.v4.view.ViewPager
 import android.util.AttributeSet
 import android.view.MotionEvent
+import androidx.viewpager.widget.ViewPager
 
 open class NonSwipeViewPager(
 	context: Context,

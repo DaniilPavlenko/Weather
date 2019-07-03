@@ -31,7 +31,7 @@
 		android:paddingLeft="@dimen/padding_small"
 		android:paddingRight="@dimen/padding_small"
 		tools:text="Детали погоды"/>
-	<android.support.constraint.ConstraintLayout
+	<androidx.constraintlayout.widget.ConstraintLayout
 		android:id="@+id/infoWindowButtonsContainer"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -61,5 +61,5 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
 			app:srcCompat="@drawable/ic_delete"/>
-	</android.support.constraint.ConstraintLayout>
+	</androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

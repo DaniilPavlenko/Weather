@@ -1,9 +1,9 @@
 package ru.dpav.weather
 
-import android.support.constraint.ConstraintLayout
-import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.arellomobile.mvp.MvpDelegate
 import com.arellomobile.mvp.MvpFacade
 import com.arellomobile.mvp.presenter.InjectPresenter
