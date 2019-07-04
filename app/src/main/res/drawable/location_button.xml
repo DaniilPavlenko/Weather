@@ -6,8 +6,10 @@
 				<shape android:shape="rectangle">
 					<size android:height="@dimen/location_button_size"
 						android:width="@dimen/location_button_size"/>
-					<solid android:color="@color/colorPrimary"/>
+					<solid android:color="@android:color/white"/>
 					<corners android:radius="10dp"/>
+					<stroke android:color="#48000000"
+						android:width="2dp"/>
 				</shape>
 			</item>
 			<item android:drawable="@drawable/ic_location_on"/>
@@ -19,8 +21,10 @@
 				<shape android:shape="rectangle">
 					<size android:height="@dimen/location_button_size"
 						android:width="@dimen/location_button_size"/>
-					<solid android:color="@color/disabledLocationButton"/>
+					<solid android:color="#B3FFFFFF"/>
 					<corners android:radius="10dp"/>
+					<stroke android:color="#48000000"
+						android:width="2dp"/>
 				</shape>
 			</item>
 			<item android:drawable="@drawable/ic_location_off"/>

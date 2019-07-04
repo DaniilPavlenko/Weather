@@ -30,6 +30,9 @@ class ChooseIconActivity : MvpAppCompatActivity() {
 				}
 			}
 		}
+		closeIconDialogButton.setOnClickListener{
+			finish()
+		}
 	}
 
 	private fun returnResult(iconRes: Int) {

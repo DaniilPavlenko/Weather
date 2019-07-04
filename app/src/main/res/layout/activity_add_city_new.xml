@@ -22,10 +22,26 @@
 				android:id="@+id/headerConstraint"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				android:background="@drawable/background_detail"
+				android:background="@color/editorHeader"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toTopOf="parent">
+				<TextView
+					android:id="@+id/textView"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:fontFamily="sans-serif"
+					android:layout_marginEnd="@dimen/margin_small"
+					android:layout_marginLeft="@dimen/margin_small"
+					android:layout_marginRight="@dimen/margin_small"
+					android:layout_marginStart="@dimen/margin_small"
+					android:layout_marginTop="@dimen/margin_small"
+					android:text="@string/marker_editor"
+					android:textColor="@android:color/white"
+					android:textSize="@dimen/info_window_city_text_size"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toTopOf="parent"/>
 				<ImageView
 					android:id="@+id/editorWeatherIcon"
 					android:layout_width="@dimen/editor_icon_size"
@@ -33,11 +49,11 @@
 					android:background="@drawable/background_info_window"
 					android:contentDescription="@string/current_weather"
 					android:layout_marginBottom="@dimen/editor_icon_margin"
-					android:layout_marginTop="@dimen/editor_icon_margin"
+					android:layout_marginTop="24dp"
 					app:layout_constraintBottom_toBottomOf="parent"
 					app:layout_constraintEnd_toEndOf="parent"
 					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toTopOf="parent"
+					app:layout_constraintTop_toBottomOf="@+id/textView"
 					app:srcCompat="@drawable/weather_icon_01"/>
 				<ImageView
 					android:id="@+id/editorChangeIcon"
@@ -56,25 +72,29 @@
 				android:id="@+id/editorNameText"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
+				android:fontFamily="sans-serif"
 				android:layout_marginLeft="@dimen/margin_small"
 				android:layout_marginStart="@dimen/margin_small"
 				android:layout_marginTop="@dimen/margin_small"
-				android:text="@string/name_of_city"
+				android:text="@string/city"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/headerConstraint"/>
 			<EditText
 				android:id="@+id/editorNameEdit"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
+				android:background="@drawable/background_edit_text"
 				android:hint="@string/enter_the_city_name"
 				android:inputType="textPersonName"
 				android:layout_marginEnd="@dimen/margin_small"
 				android:layout_marginLeft="@dimen/margin_small"
 				android:layout_marginRight="@dimen/margin_small"
 				android:layout_marginStart="@dimen/margin_small"
+				android:layout_marginTop="@dimen/margin_small"
 				android:maxLength="50"
 				android:nextFocusLeft="@id/editorNameEdit"
 				android:nextFocusUp="@id/editorNameEdit"
+				android:padding="10dp"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/editorNameText"/>
@@ -119,7 +139,9 @@
 				android:layout_marginStart="@dimen/margin_small"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/editorTemperatureMinText"/>
+				app:layout_constraintTop_toBottomOf="@+id/editorTemperatureMinText"
+				style="@style/SeekBar"
+				tools:progress="50"/>
 			<TextView
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -134,10 +156,10 @@
 				android:layout_height="wrap_content"
 				android:layout_marginLeft="@dimen/margin_small"
 				android:layout_marginStart="@dimen/margin_small"
-				android:layout_marginTop="@dimen/margin_small"
 				android:text="@string/wind_placeholder"
 				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/temperatureSeekBar"/>
+				app:layout_constraintTop_toBottomOf="@id/pressureSeekBar"
+				tools:layout_editor_absoluteY="331dp"/>
 			<TextView
 				android:id="@+id/editorWindMinText"
 				android:layout_width="wrap_content"
@@ -157,7 +179,8 @@
 				android:layout_marginStart="@dimen/margin_small"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/editorWindMinText"/>
+				app:layout_constraintTop_toBottomOf="@+id/editorWindMinText"
+				style="@style/SeekBar"/>
 			<TextView
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -195,7 +218,8 @@
 				android:layout_marginStart="@dimen/margin_small"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/editorCloudyMinText"/>
+				app:layout_constraintTop_toBottomOf="@+id/editorCloudyMinText"
+				style="@style/SeekBar"/>
 			<TextView
 				android:id="@+id/editorCloudyError"
 				android:layout_width="wrap_content"
@@ -239,13 +263,16 @@
 				android:id="@+id/humiditySeekBar"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
+				android:layout_marginBottom="@dimen/margin_small"
 				android:layout_marginEnd="@dimen/margin_small"
 				android:layout_marginLeft="@dimen/margin_small"
 				android:layout_marginRight="@dimen/margin_small"
 				android:layout_marginStart="@dimen/margin_small"
+				app:layout_constraintBottom_toBottomOf="parent"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/editorHumidityMinText"/>
+				app:layout_constraintTop_toBottomOf="@+id/editorHumidityMinText"
+				style="@style/SeekBar"/>
 			<TextView
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -272,10 +299,10 @@
 				android:layout_height="wrap_content"
 				android:layout_marginLeft="@dimen/margin_small"
 				android:layout_marginStart="@dimen/margin_small"
-				android:layout_marginTop="@dimen/margin_small"
 				android:text="@string/pressure_placeholder"
 				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/editorHumidityError"/>
+				app:layout_constraintTop_toBottomOf="@id/temperatureSeekBar"
+				tools:layout_editor_absoluteY="523dp"/>
 			<TextView
 				android:id="@+id/editorPressureMinText"
 				android:layout_width="wrap_content"
@@ -289,15 +316,14 @@
 				android:id="@+id/pressureSeekBar"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				android:layout_marginBottom="@dimen/margin_small"
 				android:layout_marginEnd="@dimen/margin_small"
 				android:layout_marginLeft="@dimen/margin_small"
 				android:layout_marginRight="@dimen/margin_small"
 				android:layout_marginStart="@dimen/margin_small"
-				app:layout_constraintBottom_toBottomOf="parent"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/editorPressureMinText"/>
+				app:layout_constraintTop_toBottomOf="@+id/editorPressureMinText"
+				style="@style/SeekBar"/>
 			<TextView
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"

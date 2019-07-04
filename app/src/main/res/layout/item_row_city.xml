@@ -23,7 +23,7 @@
 		android:id="@+id/cityDetail"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:background="@drawable/background_detail"
+		android:background="@color/colorPrimary"
 		android:padding="@dimen/padding"
 		android:visibility="gone"
 		app:layout_constraintEnd_toEndOf="parent"

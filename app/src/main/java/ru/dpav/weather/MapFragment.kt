@@ -7,6 +7,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
@@ -38,7 +39,6 @@ import ru.dpav.weather.presenters.MapPresenter
 import ru.dpav.weather.util.Util.Companion.isGooglePlayAvailable
 
 class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
-
 	lateinit var mMap: MapView
 	private lateinit var mLocationButton: ImageButton
 	private lateinit var mFusedLocation: FusedLocationProviderClient
@@ -46,7 +46,6 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 	private lateinit var mUpdateScreen: FrameLayout
 	private var mMarkers: ArrayList<Marker> = arrayListOf()
 	private var mCustomMarkers: ArrayList<Marker> = arrayListOf()
-
 	@InjectPresenter
 	lateinit var mMapPresenter: MapPresenter
 
@@ -184,9 +183,9 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 
 	override fun setMapMarker(point: GeoPoint) {
 		val icon = if (mLocationButton.isActivated) {
-			R.drawable.ic_my_location
+			R.drawable.ic_marker_location
 		} else {
-			R.drawable.ic_marker_search
+			R.drawable.ic_marker_search_final
 		}
 		val mSearchPoint = IconOverlay(
 			point,
@@ -259,7 +258,6 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 			setAnchor(Marker.ANCHOR_CENTER, 1f)
 		}
 		marker.icon = ContextCompat.getDrawable(activity!!, icon)
-
 		val infoWindow: PopInfoWindow
 		if (icon == R.drawable.ic_marker_city) {
 			infoWindow = PopInfoWindow(
@@ -308,6 +306,7 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		override fun onMarkerDragEnd(marker: Marker?) {
 			marker?.let {
 				mMapPresenter.onCustomCityDragEnd(it)
+				marker.icon = getDefaultMarkerIcon(marker.id.toInt())
 			}
 		}
 	}
@@ -330,14 +329,13 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		mCustomMarkers.add(marker)
 		with(mMap) {
 			overlays.forEachIndexed { index, overlay ->
-				if (overlay is Marker &&
-					overlay.id == city.id.toString()
-				) {
-					overlays.removeAt(index)
+				if (overlay is Marker && overlay.id.toInt() == city.id) {
+					mMap.overlays.removeAt(index)
+					return@forEachIndexed
 				}
-				overlays.add(marker)
-				invalidate()
 			}
+			overlays.add(marker)
+			invalidate()
 		}
 	}
 
@@ -355,16 +353,8 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		mMap.overlays.forEach {
 			if (it is Marker && it.id == cityId) {
 				it.showInfoWindow()
-				val icon =
-					if (CitiesRepository.isCustom(cityId.toInt())) {
-						R.drawable.ic_marker_city_custom_selected
-					} else {
-						R.drawable.ic_marker_city_selected
-					}
-				it.icon = ContextCompat.getDrawable(
-					activity!!,
-					icon
-				)
+				val icon = getSelectedMarkerIcon(it.id.toInt())
+				it.icon = icon
 			}
 		}
 	}
@@ -375,13 +365,8 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		window.forEach {
 			val relatedObject = it.relatedObject
 			if (relatedObject is Marker) {
-				val icon =
-					if (CitiesRepository.isCustom(relatedObject.id.toInt())) {
-						R.drawable.ic_marker_city_custom
-					} else {
-						R.drawable.ic_marker_city
-					}
-				relatedObject.icon = ContextCompat.getDrawable(activity!!, icon)
+				val icon = getDefaultMarkerIcon(relatedObject.id.toInt())
+				relatedObject.icon = icon
 			}
 		}
 		InfoWindow.closeAllInfoWindowsOn(mMap)
@@ -477,6 +462,9 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 			.setNegativeButton(getString(R.string.cancel)) { _, _ ->
 				mMapPresenter.onDeclineDialog()
 			}
+			.setOnCancelListener {
+				mMapPresenter.onDeclineDialog()
+			}
 			.show()
 	}
 
@@ -492,6 +480,24 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 				)
 			}
 		}
+	}
+
+	private fun getSelectedMarkerIcon(cityId: Int): Drawable? {
+		val icon = if (CitiesRepository.isCustom(cityId)) {
+			R.drawable.ic_marker_city_custom_selected
+		} else {
+			R.drawable.ic_marker_city_selected
+		}
+		return ContextCompat.getDrawable(activity!!, icon)
+	}
+
+	private fun getDefaultMarkerIcon(cityId: Int): Drawable? {
+		val icon = if (CitiesRepository.isCustom(cityId)) {
+			R.drawable.ic_marker_city_custom
+		} else {
+			R.drawable.ic_marker_city
+		}
+		return ContextCompat.getDrawable(activity!!, icon)
 	}
 
 	private fun isLocationEnabled(): Boolean {
@@ -585,14 +591,11 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 
 	companion object {
 		private const val REQUEST_NEW_CITY = 1
-
 		private const val LOCATION_REQUEST_INTERVAL: Long = 7000
 		private const val LOCATION_REQUEST_FAST_INTERVAL: Long = 4000
 		private const val LOCATION_REQUEST_DISPLACEMENT: Float = 1F
 		private const val REQUEST_PERMISSIONS: Int = 1
-
 		private const val OVERLAY_SEARCH_POINT = 1
-
 		private const val ANIMATION_SPEED: Long = 300
 		private const val MIN_ZOOM_LEVEL: Double = 2e0
 		private const val MAP_LISTENER_DELAY: Long = 200

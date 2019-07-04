@@ -25,7 +25,8 @@
 		</activity>
 		<activity
 			android:label="@string/editor_of_city"
-			android:name=".AddCityActivity"/>
+			android:name=".AddCityActivity"
+		    android:theme="@style/AppTheme.NoActionBar"/>
 		<activity
 			android:excludeFromRecents="true"
 			android:name=".ChooseIconActivity"

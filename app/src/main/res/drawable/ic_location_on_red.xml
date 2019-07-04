@@ -1,6 +1,6 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
 	android:height="40dp"
-	android:tint="#D8432B"
+	android:tint="@color/colorCancelButton"
 	android:viewportHeight="24.0"
 	android:viewportWidth="24.0"
 	android:width="40dp">

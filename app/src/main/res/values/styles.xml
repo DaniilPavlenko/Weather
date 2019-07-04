@@ -14,7 +14,7 @@
 	</style>
 	<style name="CityDropDownInfo">
 		<item name="android:textColor">@android:color/white</item>
-		<item name="android:textSize">18sp</item>
+		<item name="android:textSize">@dimen/drop_down_info_text_size</item>
 		<item name="android:paddingTop">@dimen/padding_small</item>
 	</style>
 	<style name="CityDetailInfo" parent="CityDropDownInfo">
@@ -35,5 +35,8 @@
 	<style name="ChooseDialogIcon" parent="Widget.AppCompat.ImageButton">
 		<item name="android:minWidth">@dimen/choose_dialog_icon_size</item>
 		<item name="android:background">@drawable/background_choose_icon</item>
+	</style>
+	<style name="SeekBar" parent="Widget.AppCompat.SeekBar">
+		<item name="android:thumb">@drawable/seek_bar_thumb</item>
 	</style>
 </resources>

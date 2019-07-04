@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<color name="colorPrimary">#008577</color>
+	<color name="colorPrimary">#009688</color>
 	<color name="colorPrimaryDark">#00574B</color>
 	<color name="colorAccent">#D81B60</color>
 	<color name="tabUnselectedTextColor">#bbb</color>
 	<color name="cityNameColor">#333</color>
-	<color name="disabledLocationButton">#80008577</color>
 	<color name="updateScreenBackground">#8a000000</color>
-	<color name="colorSuccessButton">#0a0</color>
-	<color name="colorCancelButton">#c00</color>
-	<color name="cityMarker">#7fbd32</color>
-	<color name="cityMarkerCustom">#56ccdb</color>
+	<color name="colorSuccessButton">#43A047</color>
+	<color name="colorCancelButton">#E53935</color>
+	<color name="cityMarker">#7CB342</color>
+	<color name="cityMarkerCustom">#00ACC1</color>
+	<color name="editorHeader">#00897B</color>
 </resources>

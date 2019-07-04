@@ -86,7 +86,7 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 	}
 
 	private fun setChangeButton() {
-		editorSaveButton.text = getString(R.string.save)
+		editorSaveButton.text = getString(R.string.change)
 	}
 
 	override fun setCity(city: City) {

@@ -7,13 +7,12 @@
 	android:minWidth="@dimen/choose_dialog_min_width">
 	<TextView
 		android:id="@+id/chooseWeatherText"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginLeft="@dimen/padding_small"
-		android:layout_marginStart="@dimen/padding_small"
-		android:layout_marginTop="@dimen/padding_small"
+		android:padding="@dimen/padding_small"
 		android:text="@string/choose_weather"
 		android:textSize="@dimen/info_window_city_text_size"
+		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"/>
 	<ImageButton
@@ -142,14 +141,12 @@
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:contentDescription="@string/weather_icon"
-		android:layout_marginBottom="@dimen/padding_small"
 		android:layout_marginEnd="@dimen/padding_small"
 		android:layout_marginLeft="@dimen/padding_small"
 		android:layout_marginRight="@dimen/padding_small"
 		android:layout_marginStart="@dimen/padding_small"
 		android:layout_marginTop="@dimen/padding_small"
 		android:tag="weather_icon_10n"
-		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toStartOf="@+id/icon11"
 		app:layout_constraintHorizontal_bias="0.5"
 		app:layout_constraintStart_toStartOf="parent"
@@ -201,4 +198,16 @@
 		app:layout_constraintTop_toBottomOf="@+id/icon10"
 		app:srcCompat="@drawable/weather_icon_50"
 		style="@style/ChooseDialogIcon"/>
+	<Button
+		android:id="@+id/closeIconDialogButton"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:background="@color/colorPrimary"
+		android:layout_marginTop="@dimen/margin_small"
+		android:text="@string/close"
+		android:textAllCaps="false"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/icon10n"
+		style="@style/ButtonCancel"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
