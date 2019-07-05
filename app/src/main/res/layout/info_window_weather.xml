@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:background="@drawable/background_info_window"
-	android:minWidth="@dimen/infoWindowMinWidth"
+	android:minWidth="@dimen/info_window_min_width"
 	android:orientation="vertical">
 	<TextView
 		android:id="@+id/infoWindowTitle"
@@ -30,13 +31,35 @@
 		android:paddingLeft="@dimen/padding_small"
 		android:paddingRight="@dimen/padding_small"
 		tools:text="Детали погоды"/>
-	<Button
-		android:id="@+id/infoWindowEditButton"
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:id="@+id/infoWindowButtonsContainer"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:paddingLeft="@dimen/padding_small"
-		android:paddingRight="@dimen/padding_small"
-		android:text="@string/change"
-		android:visibility="gone"
-		style="@style/ButtonEdit"/>
+		android:visibility="gone">
+		<ImageButton
+			android:id="@+id/infoWindowEditButton"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:contentDescription="@string/edit"
+			android:paddingLeft="@dimen/padding_small"
+			android:paddingRight="@dimen/padding_small"
+			android:visibility="visible"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintHorizontal_bias="0.5"
+			app:layout_constraintStart_toEndOf="@+id/infoWindowRemoveButton"
+			app:layout_constraintTop_toTopOf="parent"
+			app:srcCompat="@drawable/ic_edit_pen"
+			style="@style/ButtonEdit"/>
+		<ImageButton
+			android:id="@+id/infoWindowRemoveButton"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:background="@drawable/background_remove_button"
+			android:contentDescription="@string/remove"
+			app:layout_constraintEnd_toStartOf="@+id/infoWindowEditButton"
+			app:layout_constraintHorizontal_bias="0.5"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			app:srcCompat="@drawable/ic_delete"/>
+	</androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

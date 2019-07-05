@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<androidx.constraintlayout.widget.ConstraintLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -14,14 +14,14 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"/>
-	<android.support.design.widget.TabLayout
+	<com.google.android.material.tabs.TabLayout
 		android:id="@+id/tabs"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:background="@color/colorPrimary"
+		android:background="@drawable/background_tab_bar"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:tabSelectedTextColor="@android:color/white"
+		app:tabSelectedTextColor="@color/cityNameColor"
 		app:tabTextAppearance="@style/TabTextAppearance"/>
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,10 +1,11 @@
 package ru.dpav.weather
 
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.arellomobile.mvp.MvpAppCompatFragment
 import com.arellomobile.mvp.presenter.InjectPresenter
 import kotlinx.android.synthetic.main.fragment_list.view.*
@@ -15,6 +16,7 @@ import ru.dpav.weather.views.ListView
 class ListFragment : MvpAppCompatFragment(), ListView {
 
 	private lateinit var mAdapter: CitiesAdapter
+	private lateinit var mRecyclerView: RecyclerView
 
 	@InjectPresenter
 	lateinit var mListPresenter: ListPresenter
@@ -22,13 +24,17 @@ class ListFragment : MvpAppCompatFragment(), ListView {
 	override fun onCreateView(
 		inflater: LayoutInflater,
 		container: ViewGroup?,
-		savedInstanceState: Bundle?): View? {
-		val view = inflater
-			.inflate(R.layout.fragment_list, container, false)
+		savedInstanceState: Bundle?
+	): View? {
+		val view = inflater.inflate(
+			R.layout.fragment_list,
+			container,
+			false
+		)
 		val viewManager = LinearLayoutManager(activity!!)
-		mAdapter = CitiesAdapter(mListPresenter, mvpDelegate)
-		val recyclerView = view.cities_recycler_view
-		with(recyclerView) {
+		mAdapter = CitiesAdapter(mListPresenter)
+		mRecyclerView = view.citiesRecyclerView
+		with(mRecyclerView) {
 			setHasFixedSize(true)
 			layoutManager = viewManager
 			adapter = mAdapter
@@ -43,16 +49,20 @@ class ListFragment : MvpAppCompatFragment(), ListView {
 		mAdapter.setCities(cities)
 	}
 
-	override fun toggleDropDownInfo(position: Int, shown: Boolean) {
+	override fun toggleDropDownInfo(
+		position: Int,
+		shown: Boolean
+	) {
 		if (shown) {
 			mAdapter.showDropDownInfo(position)
+			mRecyclerView.smoothScrollToPosition(position + 1)
 		} else {
 			mAdapter.hideDropDownInfo()
 		}
+		mAdapter.notifyItemChanged(position)
 	}
 
 	companion object {
-		@JvmStatic
 		fun newInstance(): ListFragment = ListFragment()
 	}
 }

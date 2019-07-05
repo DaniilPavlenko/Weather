@@ -5,9 +5,13 @@ import com.arellomobile.mvp.MvpPresenter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.overlay.Marker
+import retrofit2.HttpException
 import ru.dpav.weather.CitiesRepository
 import ru.dpav.weather.Constants
 import ru.dpav.weather.R
+import ru.dpav.weather.api.City
+import ru.dpav.weather.api.Coordinates
 import ru.dpav.weather.api.WeatherApi
 import ru.dpav.weather.api.WeatherResponse
 import ru.dpav.weather.views.MapView
@@ -17,11 +21,12 @@ import java.io.IOException
 class MapPresenter : MvpPresenter<MapView>() {
 
 	private var mErrorConnectionPoint: GeoPoint? = null
-	private var disposableRequest: Disposable? = null
+	private var mDisposableRequest: Disposable? = null
 	private var mEditingMarkerId: String? = null
+	private var mCityForRemove: City? = null
 
 	override fun onDestroy() {
-		disposableRequest?.dispose()
+		mDisposableRequest?.dispose()
 		super.onDestroy()
 	}
 
@@ -32,9 +37,9 @@ class MapPresenter : MvpPresenter<MapView>() {
 
 	fun onMapClick(point: GeoPoint) {
 		with(viewState) {
+			enableLocation(false)
 			setMapMarker(point)
 			showUpdateScreen(true)
-			enableLocation(false)
 		}
 		getWeather(point)
 	}
@@ -44,9 +49,9 @@ class MapPresenter : MvpPresenter<MapView>() {
 			with(viewState) {
 				closeInfoWindow()
 				addCustomCity(
-					CitiesRepository.customCities.filter { city ->
+					CitiesRepository.customCities.first { city ->
 						city.id.toString() == mEditingMarkerId
-					}[0]
+					}
 				)
 				openInfoWindow(it)
 			}
@@ -66,36 +71,51 @@ class MapPresenter : MvpPresenter<MapView>() {
 		}
 	}
 
-	fun onSetCurrentPosition(point: GeoPoint, zoom: Double) {
+	fun onSetCurrentPosition(
+		point: GeoPoint,
+		zoom: Double
+	) {
 		viewState.setCurrentPosition(point, zoom)
 	}
 
-	fun onCameraMoveTo(point: GeoPoint, zoom: Double) {
+	fun onCameraMoveTo(
+		point: GeoPoint,
+		zoom: Double
+	) {
 		viewState.moveCameraTo(point, zoom)
 	}
 
 	private fun getWeather(point: GeoPoint) {
-		disposableRequest = WeatherApi.api
+		mDisposableRequest = WeatherApi.api
 			.getWeather(point.latitude, point.longitude)
 			.observeOn(AndroidSchedulers.mainThread())
 			.subscribe({
 				processApiResponse(it)
-				viewState.showConnectionError(false)
 			}, {
-				if (it is IOException) {
-					mErrorConnectionPoint = point
-					viewState.showConnectionError(true)
-				} else {
-					viewState.showSnack(R.string.error_unexpected)
+				when (it) {
+					is IOException -> {
+						mErrorConnectionPoint = point
+						viewState.showConnectionError(true)
+					}
+					is HttpException -> {
+						processApiResponse(null)
+					}
+					else -> {
+						viewState.showSnack(R.string.error_unexpected)
+						viewState.showUpdateScreen(false)
+					}
 				}
 			})
 	}
 
-	private fun processApiResponse(response: WeatherResponse) {
-		val cities = response.cities
-		CitiesRepository.cities = cities
+	private fun processApiResponse(response: WeatherResponse?) {
+		CitiesRepository.cities = arrayListOf()
+		response?.let {
+			CitiesRepository.cities = it.cities
+		}
 		with(viewState) {
-			updateCitiesMarkers(cities)
+			updateCitiesMarkers()
+			showConnectionError(false)
 			showUpdateScreen(false)
 		}
 	}
@@ -134,6 +154,24 @@ class MapPresenter : MvpPresenter<MapView>() {
 			Constants.DEFAULT_ZOOM)
 	}
 
+	fun onRemoveClick(city: City) {
+		mCityForRemove = city
+		viewState.showRemoveDialog(true)
+	}
+
+	fun onAcceptDialog() {
+		mCityForRemove?.let {
+			CitiesRepository.removeCustomCity(it)
+		}
+		mCityForRemove = null
+		viewState.showRemoveDialog(false)
+	}
+
+	fun onDeclineDialog() {
+		mCityForRemove = null
+		viewState.showRemoveDialog(false)
+	}
+
 	fun onInfoWindowClose() {
 		viewState.closeInfoWindow()
 	}
@@ -143,5 +181,25 @@ class MapPresenter : MvpPresenter<MapView>() {
 			askPermission()
 			setStartPosition()
 		}
+	}
+
+	fun onCustomCityDragEnd(marker: Marker) {
+		CitiesRepository.customCities.forEachIndexed { index, city ->
+			if (city.id.toString() == marker.id) {
+				CitiesRepository.customCities[index].coordinates =
+					Coordinates(
+						marker.position.latitude,
+						marker.position.longitude
+					)
+			}
+		}
+	}
+
+	fun onCustomCityRemoved() {
+		with(viewState) {
+			closeInfoWindow()
+			updateCitiesMarkers()
+		}
+		mEditingMarkerId = null
 	}
 }

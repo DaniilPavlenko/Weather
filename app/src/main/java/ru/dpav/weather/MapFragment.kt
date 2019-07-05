@@ -3,24 +3,26 @@ package ru.dpav.weather
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.support.design.widget.Snackbar
-import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageButton
+import androidx.core.content.ContextCompat
 import com.arellomobile.mvp.MvpAppCompatFragment
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.*
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_map.view.*
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.*
@@ -37,7 +39,6 @@ import ru.dpav.weather.presenters.MapPresenter
 import ru.dpav.weather.util.Util.Companion.isGooglePlayAvailable
 
 class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
-
 	lateinit var mMap: MapView
 	private lateinit var mLocationButton: ImageButton
 	private lateinit var mFusedLocation: FusedLocationProviderClient
@@ -45,14 +46,14 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 	private lateinit var mUpdateScreen: FrameLayout
 	private var mMarkers: ArrayList<Marker> = arrayListOf()
 	private var mCustomMarkers: ArrayList<Marker> = arrayListOf()
-
 	@InjectPresenter
 	lateinit var mMapPresenter: MapPresenter
 
 	override fun onCreateView(
 		inflater: LayoutInflater,
 		container: ViewGroup?,
-		savedInstanceState: Bundle?): View? {
+		savedInstanceState: Bundle?
+	): View? {
 		val view = inflater
 			.inflate(R.layout.fragment_map, container, false)
 		mUpdateScreen = view.mapUpdateLayout
@@ -88,13 +89,18 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		mMap.onResume()
 	}
 
-	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-		if (resultCode != Activity.RESULT_OK) {
-			return
-		}
-		when (requestCode) {
-			REQUEST_NEW_CITY -> {
-				mMapPresenter.saveCity()
+	override fun onActivityResult(
+		requestCode: Int,
+		resultCode: Int,
+		data: Intent?
+	) {
+		when (resultCode) {
+			Activity.RESULT_OK -> {
+				when (requestCode) {
+					REQUEST_NEW_CITY -> {
+						mMapPresenter.saveCity()
+					}
+				}
 			}
 		}
 	}
@@ -107,17 +113,27 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 	}
 
 	private fun initMap() {
-		mMap.setTileSource(TileSourceFactory.MAPNIK)
-		mMap.setMultiTouchControls(true)
-		val maxMapLatitude = MapView.getTileSystem().maxLatitude
-		mMap.setScrollableAreaLimitLatitude(
-			maxMapLatitude,
-			-maxMapLatitude,
-			mMap.height / 2)
-		mMap.zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
-		mMap.minZoomLevel = MIN_ZOOM_LEVEL
-		mMap.controller.setZoom(Constants.DEFAULT_ZOOM)
-		mMap.isVerticalMapRepetitionEnabled = false
+		with(mMap) {
+			setTileSource(TileSourceFactory.MAPNIK)
+			setMultiTouchControls(true)
+			val maxMapLatitude = MapView.getTileSystem().maxLatitude
+			setScrollableAreaLimitLatitude(
+				maxMapLatitude,
+				-maxMapLatitude,
+				(height / 2)
+			)
+			zoomController.setVisibility(
+				CustomZoomButtonsController.Visibility.NEVER
+			)
+			minZoomLevel = MIN_ZOOM_LEVEL
+			controller.setZoom(Constants.DEFAULT_ZOOM)
+			isVerticalMapRepetitionEnabled = false
+		}
+		setMapListener()
+		addEventReceiver()
+	}
+
+	private fun setMapListener() {
 		mMap.addMapListener(DelayedMapListener(object : MapListener {
 			override fun onScroll(event: ScrollEvent?): Boolean =
 				setCurrentPosition()
@@ -133,6 +149,9 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 				return true
 			}
 		}, MAP_LISTENER_DELAY))
+	}
+
+	private fun addEventReceiver() {
 		val mReceive: MapEventsReceiver = object : MapEventsReceiver {
 			override fun longPressHelper(point: GeoPoint?): Boolean {
 				point?.let {
@@ -163,9 +182,17 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 	}
 
 	override fun setMapMarker(point: GeoPoint) {
+		val icon = if (mLocationButton.isActivated) {
+			R.drawable.ic_marker_location
+		} else {
+			R.drawable.ic_marker_search_final
+		}
 		val mSearchPoint = IconOverlay(
 			point,
-			ContextCompat.getDrawable(activity!!, R.drawable.marker_search)
+			ContextCompat.getDrawable(
+				activity!!,
+				icon
+			)
 		)
 		if (mMap.overlays.lastIndex < OVERLAY_SEARCH_POINT) {
 			mMap.overlays.add(OVERLAY_SEARCH_POINT, mSearchPoint)
@@ -176,16 +203,16 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		mMap.invalidate()
 	}
 
-	override fun updateCitiesMarkers(cities: List<City>) {
+	override fun updateCitiesMarkers() {
 		addMarkersOnMap(
-			cities,
+			CitiesRepository.cities,
 			mMarkers,
-			R.drawable.marker_city
+			R.drawable.ic_marker_city
 		)
 		addMarkersOnMap(
 			CitiesRepository.customCities,
 			mCustomMarkers,
-			R.drawable.marker_custom
+			R.drawable.ic_marker_city_custom
 		)
 		mMap.invalidate()
 	}
@@ -193,7 +220,8 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 	private fun addMarkersOnMap(
 		cities: List<City>,
 		markersList: ArrayList<Marker>,
-		markersIcon: Int) {
+		markersIcon: Int
+	) {
 		mMap.overlays.removeAll(markersList)
 		markersList.clear()
 		cities.forEachIndexed { _, city ->
@@ -216,30 +244,48 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		}
 	}
 
-	private fun makeMarker(city: City, icon: Int): Marker {
+	private fun makeMarker(
+		city: City,
+		icon: Int
+	): Marker {
 		val marker = Marker(mMap)
-		marker.id = city.id.toString()
-		marker.position = GeoPoint(
-			city.coordinates.latitude,
-			city.coordinates.longitude)
+		with(marker) {
+			id = city.id.toString()
+			position = GeoPoint(
+				city.coordinates.latitude,
+				city.coordinates.longitude
+			)
+			setAnchor(Marker.ANCHOR_CENTER, 1f)
+		}
 		marker.icon = ContextCompat.getDrawable(activity!!, icon)
-		marker.setAnchor(Marker.ANCHOR_CENTER, 1f)
-
-		val onClick = View.OnClickListener { openDetailDialog(city) }
-
-		val infoWindow = if (icon == R.drawable.marker_city) {
-			PopInfoWindow(
+		val infoWindow: PopInfoWindow
+		if (icon == R.drawable.ic_marker_city) {
+			infoWindow = PopInfoWindow(
 				R.layout.info_window_weather,
 				mMap,
 				city,
-				onClick)
+				View.OnClickListener { openDetailDialog(city) })
 		} else {
-			EditablePopInfo(
+			infoWindow = EditablePopInfo(
 				R.layout.info_window_weather,
 				mMap,
 				city,
-				onClick,
-				View.OnClickListener { openEditor(city) })
+				object : EditablePopInfo.WindowInfoListener {
+					override fun onWindowClick() {
+						openDetailDialog(city)
+					}
+
+					override fun onEditClick() {
+						openEditor(city)
+					}
+
+					override fun onRemoveClick() {
+						mMapPresenter.onRemoveClick(city)
+					}
+				}
+			)
+			marker.isDraggable = true
+			marker.setOnMarkerDragListener(mDragListener)
 		}
 
 		marker.infoWindow = infoWindow
@@ -250,8 +296,29 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		return marker
 	}
 
+	private val mDragListener = object : Marker.OnMarkerDragListener {
+		override fun onMarkerDrag(marker: Marker?) {}
+
+		override fun onMarkerDragStart(marker: Marker?) {
+			mMapPresenter.onInfoWindowClose()
+		}
+
+		override fun onMarkerDragEnd(marker: Marker?) {
+			marker?.let {
+				mMapPresenter.onCustomCityDragEnd(it)
+				marker.icon = getMarkerIcon(
+					marker.id.toInt(),
+					isSelected = false
+				)
+			}
+		}
+	}
+
 	override fun addCustomCity(city: City) {
-		val marker = makeMarker(city, R.drawable.marker_custom)
+		val marker = makeMarker(
+			city,
+			R.drawable.ic_marker_city_custom
+		)
 		var editingIndex: Int? = null
 		mCustomMarkers.forEachIndexed { index, it ->
 			if (it.id == marker.id) {
@@ -263,19 +330,24 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 			mCustomMarkers.removeAt(it)
 		}
 		mCustomMarkers.add(marker)
-		mMap.overlays.forEachIndexed { index, overlay ->
-			if (overlay is Marker
-				&& overlay.id == city.id.toString()) {
-				mMap.overlays.removeAt(index)
+		with(mMap) {
+			overlays.forEachIndexed { index, overlay ->
+				if (overlay is Marker && overlay.id.toInt() == city.id) {
+					mMap.overlays.removeAt(index)
+					return@forEachIndexed
+				}
 			}
+			overlays.add(marker)
+			invalidate()
 		}
-		mMap.overlays.add(marker)
-		mMap.invalidate()
 	}
 
 	private fun openDetailDialog(city: City) {
-		val detailFragment = CityDetailFragment.newInstance(city)
-		detailFragment.show(activity?.supportFragmentManager, "dialog_city")
+		val detailFragment = CityDetailFragment.newInstance(city.id)
+		detailFragment.show(
+			activity?.supportFragmentManager,
+			"dialog_city"
+		)
 	}
 
 	override fun openInfoWindow(cityId: String) {
@@ -284,23 +356,46 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		mMap.overlays.forEach {
 			if (it is Marker && it.id == cityId) {
 				it.showInfoWindow()
+				val icon = getMarkerIcon(
+					it.id.toInt(),
+					isSelected = true
+				)
+				it.icon = icon
 			}
 		}
 	}
 
 	override fun closeInfoWindow() {
 		isInfoWindowOpened = false
+		val window = InfoWindow.getOpenedInfoWindowsOn(mMap)
+		window.forEach {
+			val relatedObject = it.relatedObject
+			if (relatedObject is Marker) {
+				val icon = getMarkerIcon(
+					relatedObject.id.toInt(),
+					isSelected = false
+				)
+				relatedObject.icon = icon
+			}
+		}
 		InfoWindow.closeAllInfoWindowsOn(mMap)
 	}
 
-	override fun moveCameraTo(point: GeoPoint, zoom: Double?) {
+	override fun moveCameraTo(
+		point: GeoPoint,
+		zoom: Double?
+	) {
 		mMap.controller.animateTo(
 			point,
 			zoom ?: mMap.zoomLevelDouble,
-			ANIMATION_SPEED)
+			ANIMATION_SPEED
+		)
 	}
 
-	override fun setCurrentPosition(point: GeoPoint, zoom: Double) {
+	override fun setCurrentPosition(
+		point: GeoPoint,
+		zoom: Double
+	) {
 		mMap.controller.animateTo(point, zoom, 0)
 	}
 
@@ -311,6 +406,10 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 				mMapPresenter.onMoveToDefaultPosition()
 				return
 			}
+		} else {
+			mMapPresenter.onLocationIsDisabled()
+			mMapPresenter.onMoveToDefaultPosition()
+			return
 		}
 		getLocation(true)
 	}
@@ -332,15 +431,20 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 	}
 
 	override fun showUpdateScreen(shown: Boolean) {
-		mUpdateScreen.visibility = if (shown) View.VISIBLE else View.GONE
+		val visibility = if (shown) View.VISIBLE else View.GONE
+		mUpdateScreen.visibility = visibility
 	}
 
 	override fun showConnectionError(shown: Boolean) {
 		if (shown) {
 			view?.let {
-				Snackbar.make(it, R.string.connection_error, Snackbar.LENGTH_INDEFINITE)
-					.setAction(R.string.retry) { mMapPresenter.onRetryConnection() }
-					.show()
+				Snackbar.make(
+					it,
+					R.string.connection_error,
+					Snackbar.LENGTH_INDEFINITE
+				).setAction(R.string.retry) {
+					mMapPresenter.onRetryConnection()
+				}.show()
 			}
 		}
 	}
@@ -355,6 +459,24 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		}
 	}
 
+	override fun showRemoveDialog(shown: Boolean) {
+		if (!shown) return
+		AlertDialog.Builder(activity)
+			.setTitle(getString(R.string.remove))
+			.setMessage(getString(R.string.remove_dialog_question))
+			.setPositiveButton(getString(R.string.remove)) { _, _ ->
+				mMapPresenter.onAcceptDialog()
+				mMapPresenter.onCustomCityRemoved()
+			}
+			.setNegativeButton(getString(R.string.cancel)) { _, _ ->
+				mMapPresenter.onDeclineDialog()
+			}
+			.setOnCancelListener {
+				mMapPresenter.onDeclineDialog()
+			}
+			.show()
+	}
+
 	override fun askPermission() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			if (!hasLocationPermission() || !hasStoragePermission()) {
@@ -367,6 +489,27 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 				)
 			}
 		}
+	}
+
+	private fun getMarkerIcon(
+		cityId: Int,
+		isSelected: Boolean
+	): Drawable {
+		val icon: Int =
+			if (CitiesRepository.isCustom(cityId)) {
+				if (isSelected) {
+					R.drawable.ic_marker_city_custom_selected
+				} else {
+					R.drawable.ic_marker_city_custom
+				}
+			} else {
+				if (isSelected) {
+					R.drawable.ic_marker_city_selected
+				} else {
+					R.drawable.ic_marker_city
+				}
+			}
+		return ContextCompat.getDrawable(activity!!, icon)!!
 	}
 
 	private fun isLocationEnabled(): Boolean {
@@ -385,31 +528,37 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 			smallestDisplacement = LOCATION_REQUEST_DISPLACEMENT
 			if (isGetOnce) numUpdates = 1
 		}
-		GoogleApiClient.Builder(activity!!).addApi(LocationServices.API)
-			.addConnectionCallbacks(object : GoogleApiClient.ConnectionCallbacks {
-				override fun onConnectionSuspended(p0: Int) {}
-				@SuppressLint("MissingPermission")
-				override fun onConnected(p0: Bundle?) {
-					mFusedLocation.requestLocationUpdates(
-						locationRequest, mLocationCallBack, null
-					)
-				}
-			})
+		GoogleApiClient.Builder(activity!!)
+			.addApi(LocationServices.API)
+			.addConnectionCallbacks(
+				object : GoogleApiClient.ConnectionCallbacks {
+					override fun onConnectionSuspended(p0: Int) {}
+					@SuppressLint("MissingPermission")
+					override fun onConnected(p0: Bundle?) {
+						mFusedLocation.requestLocationUpdates(
+							locationRequest, mLocationCallBack, null
+						)
+					}
+				})
 			.build()
 			.connect()
 	}
 
-	var mLocationCallBack = object : LocationCallback() {
+	val mLocationCallBack = object : LocationCallback() {
 		override fun onLocationResult(location: LocationResult?) {
 			location?.lastLocation?.let {
 				val point = GeoPoint(
 					it.latitude,
-					it.longitude)
+					it.longitude
+				)
 				locateToPosition(point, mMap.zoomLevelDouble)
 			}
 		}
 
-		private fun locateToPosition(point: GeoPoint, zoom: Double) {
+		private fun locateToPosition(
+			point: GeoPoint,
+			zoom: Double
+		) {
 			activity?.let {
 				with(mMapPresenter) {
 					onSetMarker(point)
@@ -429,7 +578,8 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		activity?.let {
 			return ContextCompat.checkSelfPermission(
 				it as Context,
-				permissionName) == PackageManager.PERMISSION_GRANTED
+				permissionName
+			) == PackageManager.PERMISSION_GRANTED
 		}
 		return false
 	}
@@ -437,11 +587,13 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 	override fun onRequestPermissionsResult(
 		requestCode: Int,
 		permissions: Array<out String>,
-		grantResults: IntArray) {
+		grantResults: IntArray
+	) {
 		when (requestCode) {
 			REQUEST_PERMISSIONS -> {
 				if (grantResults.isNotEmpty() && grantResults[0] ==
-					PackageManager.PERMISSION_GRANTED) {
+					PackageManager.PERMISSION_GRANTED
+				) {
 					setStartPosition()
 				}
 			}
@@ -451,14 +603,11 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 
 	companion object {
 		private const val REQUEST_NEW_CITY = 1
-
 		private const val LOCATION_REQUEST_INTERVAL: Long = 7000
 		private const val LOCATION_REQUEST_FAST_INTERVAL: Long = 4000
 		private const val LOCATION_REQUEST_DISPLACEMENT: Float = 1F
 		private const val REQUEST_PERMISSIONS: Int = 1
-
 		private const val OVERLAY_SEARCH_POINT = 1
-
 		private const val ANIMATION_SPEED: Long = 300
 		private const val MIN_ZOOM_LEVEL: Double = 2e0
 		private const val MAP_LISTENER_DELAY: Long = 200

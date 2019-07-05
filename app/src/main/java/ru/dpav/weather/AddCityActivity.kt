@@ -3,15 +3,19 @@ package ru.dpav.weather
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.widget.ArrayAdapter
-import android.widget.EditText
-import android.widget.Spinner
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.View
+import android.widget.SeekBar
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
-import kotlinx.android.synthetic.main.activity_add_city.*
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.activity_add_city_new.*
 import ru.dpav.weather.api.City
 import ru.dpav.weather.presenters.AddCityPresenter
 import ru.dpav.weather.util.Util
@@ -19,87 +23,95 @@ import ru.dpav.weather.views.AddCityView
 
 class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 
-	private val iconsArray = arrayOf(
-		R.drawable.weather_icon_01,
-		R.drawable.weather_icon_01n,
-		R.drawable.weather_icon_50,
-		R.drawable.weather_icon_02,
-		R.drawable.weather_icon_02n,
-		R.drawable.weather_icon_03,
-		R.drawable.weather_icon_04,
-		R.drawable.weather_icon_09,
-		R.drawable.weather_icon_10,
-		R.drawable.weather_icon_10n,
-		R.drawable.weather_icon_11,
-		R.drawable.weather_icon_13
-	)
-
 	@InjectPresenter
 	lateinit var mAddCityPresenter: AddCityPresenter
 
 	@ProvidePresenter
 	fun providePresenter(): AddCityPresenter {
-		val addCityPresenter = AddCityPresenter()
-		intent.extras?.let { it ->
+		intent.extras!!.let {
+			val city = City.getEmpty()
 			val cityId = it.getInt(ARG_CITY_ID, 0)
-			val city: City
 			if (cityId != 0) {
-				city = CitiesRepository.customCities
-					.filter { it.id == cityId }[0]
+				city.id = cityId
 			} else {
-				city = City.getEmpty()
 				with(city.coordinates) {
 					latitude = it.getDouble(ARG_LATITUDE)
 					longitude = it.getDouble(ARG_LONGITUDE)
 				}
 			}
-			addCityPresenter.setCity(city)
+			return AddCityPresenter(city)
 		}
-		return addCityPresenter
 	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		setContentView(R.layout.activity_add_city)
+		setContentView(R.layout.activity_add_city_new)
+		editorChangeIcon.setOnClickListener { showChooseIconDialog() }
+		editorCancelButton.setOnClickListener { finish() }
+		editorSaveButton.setOnClickListener { validateData() }
+		initNameEdit()
+		initSeekBarTemperature()
+		initSeekBarWind()
+		initSeekBarCloudy()
+		initSeekBarHumidity()
+		initSeekBarPressure()
+	}
 
-		val imagesAdapter = ImagesArrayAdapter(this, iconsArray)
-		weatherIconSpinner.adapter = imagesAdapter
+	override fun onActivityResult(
+		requestCode: Int,
+		resultCode: Int,
+		data: Intent?
+	) {
+		if (resultCode == Activity.RESULT_CANCELED) {
+			return
+		}
+		if (resultCode == Activity.RESULT_OK
+			&& requestCode == REQUEST_ICON
+		) {
+			data?.let {
+				val iconRes = it.getIntExtra(
+					ChooseIconActivity.SELECTED_ICON,
+					R.drawable.weather_icon_01
+				)
+				mAddCityPresenter.onIconSelected(iconRes)
+			}
+		}
+	}
 
-		val percents: Array<Int> = (0..100).toList().toTypedArray()
-		val percentAdapter = ArrayAdapter<Int>(
-			this,
-			android.R.layout.simple_spinner_dropdown_item,
-			percents)
+	private fun showChooseIconDialog() {
+		startActivityForResult(
+			ChooseIconActivity.newIntent(this),
+			REQUEST_ICON
+		)
+	}
 
-		cloudySpinner.adapter = percentAdapter
-		humiditySpinner.adapter = percentAdapter
-
-		cancelButton.setOnClickListener { finish() }
-
-		saveButton.setOnClickListener { validateData() }
+	private fun setChangeButton() {
+		editorSaveButton.text = getString(R.string.change)
 	}
 
 	override fun setCity(city: City) {
+		setChangeButton()
 		with(city) {
-			cityNameEdit.setText(name)
+			editorNameEdit.setText(name)
 
-			temperatureEdit.setText(main.temp.toInt().toString())
+			val temperature = main.temp.toInt() + TEMPERATURE_OFFSET
+			temperatureSeekBar.progress = temperature
 
-			pressureEdit.setText(main.pressure.toString())
+			val pressure = main.pressure.toInt() - PRESSURE_OFFSET
+			pressureSeekBar.progress = pressure
 
-			humiditySpinner.setSelection(main.humidity.toInt() - 1)
+			windSeekBar.progress = wind.speed.toInt()
 
-			cloudySpinner.setSelection(clouds.cloudy - 1)
+			cloudySeekBar.progress = clouds.cloudy
 
-			windEdit.setText(wind.speed.toInt().toString())
+			humiditySeekBar.progress = main.humidity.toInt()
 
-			val icon = Util.getWeatherIconByName(weather[0].icon)
-			iconsArray.forEachIndexed { index, value ->
-				if (value == icon) {
-					weatherIconSpinner.setSelection(index)
-					return@forEachIndexed
-				}
-			}
+			editorWeatherIcon.setImageDrawable(
+				ContextCompat.getDrawable(
+					this@AddCityActivity,
+					Util.Icons.getWeatherIconByName(weather[0].icon)
+				)
+			)
 		}
 	}
 
@@ -112,110 +124,286 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 		finish()
 	}
 
-	private fun clearCityName() {
-		val clearName = cityNameEdit.text.toString()
-			.trim()
-			.replace(Regex("\\s+"), " ")
-		cityNameEdit.setText(clearName)
+	override fun setWeatherIcon(icon: Int) {
+		editorWeatherIcon.setImageDrawable(
+			AppCompatResources.getDrawable(this, icon)
+		)
+		isCloudyValid(icon)
+		isHumidityValid(icon)
 	}
 
-	private fun showSnack(message: String) {
-		Snackbar.make(scrollView, message, Snackbar.LENGTH_LONG)
-			.show()
+	private fun clearCityName() {
+		val clearName = editorNameEdit.text.toString()
+			.trim()
+			.replace(Regex("\\s+"), " ")
+		editorNameEdit.setText(clearName)
+	}
+
+	private fun initNameEdit() {
+		editorNameEdit.addTextChangedListener(
+			object : TextWatcher {
+				override fun afterTextChanged(s: Editable?) {}
+				override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+				override fun onTextChanged(
+					s: CharSequence?,
+					start: Int,
+					before: Int,
+					count: Int
+				) {
+					isCityNameValid()
+				}
+			}
+		)
+	}
+
+	private fun initSeekBarTemperature() {
+		temperatureSeekBar.setOnSeekBarChangeListener(
+			object : SeekBar.OnSeekBarChangeListener {
+				override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+				override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+				override fun onProgressChanged(
+					seekBar: SeekBar?,
+					progress: Int,
+					fromUser: Boolean
+				) {
+					editorTemperatureText.text = getString(
+						R.string.temperature_placeholder,
+						(progress - TEMPERATURE_OFFSET)
+					)
+				}
+			}
+		)
+		val seekMaxValue = -MIN_TEMPERATURE + MAX_TEMPERATURE
+		temperatureSeekBar.max = seekMaxValue
+		temperatureSeekBar.progress = seekMaxValue - MAX_TEMPERATURE
+	}
+
+	private fun initSeekBarWind() {
+		windSeekBar.max = MAX_WIND
+		windSeekBar.setOnSeekBarChangeListener(
+			object : SeekBar.OnSeekBarChangeListener {
+				override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+				override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+				override fun onProgressChanged(
+					seekBar: SeekBar?,
+					progress: Int,
+					fromUser: Boolean
+				) {
+					editorWindText.text = getString(
+						R.string.wind_placeholder,
+						progress
+					)
+				}
+			}
+		)
+		windSeekBar.progress = 1
+		windSeekBar.progress = 0
+	}
+
+	private fun initSeekBarCloudy() {
+		cloudySeekBar.setOnSeekBarChangeListener(
+			object : SeekBar.OnSeekBarChangeListener {
+				override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+				override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+				override fun onProgressChanged(
+					seekBar: SeekBar?,
+					progress: Int,
+					fromUser: Boolean
+				) {
+					editorCloudyText.text = getString(
+						R.string.cloudy_placeholder,
+						progress
+					)
+					isCloudyValid(mAddCityPresenter.iconResId)
+				}
+			}
+		)
+		editorCloudyText.text = getString(
+			R.string.cloudy_placeholder,
+			0
+		)
+	}
+
+	private fun initSeekBarHumidity() {
+		editorHumidityError.visibility = View.GONE
+		humiditySeekBar.setOnSeekBarChangeListener(
+			object : SeekBar.OnSeekBarChangeListener {
+				override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+				override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+				override fun onProgressChanged(
+					seekBar: SeekBar?,
+					progress: Int,
+					fromUser: Boolean
+				) {
+					editorHumidityText.text = getString(
+						R.string.humidity_placeholder,
+						progress
+					)
+					isHumidityValid(mAddCityPresenter.iconResId)
+				}
+			}
+		)
+		editorHumidityText.text = getString(
+			R.string.humidity_placeholder,
+			0
+		)
+	}
+
+	private fun initSeekBarPressure() {
+		pressureSeekBar.setOnSeekBarChangeListener(
+			object : SeekBar.OnSeekBarChangeListener {
+				override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+				override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+				override fun onProgressChanged(
+					seekBar: SeekBar?,
+					progress: Int,
+					fromUser: Boolean
+				) {
+					val pressure = progress + PRESSURE_OFFSET
+					editorPressureText.text = getString(
+						R.string.pressure_placeholder,
+						pressure
+					)
+				}
+			}
+		)
+		val pressureMaxValue = MAX_PRESSURE - PRESSURE_OFFSET
+		val defaultValue = pressureMaxValue - pressureMaxValue / 2
+		pressureSeekBar.max = pressureMaxValue
+		pressureSeekBar.progress = defaultValue
 	}
 
 	private fun validateData() {
-		val cityName = cityNameEdit.text.toString()
-			.replace(" ", "")
-		if (cityName.length < MIN_CITY_NAME_LENGTH) {
-			showSnack(getString(R.string.error_valid_name))
-			cityNameEdit.requestFocus()
-			return
-		} else if (!cityName.matches(Regex("((?![a-zA-Z])[\\p{L} \\-])*"))) {
-			showSnack(getString(R.string.error_valid_name_spec_chars))
-			cityNameEdit.requestFocus()
+		var error = false
+
+		if (!isCityNameValid()) error = true
+
+		val icon = mAddCityPresenter.iconResId
+
+		if (!isCloudyValid(icon)) error = true
+
+		if (!isHumidityValid(icon)) error = true
+
+		if (error) {
+			mAddCityPresenter.onSaveError()
 			return
 		}
 
 		clearCityName()
-
-		val temperature = getFloatFromEdit(temperatureEdit)
-		if (temperature < MIN_TEMPERATURE || temperature > MAX_TEMPERATURE) {
-			showSnack(getString(R.string.error_valid_temp))
-			temperatureEdit.requestFocus()
-			return
-		}
-
-		val weatherIconPosition = weatherIconSpinner.selectedItemPosition
-		val cloudy = cloudySpinner.selectedItem as Int
-
-		if (weatherIconPosition >= ICON_CLOUDY
-			&& cloudy == 0) {
-			showSnack(getString(R.string.error_valid_cloudy))
-			return
-		}
-
-		val humidity = humiditySpinner.selectedItem as Int
-		if (weatherIconPosition >= ICON_HUMIDITY && humidity == 0) {
-			showSnack(getString(R.string.error_valid_humidity))
-			return
-		}
-
-		if (weatherIconPosition == ICON_WIND
-			&& getFloatFromEdit(windEdit).toInt() == 0) {
-			showSnack(getString(R.string.error_valid_wind))
-			windEdit.requestFocus()
-			return
-		}
-
-		val pressure = getFloatFromEdit(pressureEdit)
-		if (pressure < MIN_PRESSURE || pressure > MAX_PRESSURE) {
-			showSnack(getString(R.string.error_valid_pressure))
-			pressureEdit.requestFocus()
-			return
-		}
-
-		val city = City.getEmpty()
-		with(city) {
-			name = cityNameEdit.text.toString()
-			main.temp = getFloatFromEdit(temperatureEdit)
-			main.pressure = getFloatFromEdit(pressureEdit)
-			main.humidity = getFloatFromSpinner(humiditySpinner)
-			clouds.cloudy = getFloatFromSpinner(cloudySpinner).toInt()
-			wind.speed = getFloatFromEdit(windEdit)
-			val icon = weatherIconSpinner.selectedItem.toString().toInt()
-			weather[0].icon = Util.getWeatherNameByIcon(icon)
-		}
-
+		val city = createCityByData()
 		mAddCityPresenter.onSave(city)
 	}
 
-	private fun getFloatFromEdit(edit: EditText): Float {
-		return try {
-			edit.text.toString().toFloat()
-		} catch (e: NumberFormatException) {
-			0f
+	private fun isCityNameValid(): Boolean {
+		val cityName = editorNameEdit.text.toString()
+			.replace(" ", "")
+			.replace("-","")
+		if (cityName.length < MIN_CITY_NAME_LENGTH) {
+			mAddCityPresenter.onNameError(
+				getString(R.string.error_valid_name)
+			)
+			return false
+		} else if (!cityName.matches(Regex("((?![a-zA-Z])[\\p{L} \\-])*"))) {
+			mAddCityPresenter.onNameError(
+				getString(R.string.error_valid_name_spec_chars)
+			)
+			return false
+		}
+		mAddCityPresenter.onNameError(null)
+		return true
+	}
+
+	private fun isCloudyValid(icon: Int): Boolean {
+		val needCloudy = icon in Util.Icons.iconsCloudy
+			|| icon in Util.Icons.iconsHumidity
+		return if (needCloudy && cloudySeekBar.progress == 0) {
+			mAddCityPresenter.onCloudyError(true)
+			false
+		} else {
+			mAddCityPresenter.onCloudyError(false)
+			true
 		}
 	}
 
-	private fun getFloatFromSpinner(spinner: Spinner): Float {
-		return spinner.selectedItem.toString().toFloat()
+	private fun isHumidityValid(icon: Int): Boolean {
+		val needHumidity = icon in Util.Icons.iconsHumidity
+		return if (needHumidity && humiditySeekBar.progress == 0) {
+			mAddCityPresenter.onHumidityError(true)
+			false
+		} else {
+			mAddCityPresenter.onHumidityError(false)
+			true
+		}
+	}
+
+	override fun showNameError(message: String?) {
+		var visibility = View.GONE
+		var drawable: Drawable? = null
+		if (!message.isNullOrEmpty()) {
+			visibility = View.VISIBLE
+			drawable = ContextCompat
+				.getDrawable(this, R.drawable.ic_error)
+		}
+		editorNameError.visibility = visibility
+		editorNameError.text = message
+		editorNameEdit.setCompoundDrawablesWithIntrinsicBounds(
+			null,
+			null,
+			drawable,
+			null
+		)
+	}
+
+	override fun showSnackError() {
+		Snackbar.make(
+			headerConstraint,
+			R.string.check_errors,
+			Snackbar.LENGTH_SHORT
+		).show()
+	}
+
+	override fun showHumidityError(shown: Boolean) {
+		val visibility = if (shown) View.VISIBLE else View.GONE
+		editorHumidityError.visibility = visibility
+	}
+
+	override fun showCloudyError(shown: Boolean) {
+		val visibility = if (shown) View.VISIBLE else View.GONE
+		editorCloudyError.visibility = visibility
+	}
+
+	private fun createCityByData(): City {
+		val city = City.getEmpty()
+		with(city) {
+			name = editorNameEdit.text.toString()
+			val temperature = temperatureSeekBar.progress - TEMPERATURE_OFFSET
+			main.temp = temperature.toFloat()
+			val pressure = pressureSeekBar.progress + PRESSURE_OFFSET
+			main.pressure = pressure.toFloat()
+			main.humidity = humiditySeekBar.progress.toFloat()
+			clouds.cloudy = cloudySeekBar.progress
+			wind.speed = windSeekBar.progress.toFloat()
+			val icon = mAddCityPresenter.iconResId
+			weather[0].icon = Util.Icons.getWeatherNameByIcon(icon)
+		}
+		return city
 	}
 
 	companion object {
+		private const val REQUEST_ICON = 1
+
 		private const val ARG_CITY_ID = "cityId"
 		private const val ARG_LATITUDE = "latitude"
 		private const val ARG_LONGITUDE = "longitude"
 
+		private const val TEMPERATURE_OFFSET = 90
+		private const val PRESSURE_OFFSET = 665
+
 		private const val MAX_TEMPERATURE = 60
 		private const val MIN_TEMPERATURE = -90
 		private const val MIN_CITY_NAME_LENGTH = 3
-		private const val MIN_PRESSURE = 665
 		private const val MAX_PRESSURE = 815
-
-		private const val ICON_WIND = 2
-		private const val ICON_CLOUDY = 3
-		private const val ICON_HUMIDITY = 7
+		private const val MAX_WIND = 110
 
 		fun newIntent(context: Context, city: City): Intent {
 			val intent = Intent(context, AddCityActivity::class.java)
