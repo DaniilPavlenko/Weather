@@ -4,24 +4,16 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.arellomobile.mvp.MvpDelegate
-import com.arellomobile.mvp.MvpFacade
-import com.arellomobile.mvp.presenter.InjectPresenter
-import com.arellomobile.mvp.presenter.ProvidePresenter
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_row_city.view.*
 import ru.dpav.weather.api.City
 import ru.dpav.weather.presenters.ListPresenter
 import ru.dpav.weather.util.Util
-import ru.dpav.weather.views.ListView
 
 class CityHolder(
 	itemView: View,
-	parentDelegate: MvpDelegate<*>,
 	private val mParentPresenter: ListPresenter
-) : MvpViewHolder(
-	parentDelegate,
-	itemView
-), ListView {
+) : RecyclerView.ViewHolder(itemView) {
 
 	private var mCity: City? = null
 	private var mTitle: TextView = itemView.cityDetailTitle
@@ -31,19 +23,8 @@ class CityHolder(
 	private var mPressure: TextView = itemView.cityDetailPressure
 	private var mDetailInfo: ConstraintLayout = itemView.cityDetail
 
-	@InjectPresenter
-	lateinit var mHolderPresenter: ListPresenter
-
-	@ProvidePresenter
-	fun provideListPresenter(): ListPresenter {
-		MvpFacade.getInstance()
-		return ListPresenter(mCity!!.id)
-	}
-
 	fun bind(city: City, isOpened: Boolean) {
-		destroyMvpDelegate()
 		mCity = city
-		createMvpDelegate()
 		val context = mTitle.context as AppCompatActivity
 
 		mTitle.text = city.name
@@ -89,23 +70,9 @@ class CityHolder(
 	private fun isDetailVisible(): Boolean =
 		mDetailInfo.visibility == View.VISIBLE
 
-	override fun getMvpChildId(): String? {
-		return if (mCity == null) null else mCity!!.id.toString()
-	}
 
 	private fun onTitleClick() {
 		val isVisible = isDetailVisible()
-		mHolderPresenter.onToggleDropDownInfo(adapterPosition, !isVisible)
 		mParentPresenter.onToggleDropDownInfo(adapterPosition, !isVisible)
 	}
-
-	override fun toggleDropDownInfo(position: Int, shown: Boolean) {
-		mDetailInfo.visibility = if (shown) {
-			View.VISIBLE
-		} else {
-			View.GONE
-		}
-	}
-
-	override fun updateCitiesList(cities: List<City>) {}
 }

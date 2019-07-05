@@ -59,7 +59,10 @@ class Util {
 					else -> "01d"
 				}
 
-			fun getDrawableIdByName(context: Context, name: String): Int {
+			fun getDrawableIdByName(
+				context: Context,
+				name: String
+			): Int {
 				return context.resources.getIdentifier(
 					name,
 					"drawable",

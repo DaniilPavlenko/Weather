@@ -32,8 +32,8 @@ class ListFragment : MvpAppCompatFragment(), ListView {
 			false
 		)
 		val viewManager = LinearLayoutManager(activity!!)
-		mAdapter = CitiesAdapter(mListPresenter, mvpDelegate)
-		mRecyclerView = view.cities_recycler_view
+		mAdapter = CitiesAdapter(mListPresenter)
+		mRecyclerView = view.citiesRecyclerView
 		with(mRecyclerView) {
 			setHasFixedSize(true)
 			layoutManager = viewManager
@@ -59,6 +59,7 @@ class ListFragment : MvpAppCompatFragment(), ListView {
 		} else {
 			mAdapter.hideDropDownInfo()
 		}
+		mAdapter.notifyItemChanged(position)
 	}
 
 	companion object {

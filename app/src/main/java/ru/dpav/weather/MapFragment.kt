@@ -306,7 +306,10 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		override fun onMarkerDragEnd(marker: Marker?) {
 			marker?.let {
 				mMapPresenter.onCustomCityDragEnd(it)
-				marker.icon = getDefaultMarkerIcon(marker.id.toInt())
+				marker.icon = getMarkerIcon(
+					marker.id.toInt(),
+					isSelected = false
+				)
 			}
 		}
 	}
@@ -353,7 +356,10 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		mMap.overlays.forEach {
 			if (it is Marker && it.id == cityId) {
 				it.showInfoWindow()
-				val icon = getSelectedMarkerIcon(it.id.toInt())
+				val icon = getMarkerIcon(
+					it.id.toInt(),
+					isSelected = true
+				)
 				it.icon = icon
 			}
 		}
@@ -365,7 +371,10 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		window.forEach {
 			val relatedObject = it.relatedObject
 			if (relatedObject is Marker) {
-				val icon = getDefaultMarkerIcon(relatedObject.id.toInt())
+				val icon = getMarkerIcon(
+					relatedObject.id.toInt(),
+					isSelected = false
+				)
 				relatedObject.icon = icon
 			}
 		}
@@ -482,22 +491,25 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
 		}
 	}
 
-	private fun getSelectedMarkerIcon(cityId: Int): Drawable? {
-		val icon = if (CitiesRepository.isCustom(cityId)) {
-			R.drawable.ic_marker_city_custom_selected
-		} else {
-			R.drawable.ic_marker_city_selected
-		}
-		return ContextCompat.getDrawable(activity!!, icon)
-	}
-
-	private fun getDefaultMarkerIcon(cityId: Int): Drawable? {
-		val icon = if (CitiesRepository.isCustom(cityId)) {
-			R.drawable.ic_marker_city_custom
-		} else {
-			R.drawable.ic_marker_city
-		}
-		return ContextCompat.getDrawable(activity!!, icon)
+	private fun getMarkerIcon(
+		cityId: Int,
+		isSelected: Boolean
+	): Drawable {
+		val icon: Int =
+			if (CitiesRepository.isCustom(cityId)) {
+				if (isSelected) {
+					R.drawable.ic_marker_city_custom_selected
+				} else {
+					R.drawable.ic_marker_city_custom
+				}
+			} else {
+				if (isSelected) {
+					R.drawable.ic_marker_city_selected
+				} else {
+					R.drawable.ic_marker_city
+				}
+			}
+		return ContextCompat.getDrawable(activity!!, icon)!!
 	}
 
 	private fun isLocationEnabled(): Boolean {

@@ -297,6 +297,7 @@ class AddCityActivity : MvpAppCompatActivity(), AddCityView {
 	private fun isCityNameValid(): Boolean {
 		val cityName = editorNameEdit.text.toString()
 			.replace(" ", "")
+			.replace("-","")
 		if (cityName.length < MIN_CITY_NAME_LENGTH) {
 			mAddCityPresenter.onNameError(
 				getString(R.string.error_valid_name)

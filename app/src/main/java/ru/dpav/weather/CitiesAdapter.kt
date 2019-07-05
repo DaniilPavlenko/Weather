@@ -3,13 +3,11 @@ package ru.dpav.weather
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.arellomobile.mvp.MvpDelegate
 import ru.dpav.weather.api.City
 import ru.dpav.weather.presenters.ListPresenter
 
 class CitiesAdapter(
-	private var mListPresenter: ListPresenter,
-	private var mMvpDelegate: MvpDelegate<*>
+	private var mListPresenter: ListPresenter
 ) : RecyclerView.Adapter<CityHolder>() {
 
 	private var mCities: ArrayList<City> = arrayListOf()
@@ -19,9 +17,12 @@ class CitiesAdapter(
 		parent: ViewGroup,
 		position: Int
 	): CityHolder {
-		val view = LayoutInflater.from(parent.context)
-			.inflate(R.layout.item_row_city, parent, false)
-		return CityHolder(view, mMvpDelegate, mListPresenter)
+		val view = LayoutInflater.from(parent.context).inflate(
+			R.layout.item_row_city,
+			parent,
+			false
+		)
+		return CityHolder(view, mListPresenter)
 	}
 
 	override fun getItemCount(): Int {
@@ -33,7 +34,8 @@ class CitiesAdapter(
 		position: Int
 	) {
 		val city = mCities[position]
-		holder.bind(city, position == mOpenedPosition)
+		val isOpened = position == mOpenedPosition
+		holder.bind(city, isOpened)
 	}
 
 	fun hideDropDownInfo() {

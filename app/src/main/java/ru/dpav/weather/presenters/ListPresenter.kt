@@ -8,13 +8,7 @@ import ru.dpav.weather.views.ListView
 import java.util.*
 
 @InjectViewState
-class ListPresenter() : MvpPresenter<ListView>(), Observer {
-
-	private var mCode: Int = 0
-
-	constructor(code: Int) : this() {
-		mCode = code
-	}
+class ListPresenter : MvpPresenter<ListView>(), Observer {
 
 	fun onToggleDropDownInfo(
 		position: Int,
@@ -24,9 +18,7 @@ class ListPresenter() : MvpPresenter<ListView>(), Observer {
 	}
 
 	override fun onFirstViewAttach() {
-		if (mCode == 0) {
-			CitiesRepository.addObserver(this)
-		}
+		CitiesRepository.addObserver(this)
 	}
 
 	override fun update(

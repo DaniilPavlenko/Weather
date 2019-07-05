@@ -18,6 +18,7 @@
 	<dimen name="choose_dialog_min_width">320dp</dimen>
 	<dimen name="info_window_button_size">25dp</dimen>
 	<dimen name="seek_bar_thumb">15dp</dimen>
+	<dimen name="edit_text_padding">10dp</dimen>
 	<!-- Font sizes -->
 	<dimen name="detail_temperature_text_size">12sp</dimen>
 	<dimen name="error_text_size">12sp</dimen>

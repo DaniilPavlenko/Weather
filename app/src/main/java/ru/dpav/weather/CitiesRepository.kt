@@ -5,7 +5,7 @@ import java.util.*
 
 object CitiesRepository : Observable() {
 
-	const val CUSTOM_CITY_ID_OFFSET = 20000000
+	private const val CUSTOM_CITY_ID_OFFSET = 20000000
 
 	var cities: List<City> = emptyList()
 		set(cities) {
@@ -38,6 +38,15 @@ object CitiesRepository : Observable() {
 	private fun notifySubscribers() {
 		setChanged()
 		notifyObservers()
+	}
+
+	fun getNewCustomId(): Int {
+		val lastId: Int = if (customCities.isNotEmpty()) {
+			customCities.last().id
+		} else {
+			0
+		}
+		return CUSTOM_CITY_ID_OFFSET + lastId
 	}
 
 	fun isCustom(id: Int) = id >= CUSTOM_CITY_ID_OFFSET

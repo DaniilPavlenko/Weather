@@ -29,7 +29,11 @@ class CityDetailFragment : DialogFragment() {
 			requestFeature(Window.FEATURE_NO_TITLE)
 			setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 		}
-		val view = inflater.inflate(R.layout.fragment_city_detail, container, false)
+		val view = inflater.inflate(
+			R.layout.fragment_city_detail,
+			container,
+			false
+		)
 		arguments?.let {
 
 			val cityId = it.getInt(ARG_CITY_ID)

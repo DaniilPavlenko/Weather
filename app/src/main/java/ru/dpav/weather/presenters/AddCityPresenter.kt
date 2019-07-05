@@ -60,7 +60,6 @@ class AddCityPresenter() : MvpPresenter<AddCityView>() {
 			viewState.setCity(mCity)
 			return
 		}
-		mCity.id = CitiesRepository.CUSTOM_CITY_ID_OFFSET +
-			CitiesRepository.customCities.size
+		mCity.id = CitiesRepository.getNewCustomId()
 	}
 }
