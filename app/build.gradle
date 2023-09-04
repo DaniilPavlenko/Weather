@@ -4,11 +4,12 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 28
+    namespace 'ru.dpav.weather'
+    compileSdk 31
     defaultConfig {
         applicationId "ru.dpav.weather"
-        minSdkVersion 16
-        targetSdkVersion 28
+        minSdk 26
+        targetSdk 31
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
