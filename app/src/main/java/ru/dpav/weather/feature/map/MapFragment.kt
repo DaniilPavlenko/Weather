@@ -1,4 +1,4 @@
-package ru.dpav.weather
+package ru.dpav.weather.feature.map
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -44,11 +44,14 @@ import org.osmdroid.views.overlay.IconOverlay
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.infowindow.InfoWindow
+import ru.dpav.weather.AddCityActivity
+import ru.dpav.weather.CitiesRepository
+import ru.dpav.weather.R
 import ru.dpav.weather.api.City
-import ru.dpav.weather.presenters.MapPresenter
+import ru.dpav.weather.feature.city_details.CityDetailFragment
 import ru.dpav.weather.util.Util.Companion.isGooglePlayAvailable
 
-class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
+class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView {
     lateinit var mMap: MapView
     private lateinit var mLocationButton: ImageButton
     private lateinit var mFusedLocation: FusedLocationProviderClient
@@ -137,7 +140,7 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.views.MapView {
                 CustomZoomButtonsController.Visibility.NEVER
             )
             minZoomLevel = MIN_ZOOM_LEVEL
-            controller.setZoom(Constants.DEFAULT_ZOOM)
+            controller.setZoom(MapDefaults.DEFAULT_ZOOM)
             isVerticalMapRepetitionEnabled = false
         }
         setMapListener()

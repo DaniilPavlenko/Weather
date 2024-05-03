@@ -1,4 +1,4 @@
-package ru.dpav.weather
+package ru.dpav.weather.feature.cities_list
 
 import android.view.View
 import android.widget.TextView
@@ -11,8 +11,9 @@ import kotlinx.android.synthetic.main.item_row_city.view.cityDetailPressure
 import kotlinx.android.synthetic.main.item_row_city.view.cityDetailTemperature
 import kotlinx.android.synthetic.main.item_row_city.view.cityDetailTitle
 import kotlinx.android.synthetic.main.item_row_city.view.cityDetailWind
+import ru.dpav.weather.R
 import ru.dpav.weather.api.City
-import ru.dpav.weather.presenters.ListPresenter
+import ru.dpav.weather.feature.city_details.CityDetailFragment
 import ru.dpav.weather.util.Util
 
 class CityHolder(

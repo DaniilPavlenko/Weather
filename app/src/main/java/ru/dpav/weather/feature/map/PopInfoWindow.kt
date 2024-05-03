@@ -1,10 +1,11 @@
-package ru.dpav.weather
+package ru.dpav.weather.feature.map
 
 import android.view.View
 import kotlinx.android.synthetic.main.info_window_weather.view.infoWindowSnippet
 import kotlinx.android.synthetic.main.info_window_weather.view.infoWindowTitle
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.infowindow.InfoWindow
+import ru.dpav.weather.R
 import ru.dpav.weather.api.City
 import ru.dpav.weather.util.Util
 

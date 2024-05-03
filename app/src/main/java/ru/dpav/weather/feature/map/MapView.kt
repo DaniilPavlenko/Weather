@@ -1,4 +1,4 @@
-package ru.dpav.weather.views
+package ru.dpav.weather.feature.map
 
 import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy

@@ -1,4 +1,4 @@
-package ru.dpav.weather
+package ru.dpav.weather.feature.map
 
 import android.view.View
 import kotlinx.android.synthetic.main.info_window_weather.view.infoWindowButtonsContainer

@@ -1,4 +1,4 @@
-package ru.dpav.weather
+package ru.dpav.weather.feature.cities_list
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,9 +10,8 @@ import com.arellomobile.mvp.MvpAppCompatFragment
 import com.arellomobile.mvp.presenter.InjectPresenter
 import kotlinx.android.synthetic.main.fragment_list.view.citiesNotFound
 import kotlinx.android.synthetic.main.fragment_list.view.citiesRecyclerView
+import ru.dpav.weather.R
 import ru.dpav.weather.api.City
-import ru.dpav.weather.presenters.ListPresenter
-import ru.dpav.weather.views.ListView
 
 class ListFragment : MvpAppCompatFragment(), ListView {
 

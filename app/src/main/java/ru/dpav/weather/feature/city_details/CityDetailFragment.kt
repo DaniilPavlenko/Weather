@@ -1,4 +1,4 @@
-package ru.dpav.weather
+package ru.dpav.weather.feature.city_details
 
 import android.app.Dialog
 import android.graphics.Color
@@ -16,6 +16,8 @@ import kotlinx.android.synthetic.main.fragment_city_detail.view.cityDetailTemper
 import kotlinx.android.synthetic.main.fragment_city_detail.view.cityDetailTitle
 import kotlinx.android.synthetic.main.fragment_city_detail.view.cityDetailWind
 import kotlinx.android.synthetic.main.fragment_city_detail.view.closeButton
+import ru.dpav.weather.CitiesRepository
+import ru.dpav.weather.R
 import ru.dpav.weather.api.City
 import ru.dpav.weather.util.Util
 
