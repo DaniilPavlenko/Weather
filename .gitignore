@@ -2,7 +2,6 @@
 .gradle
 /local.properties
 /build
-.idea/
-/gradle
-/gradlew
-/gradlew.bat
+
+/*.jks
+/keysotore.properties
