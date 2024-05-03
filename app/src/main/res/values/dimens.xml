@@ -1,29 +1,29 @@
 <resources>
-	<!-- Default screen margins, per the Android Design guidelines. -->
-	<dimen name="padding">16dp</dimen>
-	<dimen name="padding_small">8dp</dimen>
-	<dimen name="margin_small">8dp</dimen>
-	<dimen name="marker_size">28dp</dimen>
-	<dimen name="marker_location_size">25dp</dimen>
-	<dimen name="marker_size_selected">20dp</dimen>
-	<dimen name="marker_city_border">4dp</dimen>
-	<dimen name="marker_city_border_selected">10dp</dimen>
-	<dimen name="location_button_size">45dp</dimen>
-	<dimen name="info_window_min_width">200dp</dimen>
-	<dimen name="editor_icon_size">110dp</dimen>
-	<dimen name="editor_icon_margin">24dp</dimen>
-	<dimen name="editor_pen_icon_margin_bottom">75dp</dimen>
-	<dimen name="editor_pen_icon_margin_left">80dp</dimen>
-	<dimen name="choose_dialog_icon_size">100dp</dimen>
-	<dimen name="choose_dialog_min_width">320dp</dimen>
-	<dimen name="info_window_button_size">25dp</dimen>
-	<dimen name="seek_bar_thumb">15dp</dimen>
-	<dimen name="edit_text_padding">10dp</dimen>
-	<!-- Font sizes -->
-	<dimen name="detail_temperature_text_size">12sp</dimen>
-	<dimen name="error_text_size">12sp</dimen>
-	<dimen name="info_window_city_text_size">16sp</dimen>
-	<dimen name="large_text_size">24sp</dimen>
-	<dimen name="list_item_title_size">16sp</dimen>
-	<dimen name="drop_down_info_text_size">14sp</dimen>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="padding">16dp</dimen>
+    <dimen name="padding_small">8dp</dimen>
+    <dimen name="margin_small">8dp</dimen>
+    <dimen name="marker_size">28dp</dimen>
+    <dimen name="marker_location_size">25dp</dimen>
+    <dimen name="marker_size_selected">20dp</dimen>
+    <dimen name="marker_city_border">4dp</dimen>
+    <dimen name="marker_city_border_selected">10dp</dimen>
+    <dimen name="location_button_size">45dp</dimen>
+    <dimen name="info_window_min_width">200dp</dimen>
+    <dimen name="editor_icon_size">110dp</dimen>
+    <dimen name="editor_icon_margin">24dp</dimen>
+    <dimen name="editor_pen_icon_margin_bottom">75dp</dimen>
+    <dimen name="editor_pen_icon_margin_left">80dp</dimen>
+    <dimen name="choose_dialog_icon_size">100dp</dimen>
+    <dimen name="choose_dialog_min_width">320dp</dimen>
+    <dimen name="info_window_button_size">25dp</dimen>
+    <dimen name="seek_bar_thumb">15dp</dimen>
+    <dimen name="edit_text_padding">10dp</dimen>
+    <!-- Font sizes -->
+    <dimen name="detail_temperature_text_size">12sp</dimen>
+    <dimen name="error_text_size">12sp</dimen>
+    <dimen name="info_window_city_text_size">16sp</dimen>
+    <dimen name="large_text_size">24sp</dimen>
+    <dimen name="list_item_title_size">16sp</dimen>
+    <dimen name="drop_down_info_text_size">14sp</dimen>
 </resources>

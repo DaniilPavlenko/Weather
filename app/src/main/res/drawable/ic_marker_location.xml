@@ -1,27 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android"
-	android:oneshot="false">
-	<item>
-		<shape android:shape="oval">
-			<padding
-				android:bottom="8dp"
-				android:left="8dp"
-				android:right="8dp"
-				android:top="8dp"/>
-			<gradient
-				android:endColor="#2864B5F6"
-				android:gradientRadius="23dp"
-				android:startColor="#64B5F6"
-				android:type="radial"/>
-		</shape>
-	</item>
-	<item>
-		<shape android:shape="oval">
-			<size android:height="@dimen/marker_location_size"
-				android:width="@dimen/marker_location_size"/>
-			<solid android:color="#1976D2"/>
-			<stroke android:color="@android:color/white"
-				android:width="@dimen/marker_city_border"/>
-		</shape>
-	</item>
+    android:oneshot="false">
+    <item>
+        <shape android:shape="oval">
+            <padding
+                android:bottom="8dp"
+                android:left="8dp"
+                android:right="8dp"
+                android:top="8dp" />
+            <gradient
+                android:endColor="#2864B5F6"
+                android:gradientRadius="23dp"
+                android:startColor="#64B5F6"
+                android:type="radial" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="oval">
+            <size
+                android:width="@dimen/marker_location_size"
+                android:height="@dimen/marker_location_size" />
+            <solid android:color="#1976D2" />
+            <stroke
+                android:width="@dimen/marker_city_border"
+                android:color="@android:color/white" />
+        </shape>
+    </item>
 </layer-list>

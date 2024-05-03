@@ -1,33 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:state_activated="true">
-		<layer-list>
-			<item>
-				<shape android:shape="rectangle">
-					<size android:height="@dimen/location_button_size"
-						android:width="@dimen/location_button_size"/>
-					<solid android:color="@android:color/white"/>
-					<corners android:radius="10dp"/>
-					<stroke android:color="#48000000"
-						android:width="2dp"/>
-				</shape>
-			</item>
-			<item android:drawable="@drawable/ic_location_on"/>
-		</layer-list>
-	</item>
-	<item android:state_activated="false">
-		<layer-list>
-			<item>
-				<shape android:shape="rectangle">
-					<size android:height="@dimen/location_button_size"
-						android:width="@dimen/location_button_size"/>
-					<solid android:color="#B3FFFFFF"/>
-					<corners android:radius="10dp"/>
-					<stroke android:color="#48000000"
-						android:width="2dp"/>
-				</shape>
-			</item>
-			<item android:drawable="@drawable/ic_location_off"/>
-		</layer-list>
-	</item>
+    <item android:state_activated="true">
+        <layer-list>
+            <item>
+                <shape android:shape="rectangle">
+                    <size android:width="@dimen/location_button_size" android:height="@dimen/location_button_size" />
+                    <solid android:color="@android:color/white" />
+                    <corners android:radius="10dp" />
+                    <stroke android:width="2dp" android:color="#48000000" />
+                </shape>
+            </item>
+            <item android:drawable="@drawable/ic_location_on" />
+        </layer-list>
+    </item>
+    <item android:state_activated="false">
+        <layer-list>
+            <item>
+                <shape android:shape="rectangle">
+                    <size android:width="@dimen/location_button_size" android:height="@dimen/location_button_size" />
+                    <solid android:color="#B3FFFFFF" />
+                    <corners android:radius="10dp" />
+                    <stroke android:width="2dp" android:color="#48000000" />
+                </shape>
+            </item>
+            <item android:drawable="@drawable/ic_location_off" />
+        </layer-list>
+    </item>
 </selector>

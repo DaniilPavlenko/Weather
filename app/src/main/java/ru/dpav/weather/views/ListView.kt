@@ -7,6 +7,6 @@ import ru.dpav.weather.api.City
 
 @StateStrategyType(AddToEndSingleStrategy::class)
 interface ListView : MvpView {
-	fun updateCitiesList(cities: List<City>)
-	fun toggleDropDownInfo(position: Int, shown: Boolean)
+    fun updateCitiesList(cities: List<City>)
+    fun toggleDropDownInfo(position: Int, shown: Boolean)
 }

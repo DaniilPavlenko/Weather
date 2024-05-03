@@ -1,58 +1,56 @@
 <resources>
-	<string name="app_name">Погода</string>
-	<string name="map">Карта</string>
-	<string name="list">Список</string>
-	<string name="google_maps_api_key"
-		translatable="false">AIzaSyDo0D4g2WtPxUlXlF82-OzOl5GvlHPQRtQ
+    <string name="app_name">Погода</string>
+    <string name="map">Карта</string>
+    <string name="list">Список</string>
+    <string name="google_maps_api_key" translatable="false">AIzaSyDo0D4g2WtPxUlXlF82-OzOl5GvlHPQRtQ
 	</string>
-	<string formatted="true"
-		name="marker_snippet">Температура: %+d°C
+    <string name="marker_snippet" formatted="true">Температура: %+d°C
 		\nВетер: %d м/с
 		\nОблачность: %d%%
 		\nДавление: %d мм
 	</string>
-	<string name="detail_temperature">%+d°C</string>
-	<string name="detail_wind">Ветер: %d м/с</string>
-	<string name="detail_cloudy">Облачность: %d%%</string>
-	<string name="detail_humidity">Влажность: %d%%</string>
-	<string name="detail_pressure">Давление: %d мм</string>
-	<string name="connection_error">Отсутствует подключение</string>
-	<string name="retry">Повторить</string>
-	<string name="geo_disabled">Геолокация отключена</string>
-	<string name="back">Назад</string>
-	<string name="enable_or_disable_geo">Enable or disable geolocation</string>
-	<string name="list_empty">Список пуст</string>
-	<string name="error_unexpected">Произошла непредвиденная ошибка</string>
-	<string name="cancel">Отмена</string>
-	<string name="editor_of_city">Редактор города</string>
-	<string name="error_valid_name">Минимум 3 символа без пробелов и тире</string>
-	<string name="error_valid_name_spec_chars">Допустимы буквы русского алфавита, пробел, знак тире</string>
-	<string name="current_weather">Текущая погода</string>
-	<string name="error_valid_cloudy">Облачность не может быть равна 0 при текущей погоде</string>
-	<string name="error_valid_humidity">Влажность не может быть равна 0 при текущей погоде</string>
-	<string name="remove">Удалить</string>
-	<string name="remove_dialog_question">Вы действительно хотите удалить город?</string>
-	<string name="enter_the_city_name">Название города</string>
-	<string name="temperature_min">-90</string>
-	<string name="temperature_max">+60</string>
-	<string name="zero">0</string>
-	<string name="wind_max">110</string>
-	<string name="one_hundred">100</string>
-	<string name="pressure_min">665</string>
-	<string name="pressure_max">815</string>
-	<string name="edit_current_weather">Редактировать текущую погоду</string>
-	<string name="temperature_placeholder">Температура: %d°C</string>
-	<string name="wind_placeholder">Ветер: %d м/с</string>
-	<string name="cloudy_placeholder">Облачность: %d%%</string>
-	<string name="edit">Изменить</string>
-	<string name="humidity_placeholder">Влажность: %d%%</string>
-	<string name="pressure_placeholder">Давление: %d мм.рт.ст</string>
-	<string name="check_errors">Устраните ошибки</string>
-	<string name="choose_weather">Выберите погоду:</string>
-	<string name="weather_icon">Иконка погоды</string>
-	<string name="add">Добавить</string>
-	<string name="close">Закрыть</string>
-	<string name="change">Изменить</string>
-	<string name="marker_editor">Редактор маркера</string>
-	<string name="city">Город:</string>
+    <string name="detail_temperature">%+d°C</string>
+    <string name="detail_wind">Ветер: %d м/с</string>
+    <string name="detail_cloudy">Облачность: %d%%</string>
+    <string name="detail_humidity">Влажность: %d%%</string>
+    <string name="detail_pressure">Давление: %d мм</string>
+    <string name="connection_error">Отсутствует подключение</string>
+    <string name="retry">Повторить</string>
+    <string name="geo_disabled">Геолокация отключена</string>
+    <string name="back">Назад</string>
+    <string name="enable_or_disable_geo">Enable or disable geolocation</string>
+    <string name="list_empty">Список пуст</string>
+    <string name="error_unexpected">Произошла непредвиденная ошибка</string>
+    <string name="cancel">Отмена</string>
+    <string name="editor_of_city">Редактор города</string>
+    <string name="error_valid_name">Минимум 3 символа без пробелов и тире</string>
+    <string name="error_valid_name_spec_chars">Допустимы буквы русского алфавита, пробел, знак тире</string>
+    <string name="current_weather">Текущая погода</string>
+    <string name="error_valid_cloudy">Облачность не может быть равна 0 при текущей погоде</string>
+    <string name="error_valid_humidity">Влажность не может быть равна 0 при текущей погоде</string>
+    <string name="remove">Удалить</string>
+    <string name="remove_dialog_question">Вы действительно хотите удалить город?</string>
+    <string name="enter_the_city_name">Название города</string>
+    <string name="temperature_min">-90</string>
+    <string name="temperature_max">+60</string>
+    <string name="zero">0</string>
+    <string name="wind_max">110</string>
+    <string name="one_hundred">100</string>
+    <string name="pressure_min">665</string>
+    <string name="pressure_max">815</string>
+    <string name="edit_current_weather">Редактировать текущую погоду</string>
+    <string name="temperature_placeholder">Температура: %d°C</string>
+    <string name="wind_placeholder">Ветер: %d м/с</string>
+    <string name="cloudy_placeholder">Облачность: %d%%</string>
+    <string name="edit">Изменить</string>
+    <string name="humidity_placeholder">Влажность: %d%%</string>
+    <string name="pressure_placeholder">Давление: %d мм.рт.ст</string>
+    <string name="check_errors">Устраните ошибки</string>
+    <string name="choose_weather">Выберите погоду:</string>
+    <string name="weather_icon">Иконка погоды</string>
+    <string name="add">Добавить</string>
+    <string name="close">Закрыть</string>
+    <string name="change">Изменить</string>
+    <string name="marker_editor">Редактор маркера</string>
+    <string name="city">Город:</string>
 </resources>

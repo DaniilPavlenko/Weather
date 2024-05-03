@@ -2,14 +2,15 @@ package ru.dpav.weather
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.tabs
+import kotlinx.android.synthetic.main.activity_main.viewPager
 
 class MainActivity : AppCompatActivity() {
-	override fun onCreate(savedInstanceState: Bundle?) {
-		super.onCreate(savedInstanceState)
-		setContentView(R.layout.activity_main)
-		val sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager)
-		viewPager.adapter = sectionsPagerAdapter
-		tabs.setupWithViewPager(viewPager)
-	}
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        val sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager)
+        viewPager.adapter = sectionsPagerAdapter
+        tabs.setupWithViewPager(viewPager)
+    }
 }

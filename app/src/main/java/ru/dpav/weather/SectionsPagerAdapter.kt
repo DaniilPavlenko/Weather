@@ -6,26 +6,26 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 
 class SectionsPagerAdapter(
-	private val context: Context,
-	fm: FragmentManager
+    private val context: Context,
+    fm: FragmentManager,
 ) : FragmentPagerAdapter(fm) {
 
-	override fun getItem(position: Int): Fragment =
-		when (TAB_TITLES[position]) {
-			R.string.map -> MapFragment.newInstance()
-			R.string.list -> ListFragment.newInstance()
-			else -> MapFragment.newInstance()
-		}
+    override fun getItem(position: Int): Fragment =
+        when (TAB_TITLES[position]) {
+            R.string.map -> MapFragment.newInstance()
+            R.string.list -> ListFragment.newInstance()
+            else -> MapFragment.newInstance()
+        }
 
-	override fun getPageTitle(position: Int): CharSequence? =
-		context.resources.getString(TAB_TITLES[position])
+    override fun getPageTitle(position: Int): CharSequence =
+        context.resources.getString(TAB_TITLES[position])
 
-	override fun getCount(): Int = TAB_TITLES.size
+    override fun getCount(): Int = TAB_TITLES.size
 
-	companion object {
-		private val TAB_TITLES = arrayOf(
-			R.string.map,
-			R.string.list
-		)
-	}
+    companion object {
+        private val TAB_TITLES = arrayOf(
+            R.string.map,
+            R.string.list
+        )
+    }
 }

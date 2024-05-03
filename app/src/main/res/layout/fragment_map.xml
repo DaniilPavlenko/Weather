@@ -1,29 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent">
-	<org.osmdroid.views.MapView
-		android:id="@+id/map"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"/>
-	<ImageButton
-		android:id="@+id/locationButton"
-		android:layout_width="@dimen/location_button_size"
-		android:layout_height="@dimen/location_button_size"
-		android:background="@drawable/location_button"
-		android:contentDescription="@string/enable_or_disable_geo"
-		android:layout_gravity="bottom|end"
-		android:layout_margin="@dimen/margin_small"/>
-	<FrameLayout
-		android:id="@+id/mapUpdateLayout"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:background="@color/updateScreenBackground"
-		android:clickable="true"
-		android:focusable="true">
-		<ProgressBar
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center"/>
-	</FrameLayout>
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <org.osmdroid.views.MapView
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageButton
+        android:id="@+id/locationButton"
+        android:layout_width="@dimen/location_button_size"
+        android:layout_height="@dimen/location_button_size"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/margin_small"
+        android:background="@drawable/location_button"
+        android:contentDescription="@string/enable_or_disable_geo" />
+
+    <FrameLayout
+        android:id="@+id/mapUpdateLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/updateScreenBackground"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+    </FrameLayout>
 </FrameLayout>
