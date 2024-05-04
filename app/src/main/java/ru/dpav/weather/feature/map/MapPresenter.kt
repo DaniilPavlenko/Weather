@@ -5,13 +5,10 @@ import com.arellomobile.mvp.MvpPresenter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.overlay.Marker
 import retrofit2.HttpException
 import ru.dpav.weather.CitiesRepository
 import ru.dpav.weather.R
 import ru.dpav.weather.api.WeatherApi
-import ru.dpav.weather.api.model.City
-import ru.dpav.weather.api.model.Coordinates
 import ru.dpav.weather.api.model.WeatherResponse
 import ru.dpav.weather.feature.map.MapDefaults.DEFAULT_POINT
 import ru.dpav.weather.feature.map.MapDefaults.DEFAULT_ZOOM
@@ -22,8 +19,6 @@ class MapPresenter : MvpPresenter<MapView>() {
 
     private var mErrorConnectionPoint: GeoPoint? = null
     private var mDisposableRequest: Disposable? = null
-    private var mEditingMarkerId: String? = null
-    private var mCityForRemove: City? = null
 
     override fun onDestroy() {
         mDisposableRequest?.dispose()
@@ -42,27 +37,6 @@ class MapPresenter : MvpPresenter<MapView>() {
             showUpdateScreen(true)
         }
         getWeather(point)
-    }
-
-    fun saveCity() {
-        mEditingMarkerId?.let {
-            with(viewState) {
-                closeInfoWindow()
-                addCustomCity(
-                    CitiesRepository.customCities.first { city ->
-                        city.id.toString() == mEditingMarkerId
-                    }
-                )
-                openInfoWindow(it)
-            }
-            mEditingMarkerId = null
-            return
-        }
-        viewState.addCustomCity(CitiesRepository.customCities.last())
-    }
-
-    fun setEditingMarkerId(markerId: String) {
-        mEditingMarkerId = markerId
     }
 
     fun onRetryConnection() {
@@ -152,24 +126,6 @@ class MapPresenter : MvpPresenter<MapView>() {
         onCameraMoveTo(DEFAULT_POINT, DEFAULT_ZOOM)
     }
 
-    fun onRemoveClick(city: City) {
-        mCityForRemove = city
-        viewState.showRemoveDialog(true)
-    }
-
-    fun onAcceptDialog() {
-        mCityForRemove?.let {
-            CitiesRepository.removeCustomCity(it)
-        }
-        mCityForRemove = null
-        viewState.showRemoveDialog(false)
-    }
-
-    fun onDeclineDialog() {
-        mCityForRemove = null
-        viewState.showRemoveDialog(false)
-    }
-
     fun onInfoWindowClose() {
         viewState.closeInfoWindow()
     }
@@ -179,25 +135,5 @@ class MapPresenter : MvpPresenter<MapView>() {
             askPermission()
             setStartPosition()
         }
-    }
-
-    fun onCustomCityDragEnd(marker: Marker) {
-        CitiesRepository.customCities.forEachIndexed { index, city ->
-            if (city.id.toString() == marker.id) {
-                CitiesRepository.customCities[index].coordinates =
-                    Coordinates(
-                        marker.position.latitude,
-                        marker.position.longitude
-                    )
-            }
-        }
-    }
-
-    fun onCustomCityRemoved() {
-        with(viewState) {
-            closeInfoWindow()
-            updateCitiesMarkers()
-        }
-        mEditingMarkerId = null
     }
 }

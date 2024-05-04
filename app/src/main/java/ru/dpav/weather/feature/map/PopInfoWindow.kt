@@ -30,7 +30,7 @@ open class PopInfoWindow(
             city.main.temp.toInt(),
             city.wind.speed.toInt(),
             city.clouds.cloudy,
-            Util.getPressureInMmHg(city.main.pressure)
+            city.main.pressureInMmHg
         )
 
         mView.setOnClickListener(onClick)

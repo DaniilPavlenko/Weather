@@ -3,6 +3,8 @@ package ru.dpav.weather.api.model
 import com.google.gson.annotations.SerializedName
 
 data class Coordinates(
-    @SerializedName("lat") var latitude: Double,
-    @SerializedName("lon") var longitude: Double,
+    @SerializedName("lat")
+    val latitude: Double,
+    @SerializedName("lon")
+    val longitude: Double,
 )

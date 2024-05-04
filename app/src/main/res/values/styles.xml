@@ -26,27 +26,4 @@
         <item name="android:textColor">@color/cityNameColor</item>
     </style>
 
-    <style name="ButtonCancel" parent="Base.Widget.AppCompat.Button">
-        <item name="android:background">#c00</item>
-        <item name="android:textColor">@android:color/white</item>
-    </style>
-
-    <style name="ButtonSave" parent="ButtonCancel">
-        <item name="android:background">@color/colorSuccessButton</item>
-    </style>
-
-    <style name="ButtonEdit">
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:background">@drawable/background_edit_button</item>
-        <item name="android:textSize">@dimen/detail_temperature_text_size</item>
-    </style>
-
-    <style name="ChooseDialogIcon" parent="Widget.AppCompat.ImageButton">
-        <item name="android:minWidth">@dimen/choose_dialog_icon_size</item>
-        <item name="android:background">@drawable/background_choose_icon</item>
-    </style>
-
-    <style name="SeekBar" parent="Widget.AppCompat.SeekBar">
-        <item name="android:thumb">@drawable/seek_bar_thumb</item>
-    </style>
 </resources>

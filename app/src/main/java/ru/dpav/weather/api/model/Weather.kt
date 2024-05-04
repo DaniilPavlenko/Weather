@@ -1,6 +1,10 @@
 package ru.dpav.weather.api.model
 
+import com.google.gson.annotations.SerializedName
+
 data class Weather(
-    var id: Int,
-    var icon: String,
+    @SerializedName("id")
+    val id: Int,
+    @SerializedName("icon")
+    val icon: String,
 )

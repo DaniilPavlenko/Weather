@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -13,7 +12,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawableStart="@drawable/weather_icon_01"
-        android:drawableLeft="@drawable/weather_icon_01"
         android:ellipsize="end"
         android:gravity="center_vertical"
         android:maxLength="25"
@@ -33,37 +31,4 @@
         android:paddingBottom="@dimen/padding_small"
         tools:text="Детали погоды" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/infoWindowButtonsContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone">
-
-        <ImageButton
-            android:id="@+id/infoWindowEditButton"
-            style="@style/ButtonEdit"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/edit"
-            android:paddingLeft="@dimen/padding_small"
-            android:paddingRight="@dimen/padding_small"
-            android:visibility="visible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/infoWindowRemoveButton"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_edit_pen" />
-
-        <ImageButton
-            android:id="@+id/infoWindowRemoveButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/background_remove_button"
-            android:contentDescription="@string/remove"
-            app:layout_constraintEnd_toStartOf="@+id/infoWindowEditButton"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_delete" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

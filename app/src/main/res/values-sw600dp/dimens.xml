@@ -6,7 +6,6 @@
     <dimen name="marker_location_size">30dp</dimen>
     <dimen name="marker_city_border">4dp</dimen>
     <dimen name="location_button_size">60dp</dimen>
-    <dimen name="info_window_button_size">40dp</dimen>
     <!-- Font sizes -->
     <dimen name="list_item_title_size">20sp</dimen>
     <dimen name="drop_down_info_text_size">18sp</dimen>

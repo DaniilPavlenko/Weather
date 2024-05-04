@@ -2,10 +2,7 @@ package ru.dpav.weather.feature.map
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.location.LocationManager
@@ -44,7 +41,6 @@ import org.osmdroid.views.overlay.IconOverlay
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.infowindow.InfoWindow
-import ru.dpav.weather.AddCityActivity
 import ru.dpav.weather.CitiesRepository
 import ru.dpav.weather.R
 import ru.dpav.weather.api.model.City
@@ -58,7 +54,6 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
     private var isInfoWindowOpened: Boolean = false
     private lateinit var mUpdateScreen: FrameLayout
     private var mMarkers: ArrayList<Marker> = arrayListOf()
-    private var mCustomMarkers: ArrayList<Marker> = arrayListOf()
 
     @InjectPresenter
     lateinit var mMapPresenter: MapPresenter
@@ -101,22 +96,6 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
         val prefs = PreferenceManager.getDefaultSharedPreferences(activity)
         Configuration.getInstance().load(activity, prefs)
         mMap.onResume()
-    }
-
-    override fun onActivityResult(
-        requestCode: Int,
-        resultCode: Int,
-        data: Intent?,
-    ) {
-        when (resultCode) {
-            Activity.RESULT_OK -> {
-                when (requestCode) {
-                    REQUEST_NEW_CITY -> {
-                        mMapPresenter.saveCity()
-                    }
-                }
-            }
-        }
     }
 
     override fun onPause() {
@@ -168,15 +147,7 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
     private fun addEventReceiver() {
         val mReceive: MapEventsReceiver = object : MapEventsReceiver {
             override fun longPressHelper(point: GeoPoint?): Boolean {
-                point?.let {
-                    mMapPresenter.onInfoWindowClose()
-                    val city = City.getEmpty()
-                    with(city.coordinates) {
-                        latitude = point.latitude
-                        longitude = point.longitude
-                    }
-                    openEditor(city)
-                }
+                mMapPresenter.onInfoWindowClose()
                 return false
             }
 
@@ -223,11 +194,6 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
             mMarkers,
             R.drawable.ic_marker_city
         )
-        addMarkersOnMap(
-            CitiesRepository.customCities,
-            mCustomMarkers,
-            R.drawable.ic_marker_city_custom
-        )
         mMap.invalidate()
     }
 
@@ -246,18 +212,6 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
         mMap.overlays.addAll(markersList)
     }
 
-    private fun openEditor(city: City) {
-        activity?.let { act ->
-            val addCityActivity = if (city.id == 0) {
-                AddCityActivity.newIntent(act, city)
-            } else {
-                mMapPresenter.setEditingMarkerId(city.id.toString())
-                AddCityActivity.newIntent(act, city.id)
-            }
-            startActivityForResult(addCityActivity, REQUEST_NEW_CITY)
-        }
-    }
-
     private fun makeMarker(
         city: City,
         icon: Int,
@@ -273,34 +227,13 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
         }
         marker.icon = ContextCompat.getDrawable(activity!!, icon)
         val infoWindow: PopInfoWindow
-        if (icon == R.drawable.ic_marker_city) {
-            infoWindow = PopInfoWindow(
-                R.layout.info_window_weather,
-                mMap,
-                city,
-                View.OnClickListener { openDetailDialog(city) })
-        } else {
-            infoWindow = EditablePopInfo(
-                R.layout.info_window_weather,
-                mMap,
-                city,
-                object : EditablePopInfo.WindowInfoListener {
-                    override fun onWindowClick() {
-                        openDetailDialog(city)
-                    }
 
-                    override fun onEditClick() {
-                        openEditor(city)
-                    }
-
-                    override fun onRemoveClick() {
-                        mMapPresenter.onRemoveClick(city)
-                    }
-                }
-            )
-            marker.isDraggable = true
-            marker.setOnMarkerDragListener(mDragListener)
-        }
+        infoWindow = PopInfoWindow(
+            R.layout.info_window_weather,
+            mMap,
+            city,
+            View.OnClickListener { openDetailDialog(city) }
+        )
 
         marker.infoWindow = infoWindow
         marker.setOnMarkerClickListener { _, _ ->
@@ -308,52 +241,6 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
             return@setOnMarkerClickListener true
         }
         return marker
-    }
-
-    private val mDragListener = object : Marker.OnMarkerDragListener {
-        override fun onMarkerDrag(marker: Marker?) {}
-
-        override fun onMarkerDragStart(marker: Marker?) {
-            mMapPresenter.onInfoWindowClose()
-        }
-
-        override fun onMarkerDragEnd(marker: Marker?) {
-            marker?.let {
-                mMapPresenter.onCustomCityDragEnd(it)
-                marker.icon = getMarkerIcon(
-                    marker.id.toInt(),
-                    isSelected = false
-                )
-            }
-        }
-    }
-
-    override fun addCustomCity(city: City) {
-        val marker = makeMarker(
-            city,
-            R.drawable.ic_marker_city_custom
-        )
-        var editingIndex: Int? = null
-        mCustomMarkers.forEachIndexed { index, it ->
-            if (it.id == marker.id) {
-                editingIndex = index
-                return@forEachIndexed
-            }
-        }
-        editingIndex?.let {
-            mCustomMarkers.removeAt(it)
-        }
-        mCustomMarkers.add(marker)
-        with(mMap) {
-            overlays.forEachIndexed { index, overlay ->
-                if (overlay is Marker && overlay.id.toInt() == city.id) {
-                    mMap.overlays.removeAt(index)
-                    return@forEachIndexed
-                }
-            }
-            overlays.add(marker)
-            invalidate()
-        }
     }
 
     private fun openDetailDialog(city: City) {
@@ -370,10 +257,7 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
         mMap.overlays.forEach {
             if (it is Marker && it.id == cityId) {
                 it.showInfoWindow()
-                val icon = getMarkerIcon(
-                    it.id.toInt(),
-                    isSelected = true
-                )
+                val icon = getMarkerIcon(isSelected = true)
                 it.icon = icon
             }
         }
@@ -385,10 +269,7 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
         window.forEach {
             val relatedObject = it.relatedObject
             if (relatedObject is Marker) {
-                val icon = getMarkerIcon(
-                    relatedObject.id.toInt(),
-                    isSelected = false
-                )
+                val icon = getMarkerIcon(isSelected = false)
                 relatedObject.icon = icon
             }
         }
@@ -473,24 +354,6 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
         }
     }
 
-    override fun showRemoveDialog(shown: Boolean) {
-        if (!shown) return
-        AlertDialog.Builder(activity)
-            .setTitle(getString(R.string.remove))
-            .setMessage(getString(R.string.remove_dialog_question))
-            .setPositiveButton(getString(R.string.remove)) { _, _ ->
-                mMapPresenter.onAcceptDialog()
-                mMapPresenter.onCustomCityRemoved()
-            }
-            .setNegativeButton(getString(R.string.cancel)) { _, _ ->
-                mMapPresenter.onDeclineDialog()
-            }
-            .setOnCancelListener {
-                mMapPresenter.onDeclineDialog()
-            }
-            .show()
-    }
-
     override fun askPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!hasLocationPermission() || !hasStoragePermission()) {
@@ -505,25 +368,13 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
         }
     }
 
-    private fun getMarkerIcon(
-        cityId: Int,
-        isSelected: Boolean,
-    ): Drawable {
-        val icon: Int =
-            if (CitiesRepository.isCustom(cityId)) {
-                if (isSelected) {
-                    R.drawable.ic_marker_city_custom_selected
-                } else {
-                    R.drawable.ic_marker_city_custom
-                }
-            } else {
-                if (isSelected) {
-                    R.drawable.ic_marker_city_selected
-                } else {
-                    R.drawable.ic_marker_city
-                }
-            }
-        return ContextCompat.getDrawable(activity!!, icon)!!
+    private fun getMarkerIcon(isSelected: Boolean): Drawable {
+        val icon: Int = if (isSelected) {
+            R.drawable.ic_marker_city_selected
+        } else {
+            R.drawable.ic_marker_city
+        }
+        return ContextCompat.getDrawable(requireContext(), icon)!!
     }
 
     private fun isLocationEnabled(): Boolean {
@@ -617,7 +468,6 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
     }
 
     companion object {
-        private const val REQUEST_NEW_CITY = 1
         private const val LOCATION_REQUEST_INTERVAL: Long = 7000
         private const val LOCATION_REQUEST_FAST_INTERVAL: Long = 4000
         private const val LOCATION_REQUEST_DISPLACEMENT: Float = 1F

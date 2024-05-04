@@ -3,12 +3,13 @@ package ru.dpav.weather.feature.cities_list
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import ru.dpav.weather.CitiesRepository
-import ru.dpav.weather.api.model.City
 import java.util.Observable
 import java.util.Observer
 
 @InjectViewState
 class ListPresenter : MvpPresenter<ListView>(), Observer {
+
+    private val citiesRepository = CitiesRepository
 
     fun onToggleDropDownInfo(
         position: Int,
@@ -18,17 +19,10 @@ class ListPresenter : MvpPresenter<ListView>(), Observer {
     }
 
     override fun onFirstViewAttach() {
-        CitiesRepository.addObserver(this)
+        citiesRepository.addObserver(this)
     }
 
-    override fun update(
-        observable: Observable?,
-        arg: Any?,
-    ) {
-        val cityRep = observable as CitiesRepository
-        val cities = arrayListOf<City>()
-        cities.addAll(cityRep.cities)
-        cities.addAll(cityRep.customCities)
-        viewState.updateCitiesList(cities)
+    override fun update(observable: Observable?, arg: Any?) {
+        viewState.updateCitiesList(citiesRepository.cities)
     }
 }

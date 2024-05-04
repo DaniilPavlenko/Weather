@@ -18,7 +18,6 @@ import kotlinx.android.synthetic.main.fragment_city_detail.view.cityDetailWind
 import kotlinx.android.synthetic.main.fragment_city_detail.view.closeButton
 import ru.dpav.weather.CitiesRepository
 import ru.dpav.weather.R
-import ru.dpav.weather.api.model.City
 import ru.dpav.weather.util.Util
 
 class CityDetailFragment : DialogFragment() {
@@ -42,19 +41,11 @@ class CityDetailFragment : DialogFragment() {
             container,
             false
         )
-        arguments?.let {
+        arguments?.let { args ->
 
-            val cityId = it.getInt(ARG_CITY_ID)
+            val cityId = args.getInt(ARG_CITY_ID)
 
-            val city: City
-            if (CitiesRepository.isCustom(cityId)) {
-                city = CitiesRepository.customCities.first { c -> c.id == cityId }
-            } else {
-                city = CitiesRepository.cities.first { c -> c.id == cityId }
-                city.main.pressure = Util
-                    .getPressureInMmHg(city.main.pressure)
-                    .toFloat()
-            }
+            val city = CitiesRepository.cities.first { it.id == cityId }
 
             view.cityDetailTitle.text = city.name
 
@@ -80,7 +71,7 @@ class CityDetailFragment : DialogFragment() {
 
             view.cityDetailPressure.text = getString(
                 R.string.detail_pressure,
-                city.main.pressure.toInt()
+                city.main.pressureInMmHg
             )
 
             view.cityDetailHumidity.text = getString(

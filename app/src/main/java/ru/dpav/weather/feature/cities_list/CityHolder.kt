@@ -39,27 +39,15 @@ class CityHolder(
         with(mTemperature) {
             val icon = Util.Icons
                 .getWeatherIconByName(city.weather[0].icon)
-            text = context.getString(
-                R.string.detail_temperature,
-                city.main.temp.toInt()
-            )
+            text = context.getString(R.string.detail_temperature, city.main.temp.toInt())
             setCompoundDrawablesWithIntrinsicBounds(0, 0, icon, 0)
         }
 
-        mWind.text = context.getString(
-            R.string.detail_wind,
-            city.wind.speed.toInt()
-        )
+        mWind.text = context.getString(R.string.detail_wind, city.wind.speed.toInt())
 
-        mCloudy.text = context.getString(
-            R.string.detail_cloudy,
-            city.clouds.cloudy
-        )
+        mCloudy.text = context.getString(R.string.detail_cloudy, city.clouds.cloudy)
 
-        mPressure.text = context.getString(
-            R.string.detail_pressure,
-            Util.getPressureInMmHg(city.main.pressure)
-        )
+        mPressure.text = context.getString(R.string.detail_pressure, city.main.pressureInMmHg)
 
         with(mDetailInfo) {
             visibility = if (isOpened) View.VISIBLE else View.GONE

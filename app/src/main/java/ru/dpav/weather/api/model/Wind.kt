@@ -1,6 +1,10 @@
 package ru.dpav.weather.api.model
 
+import com.google.gson.annotations.SerializedName
+
 data class Wind(
-    var speed: Float,
-    var deg: Float,
+    @SerializedName("speed")
+    val speed: Float,
+    @SerializedName("deg")
+    val deg: Float,
 )
