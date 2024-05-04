@@ -1,3 +1,6 @@
+import com.android.build.api.dsl.ApplicationDefaultConfig
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -16,7 +19,14 @@ android {
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+
+        configureOpenWeatherApi()
     }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -56,4 +66,23 @@ dependencies {
     androidTestImplementation(libs.androidx.test.espresso.core)
     testImplementation(libs.junit)
     implementation(libs.androidx.gridlayout)
+}
+
+private fun ApplicationDefaultConfig.configureOpenWeatherApi() {
+    val propertiesFileName = "local.properties"
+    val properties = Properties().apply {
+        load(project.rootProject.file(propertiesFileName).inputStream())
+    }
+
+    val apiKeyPropertyName = "openweather.apikey"
+    val openWeatherApiKey: String? = properties.getProperty(apiKeyPropertyName)
+
+    check(openWeatherApiKey?.isNotBlank() == true) {
+        "OpenWeather API configuration is missed. " +
+            "Provide the API key in the '$apiKeyPropertyName' property " +
+            "in the root '$propertiesFileName' file. " +
+            "Don't have a key? Get it here - https://home.openweathermap.org/api_keys"
+    }
+
+    buildConfigField("String", "OPEN_WEATHER_API_KEY", "\"$openWeatherApiKey\"")
 }
