@@ -16,7 +16,7 @@ internal object GoogleApiAvailabilityChecker {
             }
 
             if (isUserResolvableError(servicesStatus)) {
-                getErrorDialog(activity, servicesStatus, PLAY_SERVICES_CODE).show()
+                getErrorDialog(activity, servicesStatus, PLAY_SERVICES_CODE)?.show()
             }
             return false
         }

@@ -51,7 +51,7 @@ class CityDetailFragment : DialogFragment() {
                 city.main.humidity.toInt()
             )
 
-            closeButton.setOnClickListener { dialog.cancel() }
+            closeButton.setOnClickListener { dialog?.cancel() }
         }
 
         return binding.root

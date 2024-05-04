@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "ru.dpav.weather"
-    compileSdk = 31
+    compileSdk = 34
     defaultConfig {
         applicationId = "ru.dpav.weather"
         minSdk = 26
@@ -35,6 +35,10 @@ android {
                 "proguard-rules.pro"
             )
         }
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 }
 

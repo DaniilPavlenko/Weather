@@ -225,7 +225,7 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
             )
             setAnchor(Marker.ANCHOR_CENTER, 1f)
         }
-        marker.icon = ContextCompat.getDrawable(activity!!, icon)
+        marker.icon = ContextCompat.getDrawable(requireContext(), icon)
         val infoWindow: PopInfoWindow
 
         infoWindow = PopInfoWindow(
@@ -245,10 +245,7 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
 
     private fun openDetailDialog(city: City) {
         val detailFragment = CityDetailFragment.newInstance(city.id)
-        detailFragment.show(
-            activity?.supportFragmentManager,
-            "dialog_city"
-        )
+        detailFragment.show(requireActivity().supportFragmentManager, "dialog_city")
     }
 
     override fun openInfoWindow(cityId: String) {
@@ -368,8 +365,7 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
     }
 
     private fun isLocationEnabled(): Boolean {
-        val manager =
-            activity!!.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val manager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
             || manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
@@ -383,7 +379,7 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
             smallestDisplacement = LOCATION_REQUEST_DISPLACEMENT
             if (isGetOnce) numUpdates = 1
         }
-        GoogleApiClient.Builder(activity!!)
+        GoogleApiClient.Builder(requireActivity())
             .addApi(LocationServices.API)
             .addConnectionCallbacks(
                 object : GoogleApiClient.ConnectionCallbacks {
@@ -401,12 +397,11 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
     }
 
     val mLocationCallBack = object : LocationCallback() {
-        override fun onLocationResult(location: LocationResult?) {
+        override fun onLocationResult(location: LocationResult) {
             mapView?.let { mapView ->
-                location?.lastLocation?.let { lastLocation ->
-                    val point = GeoPoint(lastLocation.latitude, lastLocation.longitude)
-                    locateToPosition(point, mapView.zoomLevelDouble)
-                }
+                val lastLocation = location.lastLocation ?: return
+                val point = GeoPoint(lastLocation.latitude, lastLocation.longitude)
+                locateToPosition(point, mapView.zoomLevelDouble)
             } ?: error("MapView is null")
         }
 
