@@ -2,8 +2,6 @@
     <string name="app_name">Погода</string>
     <string name="map">Карта</string>
     <string name="list">Список</string>
-    <string name="google_maps_api_key" translatable="false">AIzaSyDo0D4g2WtPxUlXlF82-OzOl5GvlHPQRtQ
-	</string>
     <string name="marker_snippet" formatted="true">Температура: %+d°C
 		\nВетер: %d м/с
 		\nОблачность: %d%%
