@@ -12,8 +12,6 @@ import android.preference.PreferenceManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.ImageButton
 import androidx.core.content.ContextCompat
 import com.arellomobile.mvp.MvpAppCompatFragment
 import com.arellomobile.mvp.presenter.InjectPresenter
@@ -24,9 +22,6 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.fragment_map.view.locationButton
-import kotlinx.android.synthetic.main.fragment_map.view.map
-import kotlinx.android.synthetic.main.fragment_map.view.mapUpdateLayout
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.DelayedMapListener
 import org.osmdroid.events.MapEventsReceiver
@@ -44,69 +39,78 @@ import org.osmdroid.views.overlay.infowindow.InfoWindow
 import ru.dpav.weather.CitiesRepository
 import ru.dpav.weather.R
 import ru.dpav.weather.api.model.City
+import ru.dpav.weather.databinding.FragmentMapBinding
 import ru.dpav.weather.feature.city_details.CityDetailFragment
 import ru.dpav.weather.ui.GoogleApiAvailabilityChecker
 
 class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView {
-    lateinit var mMap: MapView
-    private lateinit var mLocationButton: ImageButton
+
+    private var binding: FragmentMapBinding? = null
+    private var mapView: MapView? = null
+
     private lateinit var mFusedLocation: FusedLocationProviderClient
     private var isInfoWindowOpened: Boolean = false
-    private lateinit var mUpdateScreen: FrameLayout
-    private var mMarkers: ArrayList<Marker> = arrayListOf()
+    private var markers: ArrayList<Marker> = arrayListOf()
 
     @InjectPresenter
-    lateinit var mMapPresenter: MapPresenter
+    lateinit var presenter: MapPresenter
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
-        val view = inflater
-            .inflate(R.layout.fragment_map, container, false)
-        mUpdateScreen = view.mapUpdateLayout
-        mLocationButton = view.locationButton
-        mLocationButton.setOnClickListener {
-            if (mLocationButton.isActivated) {
-                mMapPresenter.onLocationDisable()
-            } else {
-                mMapPresenter.onLocationEnable()
+    ): View {
+        binding = FragmentMapBinding.inflate(inflater, container, false)
+        binding?.run {
+            locationButton.setOnClickListener { view ->
+                if (view.isActivated) {
+                    presenter.onLocationDisable()
+                } else {
+                    presenter.onLocationEnable()
+                }
             }
+
+            mapView = map
+            initMap(map)
+
         }
-        mMap = view.map
-        initMap()
-        activity?.let {
-            val context = it.applicationContext
-            Configuration.getInstance().load(
-                context,
-                PreferenceManager.getDefaultSharedPreferences(context)
-            )
-            if (GoogleApiAvailabilityChecker.isAvailable(it)) {
-                mFusedLocation = LocationServices.getFusedLocationProviderClient(it)
-            } else {
-                mMapPresenter.onServicesUnavailable()
-            }
+
+        val appContext = requireContext().applicationContext
+        Configuration.getInstance()
+            .load(appContext, PreferenceManager.getDefaultSharedPreferences(appContext))
+
+        val activity = requireActivity()
+        if (GoogleApiAvailabilityChecker.isAvailable(activity)) {
+            mFusedLocation = LocationServices.getFusedLocationProviderClient(activity)
+        } else {
+            presenter.onServicesUnavailable()
         }
-        return view
+
+        return binding!!.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
+        mapView = null
     }
 
     override fun onResume() {
         super.onResume()
-        val prefs = PreferenceManager.getDefaultSharedPreferences(activity)
-        Configuration.getInstance().load(activity, prefs)
-        mMap.onResume()
+        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        Configuration.getInstance().load(requireContext(), prefs)
+        mapView?.onResume()
     }
 
     override fun onPause() {
         super.onPause()
-        val prefs = PreferenceManager.getDefaultSharedPreferences(activity)
-        Configuration.getInstance().save(activity, prefs)
-        mMap.onPause()
+        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        Configuration.getInstance().save(requireContext(), prefs)
+        mapView?.onPause()
     }
 
-    private fun initMap() {
-        with(mMap) {
+    private fun initMap(map: MapView) {
+        with(map) {
             setTileSource(TileSourceFactory.MAPNIK)
             setMultiTouchControls(true)
             val maxMapLatitude = MapView.getTileSystem().maxLatitude
@@ -115,108 +119,104 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
                 -maxMapLatitude,
                 (height / 2)
             )
-            zoomController.setVisibility(
-                CustomZoomButtonsController.Visibility.NEVER
-            )
+            zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
             minZoomLevel = MIN_ZOOM_LEVEL
             controller.setZoom(MapDefaults.DEFAULT_ZOOM)
             isVerticalMapRepetitionEnabled = false
         }
-        setMapListener()
-        addEventReceiver()
+        setMapListener(map)
+        addEventReceiver(map)
     }
 
-    private fun setMapListener() {
-        mMap.addMapListener(DelayedMapListener(object : MapListener {
-            override fun onScroll(event: ScrollEvent?): Boolean =
-                setCurrentPosition()
+    private fun setMapListener(map: MapView) {
+        map.addMapListener(DelayedMapListener(object : MapListener {
+            override fun onScroll(event: ScrollEvent?): Boolean = setCurrentPosition()
 
-            override fun onZoom(event: ZoomEvent?): Boolean =
-                setCurrentPosition()
+            override fun onZoom(event: ZoomEvent?): Boolean = setCurrentPosition()
 
             fun setCurrentPosition(): Boolean {
-                val latitude = mMap.mapCenter.latitude
-                val longitude = mMap.mapCenter.longitude
+                val latitude = map.mapCenter.latitude
+                val longitude = map.mapCenter.longitude
                 val point = GeoPoint(latitude, longitude)
-                mMapPresenter.onSetCurrentPosition(point, mMap.zoomLevelDouble)
+                presenter.onSetCurrentPosition(point, map.zoomLevelDouble)
                 return true
             }
         }, MAP_LISTENER_DELAY))
     }
 
-    private fun addEventReceiver() {
-        val mReceive: MapEventsReceiver = object : MapEventsReceiver {
+    private fun addEventReceiver(map: MapView) {
+        val eventsOverlay = MapEventsOverlay(object : MapEventsReceiver {
             override fun longPressHelper(point: GeoPoint?): Boolean {
-                mMapPresenter.onInfoWindowClose()
+                presenter.onInfoWindowClose()
                 return false
             }
 
             override fun singleTapConfirmedHelper(point: GeoPoint?): Boolean {
                 point?.let {
                     if (isInfoWindowOpened) {
-                        mMapPresenter.onInfoWindowClose()
+                        presenter.onInfoWindowClose()
                         return false
                     }
-                    mMapPresenter.onMapClick(point)
+                    presenter.onMapClick(point)
                 }
                 return true
             }
-        }
-        val eventsOverlay = MapEventsOverlay(mReceive)
-        mMap.overlays.add(eventsOverlay)
+        })
+        map.overlays.add(eventsOverlay)
     }
 
     override fun setMapMarker(point: GeoPoint) {
-        val icon = if (mLocationButton.isActivated) {
+        val binding = checkNotNull(binding)
+        val icon = if (binding.locationButton.isActivated) {
             R.drawable.ic_marker_location
         } else {
             R.drawable.ic_marker_search_final
         }
-        val mSearchPoint = IconOverlay(
+        val searchIconOverlay = IconOverlay(
             point,
-            ContextCompat.getDrawable(
-                activity!!,
-                icon
-            )
+            ContextCompat.getDrawable(requireContext(), icon)
         )
-        if (mMap.overlays.lastIndex < OVERLAY_SEARCH_POINT) {
-            mMap.overlays.add(OVERLAY_SEARCH_POINT, mSearchPoint)
+        if (binding.map.overlays.lastIndex < OVERLAY_SEARCH_POINT) {
+            binding.map.overlays.add(OVERLAY_SEARCH_POINT, searchIconOverlay)
             return
         }
-        mMap.overlays[OVERLAY_SEARCH_POINT] = mSearchPoint
-        mMapPresenter.onCameraMoveTo(point, mMap.zoomLevelDouble)
-        mMap.invalidate()
+        with(binding.map) {
+            overlays[OVERLAY_SEARCH_POINT] = searchIconOverlay
+            presenter.onCameraMoveTo(point, zoomLevelDouble)
+            invalidate()
+        }
     }
 
     override fun updateCitiesMarkers() {
-        addMarkersOnMap(
-            CitiesRepository.cities,
-            mMarkers,
-            R.drawable.ic_marker_city
-        )
-        mMap.invalidate()
+        mapView?.let { map ->
+            addMarkersOnMap(map, CitiesRepository.cities, markers, R.drawable.ic_marker_city)
+            map.invalidate()
+        }
     }
 
     private fun addMarkersOnMap(
+        map: MapView,
         cities: List<City>,
         markersList: ArrayList<Marker>,
         markersIcon: Int,
     ) {
-        mMap.overlays.removeAll(markersList)
+        map.overlays.removeAll(markersList)
         markersList.clear()
         cities.forEachIndexed { _, city ->
             markersList.add(
                 makeMarker(city, markersIcon)
             )
         }
-        mMap.overlays.addAll(markersList)
+        map.overlays.addAll(markersList)
     }
 
     private fun makeMarker(
         city: City,
         icon: Int,
     ): Marker {
-        val marker = Marker(mMap)
+        val mapView = checkNotNull(mapView)
+
+        val marker = Marker(mapView)
         with(marker) {
             id = city.id.toString()
             position = GeoPoint(
@@ -230,14 +230,14 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
 
         infoWindow = PopInfoWindow(
             R.layout.info_window_weather,
-            mMap,
+            mapView,
             city,
             View.OnClickListener { openDetailDialog(city) }
         )
 
         marker.infoWindow = infoWindow
         marker.setOnMarkerClickListener { _, _ ->
-            mMapPresenter.onMarkerClick(marker.id)
+            presenter.onMarkerClick(marker.id)
             return@setOnMarkerClickListener true
         }
         return marker
@@ -254,7 +254,7 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
     override fun openInfoWindow(cityId: String) {
         closeInfoWindow()
         isInfoWindowOpened = true
-        mMap.overlays.forEach {
+        mapView?.overlays?.forEach {
             if (it is Marker && it.id == cityId) {
                 it.showInfoWindow()
                 val icon = getMarkerIcon(isSelected = true)
@@ -265,7 +265,7 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
 
     override fun closeInfoWindow() {
         isInfoWindowOpened = false
-        val window = InfoWindow.getOpenedInfoWindowsOn(mMap)
+        val window = InfoWindow.getOpenedInfoWindowsOn(mapView)
         window.forEach {
             val relatedObject = it.relatedObject
             if (relatedObject is Marker) {
@@ -273,37 +273,27 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
                 relatedObject.icon = icon
             }
         }
-        InfoWindow.closeAllInfoWindowsOn(mMap)
+        InfoWindow.closeAllInfoWindowsOn(mapView)
     }
 
-    override fun moveCameraTo(
-        point: GeoPoint,
-        zoom: Double?,
-    ) {
-        mMap.controller.animateTo(
-            point,
-            zoom ?: mMap.zoomLevelDouble,
-            ANIMATION_SPEED
-        )
+    override fun moveCameraTo(point: GeoPoint, zoom: Double?) {
+        mapView?.controller?.animateTo(point, zoom ?: mapView?.zoomLevelDouble, ANIMATION_SPEED)
     }
 
-    override fun setCurrentPosition(
-        point: GeoPoint,
-        zoom: Double,
-    ) {
-        mMap.controller.animateTo(point, zoom, 0)
+    override fun setCurrentPosition(point: GeoPoint, zoom: Double) {
+        mapView?.controller?.animateTo(point, zoom, 0)
     }
 
     override fun setStartPosition() {
         if (hasLocationPermission()) {
             if (!isLocationEnabled()) {
-                mMapPresenter.onLocationIsDisabled()
-                mMapPresenter.onMoveToDefaultPosition()
+                presenter.onLocationIsDisabled()
+                presenter.onMoveToDefaultPosition()
                 return
             }
         } else {
-            mMapPresenter.onLocationIsDisabled()
-            mMapPresenter.onMoveToDefaultPosition()
+            presenter.onLocationIsDisabled()
+            presenter.onMoveToDefaultPosition()
             return
         }
         getLocation(true)
@@ -313,21 +303,21 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
         if (enable) {
             if (isLocationEnabled() && hasLocationPermission()) {
                 closeInfoWindow()
-                mLocationButton.isActivated = true
+                binding?.locationButton?.isActivated = true
                 getLocation(false)
             } else {
                 askPermission()
-                mMapPresenter.onLocationIsDisabled()
+                presenter.onLocationIsDisabled()
             }
         } else {
-            mLocationButton.isActivated = false
+            binding?.locationButton?.isActivated = false
             mFusedLocation.removeLocationUpdates(mLocationCallBack)
         }
     }
 
     override fun showUpdateScreen(shown: Boolean) {
         val visibility = if (shown) View.VISIBLE else View.GONE
-        mUpdateScreen.visibility = visibility
+        binding?.mapUpdateLayout?.visibility = visibility
     }
 
     override fun showConnectionError(shown: Boolean) {
@@ -338,7 +328,7 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
                     R.string.connection_error,
                     Snackbar.LENGTH_INDEFINITE
                 ).setAction(R.string.retry) {
-                    mMapPresenter.onRetryConnection()
+                    presenter.onRetryConnection()
                 }.show()
             }
         }
@@ -412,21 +402,17 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
 
     val mLocationCallBack = object : LocationCallback() {
         override fun onLocationResult(location: LocationResult?) {
-            location?.lastLocation?.let {
-                val point = GeoPoint(
-                    it.latitude,
-                    it.longitude
-                )
-                locateToPosition(point, mMap.zoomLevelDouble)
-            }
+            mapView?.let { mapView ->
+                location?.lastLocation?.let { lastLocation ->
+                    val point = GeoPoint(lastLocation.latitude, lastLocation.longitude)
+                    locateToPosition(point, mapView.zoomLevelDouble)
+                }
+            } ?: error("MapView is null")
         }
 
-        private fun locateToPosition(
-            point: GeoPoint,
-            zoom: Double,
-        ) {
+        private fun locateToPosition(point: GeoPoint, zoom: Double) {
             activity?.let {
-                with(mMapPresenter) {
+                with(presenter) {
                     onSetMarker(point)
                     onCameraMoveTo(point, zoom)
                 }
