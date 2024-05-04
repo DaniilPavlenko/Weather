@@ -1,26 +1,29 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id 'kotlin-android-extensions'
-    id 'kotlin-kapt'
+    id("kotlin-android-extensions")
+    id("kotlin-kapt")
 }
 
 android {
-    namespace 'ru.dpav.weather'
-    compileSdk 31
+    namespace = "ru.dpav.weather"
+    compileSdk = 31
     defaultConfig {
-        applicationId "ru.dpav.weather"
-        minSdk 26
-        targetSdk 31
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        applicationId = "ru.dpav.weather"
+        minSdk = 26
+        targetSdk = 31
+        versionCode = 1
+        versionName = "1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }
