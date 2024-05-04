@@ -18,7 +18,7 @@ import kotlinx.android.synthetic.main.fragment_city_detail.view.cityDetailWind
 import kotlinx.android.synthetic.main.fragment_city_detail.view.closeButton
 import ru.dpav.weather.CitiesRepository
 import ru.dpav.weather.R
-import ru.dpav.weather.api.City
+import ru.dpav.weather.api.model.City
 import ru.dpav.weather.util.Util
 
 class CityDetailFragment : DialogFragment() {

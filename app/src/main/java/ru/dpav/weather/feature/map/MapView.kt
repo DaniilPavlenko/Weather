@@ -5,7 +5,7 @@ import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.arellomobile.mvp.viewstate.strategy.OneExecutionStateStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
 import org.osmdroid.util.GeoPoint
-import ru.dpav.weather.api.City
+import ru.dpav.weather.api.model.City
 
 @StateStrategyType(AddToEndSingleStrategy::class)
 interface MapView : MvpView {

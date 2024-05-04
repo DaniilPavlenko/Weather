@@ -1,6 +1,6 @@
 package ru.dpav.weather
 
-import ru.dpav.weather.api.City
+import ru.dpav.weather.api.model.City
 import java.util.Observable
 
 object CitiesRepository : Observable() {

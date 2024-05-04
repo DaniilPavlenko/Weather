@@ -34,7 +34,7 @@ import kotlinx.android.synthetic.main.activity_add_city_new.humiditySeekBar
 import kotlinx.android.synthetic.main.activity_add_city_new.pressureSeekBar
 import kotlinx.android.synthetic.main.activity_add_city_new.temperatureSeekBar
 import kotlinx.android.synthetic.main.activity_add_city_new.windSeekBar
-import ru.dpav.weather.api.City
+import ru.dpav.weather.api.model.City
 import ru.dpav.weather.presenters.AddCityPresenter
 import ru.dpav.weather.util.Util
 import ru.dpav.weather.views.AddCityView

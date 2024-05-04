@@ -4,7 +4,7 @@ import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.arellomobile.mvp.viewstate.strategy.OneExecutionStateStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
-import ru.dpav.weather.api.City
+import ru.dpav.weather.api.model.City
 
 @StateStrategyType(AddToEndSingleStrategy::class)
 interface AddCityView : MvpView {

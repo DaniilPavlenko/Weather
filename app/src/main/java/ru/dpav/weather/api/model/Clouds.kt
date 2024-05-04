@@ -1,4 +1,4 @@
-package ru.dpav.weather.api
+package ru.dpav.weather.api.model
 
 import com.google.gson.annotations.SerializedName
 

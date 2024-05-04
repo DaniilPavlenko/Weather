@@ -5,7 +5,7 @@ import kotlinx.android.synthetic.main.info_window_weather.view.infoWindowButtons
 import kotlinx.android.synthetic.main.info_window_weather.view.infoWindowEditButton
 import kotlinx.android.synthetic.main.info_window_weather.view.infoWindowRemoveButton
 import org.osmdroid.views.MapView
-import ru.dpav.weather.api.City
+import ru.dpav.weather.api.model.City
 
 class EditablePopInfo(
     layoutResId: Int,

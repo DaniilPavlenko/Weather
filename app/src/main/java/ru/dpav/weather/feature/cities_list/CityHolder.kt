@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.item_row_city.view.cityDetailTemperature
 import kotlinx.android.synthetic.main.item_row_city.view.cityDetailTitle
 import kotlinx.android.synthetic.main.item_row_city.view.cityDetailWind
 import ru.dpav.weather.R
-import ru.dpav.weather.api.City
+import ru.dpav.weather.api.model.City
 import ru.dpav.weather.feature.city_details.CityDetailFragment
 import ru.dpav.weather.util.Util
 

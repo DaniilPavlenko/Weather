@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import ru.dpav.weather.R
-import ru.dpav.weather.api.City
+import ru.dpav.weather.api.model.City
 
 class CitiesAdapter(
     private var mListPresenter: ListPresenter,

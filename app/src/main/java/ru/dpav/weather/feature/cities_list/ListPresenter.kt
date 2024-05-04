@@ -3,7 +3,7 @@ package ru.dpav.weather.feature.cities_list
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import ru.dpav.weather.CitiesRepository
-import ru.dpav.weather.api.City
+import ru.dpav.weather.api.model.City
 import java.util.Observable
 import java.util.Observer
 

@@ -9,10 +9,10 @@ import org.osmdroid.views.overlay.Marker
 import retrofit2.HttpException
 import ru.dpav.weather.CitiesRepository
 import ru.dpav.weather.R
-import ru.dpav.weather.api.City
-import ru.dpav.weather.api.Coordinates
 import ru.dpav.weather.api.WeatherApi
-import ru.dpav.weather.api.WeatherResponse
+import ru.dpav.weather.api.model.City
+import ru.dpav.weather.api.model.Coordinates
+import ru.dpav.weather.api.model.WeatherResponse
 import ru.dpav.weather.feature.map.MapDefaults.DEFAULT_POINT
 import ru.dpav.weather.feature.map.MapDefaults.DEFAULT_ZOOM
 import java.io.IOException

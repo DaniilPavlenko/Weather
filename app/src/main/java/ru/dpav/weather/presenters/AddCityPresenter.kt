@@ -4,7 +4,7 @@ import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import ru.dpav.weather.CitiesRepository
 import ru.dpav.weather.R
-import ru.dpav.weather.api.City
+import ru.dpav.weather.api.model.City
 import ru.dpav.weather.util.Util
 import ru.dpav.weather.views.AddCityView
 

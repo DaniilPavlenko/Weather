@@ -11,7 +11,7 @@ import com.arellomobile.mvp.presenter.InjectPresenter
 import kotlinx.android.synthetic.main.fragment_list.view.citiesNotFound
 import kotlinx.android.synthetic.main.fragment_list.view.citiesRecyclerView
 import ru.dpav.weather.R
-import ru.dpav.weather.api.City
+import ru.dpav.weather.api.model.City
 
 class ListFragment : MvpAppCompatFragment(), ListView {
 
