@@ -14,7 +14,7 @@ import kotlinx.android.synthetic.main.item_row_city.view.cityDetailWind
 import ru.dpav.weather.R
 import ru.dpav.weather.api.model.City
 import ru.dpav.weather.feature.city_details.CityDetailFragment
-import ru.dpav.weather.util.Util
+import ru.dpav.weather.ui.WeatherIconAssociator
 
 class CityHolder(
     itemView: View,
@@ -37,8 +37,7 @@ class CityHolder(
         mTitle.setOnClickListener { onTitleClick() }
 
         with(mTemperature) {
-            val icon = Util.Icons
-                .getWeatherIconByName(city.weather[0].icon)
+            val icon = WeatherIconAssociator.getIconByName(city.weather[0].icon)
             text = context.getString(R.string.detail_temperature, city.main.temp.toInt())
             setCompoundDrawablesWithIntrinsicBounds(0, 0, icon, 0)
         }

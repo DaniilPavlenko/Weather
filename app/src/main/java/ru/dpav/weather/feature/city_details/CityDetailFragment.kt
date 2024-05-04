@@ -18,7 +18,7 @@ import kotlinx.android.synthetic.main.fragment_city_detail.view.cityDetailWind
 import kotlinx.android.synthetic.main.fragment_city_detail.view.closeButton
 import ru.dpav.weather.CitiesRepository
 import ru.dpav.weather.R
-import ru.dpav.weather.util.Util
+import ru.dpav.weather.ui.WeatherIconAssociator
 
 class CityDetailFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -54,7 +54,7 @@ class CityDetailFragment : DialogFragment() {
                 city.main.temp.toInt()
             )
 
-            val icon = Util.Icons.getWeatherIconByName(city.weather[0].icon)
+            val icon = WeatherIconAssociator.getIconByName(city.weather[0].icon)
 
             view.cityDetailTemperature
                 .setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0)

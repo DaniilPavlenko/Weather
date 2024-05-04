@@ -7,7 +7,7 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.infowindow.InfoWindow
 import ru.dpav.weather.R
 import ru.dpav.weather.api.model.City
-import ru.dpav.weather.util.Util
+import ru.dpav.weather.ui.WeatherIconAssociator
 
 open class PopInfoWindow(
     layoutResId: Int,
@@ -19,8 +19,7 @@ open class PopInfoWindow(
     override fun onOpen(item: Any?) {
         mView.infoWindowTitle.text = city.name
 
-        val icon = Util.Icons
-            .getWeatherIconByName(city.weather[0].icon)
+        val icon = WeatherIconAssociator.getIconByName(city.weather[0].icon)
 
         mView.infoWindowTitle
             .setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0)

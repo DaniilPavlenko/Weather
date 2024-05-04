@@ -45,7 +45,7 @@ import ru.dpav.weather.CitiesRepository
 import ru.dpav.weather.R
 import ru.dpav.weather.api.model.City
 import ru.dpav.weather.feature.city_details.CityDetailFragment
-import ru.dpav.weather.util.Util.Companion.isGooglePlayAvailable
+import ru.dpav.weather.ui.GoogleApiAvailabilityChecker
 
 class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView {
     lateinit var mMap: MapView
@@ -82,7 +82,7 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
                 context,
                 PreferenceManager.getDefaultSharedPreferences(context)
             )
-            if (isGooglePlayAvailable(it)) {
+            if (GoogleApiAvailabilityChecker.isAvailable(it)) {
                 mFusedLocation = LocationServices.getFusedLocationProviderClient(it)
             } else {
                 mMapPresenter.onServicesUnavailable()
