@@ -9,8 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import androidx.fragment.app.DialogFragment
-import ru.dpav.weather.CitiesRepository
 import ru.dpav.weather.R
+import ru.dpav.weather.data.WeatherRepository
 import ru.dpav.weather.databinding.FragmentCityDetailBinding
 import ru.dpav.weather.ui.WeatherIconAssociator
 
@@ -34,7 +34,7 @@ class CityDetailFragment : DialogFragment() {
         val binding = FragmentCityDetailBinding.inflate(inflater, container, false)
 
         val cityId = requireNotNull(arguments?.let { it.getInt(ARG_CITY_ID) })
-        val city = CitiesRepository.cities.first { it.id == cityId }
+        val city = WeatherRepository.cities.first { it.id == cityId }
 
         with(binding) {
             cityDetailTitle.text = city.name

@@ -6,10 +6,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import org.osmdroid.util.GeoPoint
 import retrofit2.HttpException
-import ru.dpav.weather.CitiesRepository
 import ru.dpav.weather.R
-import ru.dpav.weather.api.WeatherApi
-import ru.dpav.weather.api.model.WeatherResponse
+import ru.dpav.weather.data.WeatherRepository
 import ru.dpav.weather.feature.map.MapDefaults.DEFAULT_POINT
 import ru.dpav.weather.feature.map.MapDefaults.DEFAULT_ZOOM
 import java.io.IOException
@@ -19,6 +17,8 @@ class MapPresenter : MvpPresenter<MapView>() {
 
     private var mErrorConnectionPoint: GeoPoint? = null
     private var mDisposableRequest: Disposable? = null
+
+    private val weatherRepository = WeatherRepository
 
     override fun onDestroy() {
         mDisposableRequest?.dispose()
@@ -60,33 +60,28 @@ class MapPresenter : MvpPresenter<MapView>() {
     }
 
     private fun getWeather(point: GeoPoint) {
-        mDisposableRequest = WeatherApi.api
-            .getWeather(point.latitude, point.longitude)
+        mDisposableRequest = weatherRepository.fetchWeatherAt(point.latitude, point.longitude)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                processApiResponse(it)
-            }, {
-                when (it) {
-                    is IOException -> {
-                        mErrorConnectionPoint = point
-                        viewState.showConnectionError(true)
+            .subscribe(
+                { processApiResponse() },
+                { throwable ->
+                    when (throwable) {
+                        is IOException -> {
+                            mErrorConnectionPoint = point
+                            viewState.showConnectionError(true)
+                        }
+                        is HttpException -> {
+                            processApiResponse()
+                        }
+                        else -> {
+                            viewState.showSnack(R.string.error_unexpected)
+                            viewState.showUpdateScreen(false)
+                        }
                     }
-                    is HttpException -> {
-                        processApiResponse(null)
-                    }
-                    else -> {
-                        viewState.showSnack(R.string.error_unexpected)
-                        viewState.showUpdateScreen(false)
-                    }
-                }
-            })
+                })
     }
 
-    private fun processApiResponse(response: WeatherResponse?) {
-        CitiesRepository.cities = arrayListOf()
-        response?.let {
-            CitiesRepository.cities = it.cities
-        }
+    private fun processApiResponse() {
         with(viewState) {
             updateCitiesMarkers()
             showConnectionError(false)

@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name">Погода</string>
-    <string name="map">Карта</string>
-    <string name="list">Список</string>
     <string name="marker_snippet" formatted="true">Температура: %+d°C
 		\nВетер: %d м/с
 		\nОблачность: %d%%
@@ -19,4 +17,5 @@
     <string name="enable_or_disable_geo">Enable or disable geolocation</string>
     <string name="list_empty">Список пуст</string>
     <string name="error_unexpected">Произошла непредвиденная ошибка</string>
+    <string name="map_btn_show_in_list">Показать в списке</string>
 </resources>

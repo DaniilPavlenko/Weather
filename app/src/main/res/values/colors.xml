@@ -3,7 +3,6 @@
     <color name="colorPrimary">#009688</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
-    <color name="tabUnselectedTextColor">#bbb</color>
     <color name="cityNameColor">#333</color>
     <color name="updateScreenBackground">#8a000000</color>
     <color name="colorCancelButton">#E53935</color>

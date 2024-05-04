@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -13,9 +14,18 @@
         android:layout_width="@dimen/location_button_size"
         android:layout_height="@dimen/location_button_size"
         android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/margin_small"
+        android:layout_margin="@dimen/space_big"
         android:background="@drawable/location_button"
         android:contentDescription="@string/enable_or_disable_geo" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/btnShowListOfCities"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_margin="@dimen/space_big"
+        android:text="@string/map_btn_show_in_list"
+        app:icon="@drawable/ic_view_list_round_24" />
 
     <FrameLayout
         android:id="@+id/mapUpdateLayout"

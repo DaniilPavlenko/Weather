@@ -10,16 +10,15 @@ import ru.dpav.weather.api.interceptor.OpenWeatherApiKeyInterceptor
 
 object WeatherApi {
     private const val API_BASE_URL = "https://api.openweathermap.org/data/2.5/"
-    val api: OpenWeatherService
 
-    init {
+    val api: OpenWeatherService by lazy {
         val retrofit = Retrofit.Builder()
             .client(createHttpClient())
             .baseUrl(API_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
             .build()
-        api = retrofit.create(OpenWeatherService::class.java)
+        retrofit.create(OpenWeatherService::class.java)
     }
 
     private fun createHttpClient() = OkHttpClient.Builder()

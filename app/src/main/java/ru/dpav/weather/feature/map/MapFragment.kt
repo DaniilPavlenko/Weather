@@ -36,10 +36,11 @@ import org.osmdroid.views.overlay.IconOverlay
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.infowindow.InfoWindow
-import ru.dpav.weather.CitiesRepository
 import ru.dpav.weather.R
 import ru.dpav.weather.api.model.City
+import ru.dpav.weather.data.WeatherRepository
 import ru.dpav.weather.databinding.FragmentMapBinding
+import ru.dpav.weather.feature.cities_list.ListFragment
 import ru.dpav.weather.feature.city_details.CityDetailFragment
 import ru.dpav.weather.ui.GoogleApiAvailabilityChecker
 
@@ -62,6 +63,8 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
     ): View {
         binding = FragmentMapBinding.inflate(inflater, container, false)
         binding?.run {
+            btnShowListOfCities.setOnClickListener { navigateToList() }
+
             locationButton.setOnClickListener { view ->
                 if (view.isActivated) {
                     presenter.onLocationDisable()
@@ -189,7 +192,7 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
 
     override fun updateCitiesMarkers() {
         mapView?.let { map ->
-            addMarkersOnMap(map, CitiesRepository.cities, markers, R.drawable.ic_marker_city)
+            addMarkersOnMap(map, WeatherRepository.cities, markers, R.drawable.ic_marker_city)
             map.invalidate()
         }
     }
@@ -329,6 +332,13 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
                 }.show()
             }
         }
+    }
+
+    private fun navigateToList() {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.mainFragmentContainer, ListFragment.newInstance())
+            .addToBackStack("list")
+            .commit()
     }
 
     override fun showSnack(resId: Int) {
