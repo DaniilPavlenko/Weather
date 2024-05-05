@@ -6,13 +6,15 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.location.LocationManager
-import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker.PermissionResult
 import com.arellomobile.mvp.MvpAppCompatFragment
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.google.android.gms.common.api.GoogleApiClient
@@ -55,6 +57,16 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
 
     @InjectPresenter
     lateinit var presenter: MapPresenter
+
+    private val permissionsRequestLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions(),
+        object : ActivityResultCallback<Map<String, Boolean>> {
+            override fun onActivityResult(result: Map<String, Boolean>) {
+                if (result.getOrDefault(PERMISSION_LOCATION, false)) {
+                    setStartPosition()
+                }
+            }
+        })
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -352,16 +364,8 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
     }
 
     override fun askPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!hasLocationPermission() || !hasStoragePermission()) {
-                requestPermissions(
-                    arrayOf(
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    ),
-                    REQUEST_PERMISSIONS
-                )
-            }
+        if (!hasLocationPermission()) {
+            permissionsRequestLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION))
         }
     }
 
@@ -425,40 +429,20 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
         }
     }
 
-    private fun hasLocationPermission(): Boolean =
-        hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-
-    private fun hasStoragePermission(): Boolean =
-        hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    private fun hasLocationPermission(): Boolean = hasPermission(PERMISSION_LOCATION)
 
     private fun hasPermission(permissionName: String): Boolean {
-        activity?.let {
-            return ContextCompat.checkSelfPermission(
-                it as Context,
-                permissionName
-            ) == PackageManager.PERMISSION_GRANTED
-        }
-        return false
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray,
-    ) {
-        when (requestCode) {
-            REQUEST_PERMISSIONS -> {
-                if (grantResults.isNotEmpty() && grantResults[0] ==
-                    PackageManager.PERMISSION_GRANTED
-                ) {
-                    setStartPosition()
-                }
-            }
-            else -> return
-        }
+        @PermissionResult
+        val permissionCheckResult = ContextCompat.checkSelfPermission(
+            requireContext(),
+            permissionName
+        )
+        return permissionCheckResult == PackageManager.PERMISSION_GRANTED
     }
 
     companion object {
+        private const val PERMISSION_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
+
         private const val LOCATION_REQUEST_INTERVAL: Long = 7000
         private const val LOCATION_REQUEST_FAST_INTERVAL: Long = 4000
         private const val LOCATION_REQUEST_DISPLACEMENT: Float = 1F
