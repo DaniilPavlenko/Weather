@@ -1,43 +1,28 @@
 package ru.dpav.weather.feature.city_details
 
-import android.app.Dialog
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.view.Window
-import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import ru.dpav.weather.R
 import ru.dpav.weather.data.WeatherRepository
 import ru.dpav.weather.databinding.FragmentCityDetailBinding
 import ru.dpav.weather.ui.WeatherIconAssociator
 
-class CityDetailFragment : DialogFragment() {
+class CityDetailFragment : Fragment(R.layout.fragment_city_detail) {
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog = super.onCreateDialog(savedInstanceState)
-        dialog.setTitle("City")
-        return dialog
-    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val binding = FragmentCityDetailBinding.bind(view)
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
-        dialog?.window?.apply {
-            requestFeature(Window.FEATURE_NO_TITLE)
-            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        }
-        val binding = FragmentCityDetailBinding.inflate(inflater, container, false)
-
-        val cityId = requireNotNull(arguments?.let { it.getInt(ARG_CITY_ID) })
+        val cityId = requireNotNull(arguments?.getInt(ARG_CITY_ID))
         val city = WeatherRepository.cities.first { it.id == cityId }
 
         with(binding) {
-            cityDetailTitle.text = city.name
+            with(toolbar) {
+                title = city.name
+                setNavigationIcon(R.drawable.ic_arrow_back_round_24)
+                setNavigationOnClickListener { parentFragmentManager.popBackStack() }
+            }
             with(cityDetailTemperature) {
                 text = getString(R.string.detail_temperature, city.main.temp.toInt())
                 val icon = WeatherIconAssociator.getIconByName(city.weather[0].icon)
@@ -50,18 +35,6 @@ class CityDetailFragment : DialogFragment() {
                 R.string.detail_humidity,
                 city.main.humidity.toInt()
             )
-
-            closeButton.setOnClickListener { dialog?.cancel() }
-        }
-
-        return binding.root
-    }
-
-    override fun onStart() {
-        super.onStart()
-        dialog?.window?.run {
-            setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-            setBackgroundDrawable(ColorDrawable(Color.WHITE))
         }
     }
 

@@ -260,7 +260,10 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
 
     private fun openDetailDialog(city: City) {
         val detailFragment = CityDetailFragment.newInstance(city.id)
-        detailFragment.show(requireActivity().supportFragmentManager, "dialog_city")
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.mainFragmentContainer, detailFragment, "details")
+            .addToBackStack("details")
+            .commit()
     }
 
     override fun openInfoWindow(cityId: String) {

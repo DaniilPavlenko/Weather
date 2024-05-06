@@ -35,8 +35,11 @@ class ListFragment : MvpAppCompatFragment(), ListView {
                 presenter.onToggleDropDownInfo(position, !isDroppedDown)
             },
             onDetailsClick = { cityId ->
-                val detailsDialog = CityDetailFragment.newInstance(cityId)
-                detailsDialog.show(requireActivity().supportFragmentManager, "dialog_city2")
+                val detailsFragment = CityDetailFragment.newInstance(cityId)
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.mainFragmentContainer, detailsFragment, "details")
+                    .addToBackStack("details")
+                    .commit()
             }
         )
 

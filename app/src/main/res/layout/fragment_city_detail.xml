@@ -1,94 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".feature.city_details.CityDetailFragment">
 
-    <LinearLayout
-        android:layout_width="0dp"
+    <Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
-        android:orientation="vertical"
-        android:paddingTop="@dimen/padding"
-        app:layout_constraintBottom_toTopOf="@+id/closeButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        tools:title="City name" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/space_big"
+        android:paddingBottom="@dimen/space_big">
 
         <TextView
             android:id="@+id/cityDetailTemperature"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:drawableStart="@drawable/weather_icon_02"
-            android:drawableLeft="@drawable/weather_icon_02"
+            android:layout_marginEnd="@dimen/space_big"
+            android:drawablePadding="8dp"
             android:gravity="center"
-            android:scaleX="2"
-            android:scaleY="2"
-            android:textSize="@dimen/detail_temperature_text_size"
+            android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
+            android:textStyle="bold"
+            tools:drawableStart="@drawable/weather_icon_02"
             tools:text="+18" />
-
-        <TextView
-            android:id="@+id/cityDetailTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginStart="@dimen/margin_small"
-            android:layout_marginLeft="@dimen/margin_small"
-            android:layout_marginEnd="@dimen/margin_small"
-            android:layout_marginRight="@dimen/margin_small"
-            android:textSize="@dimen/large_text_size"
-            tools:text="Город" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:paddingTop="@dimen/padding">
+            android:layout_marginEnd="8dp"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/cityDetailWind"
-                style="@style/CityDetailInfo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="0dp"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                 tools:text="Ветер: 8 м/с" />
 
             <TextView
                 android:id="@+id/cityDetailCloudy"
-                style="@style/CityDetailInfo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                 tools:text="Облачность: 40%" />
 
             <TextView
                 android:id="@+id/cityDetailHumidity"
-                style="@style/CityDetailInfo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                 tools:text="Влажность: 15%" />
 
             <TextView
                 android:id="@+id/cityDetailPressure"
-                style="@style/CityDetailInfo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                 tools:text="Давление: 760 мм" />
         </LinearLayout>
-    </LinearLayout>
 
-    <Button
-        android:id="@+id/closeButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
-        android:text="@string/back"
-        android:textColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</LinearLayout>
