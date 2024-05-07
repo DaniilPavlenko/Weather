@@ -20,7 +20,6 @@ class CityDetailFragment : Fragment(R.layout.fragment_city_detail) {
         with(binding) {
             with(toolbar) {
                 title = city.name
-                setNavigationIcon(R.drawable.ic_arrow_back_round_24)
                 setNavigationOnClickListener { parentFragmentManager.popBackStack() }
             }
             with(cityDetailTemperature) {
