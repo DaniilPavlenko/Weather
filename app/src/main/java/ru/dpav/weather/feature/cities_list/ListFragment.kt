@@ -4,18 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
+import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.arellomobile.mvp.MvpAppCompatFragment
-import com.arellomobile.mvp.presenter.InjectPresenter
 import ru.dpav.weather.R
-import ru.dpav.weather.api.model.City
 import ru.dpav.weather.databinding.FragmentListBinding
 import ru.dpav.weather.feature.city_details.CityDetailFragment
 
-class ListFragment : MvpAppCompatFragment(), ListView {
+class ListFragment : Fragment(R.layout.fragment_list) {
 
-    @InjectPresenter
-    lateinit var presenter: ListPresenter
+    private val viewModel by viewModels<ListViewModel>()
 
     private var binding: FragmentListBinding? = null
     private var listAdapter: CitiesAdapter? = null
@@ -28,25 +29,20 @@ class ListFragment : MvpAppCompatFragment(), ListView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding = FragmentListBinding.bind(view)
-
-        listAdapter = CitiesAdapter(
-            onTitleClick = { position, isDroppedDown ->
-                presenter.onToggleDropDownInfo(position, !isDroppedDown)
-            },
-            onDetailsClick = { cityId ->
-                val detailsFragment = CityDetailFragment.newInstance(cityId)
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.mainFragmentContainer, detailsFragment, "details")
-                    .addToBackStack("details")
-                    .commit()
+        listAdapter = CitiesAdapter(::navigateToDetails)
+        binding = FragmentListBinding.bind(view).apply {
+            citiesRecyclerView.run {
+                setHasFixedSize(true)
+                layoutManager = LinearLayoutManager(requireContext())
+                addItemDecoration(
+                    DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
+                )
+                adapter = listAdapter
             }
-        )
-
-        binding?.citiesRecyclerView?.run {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = listAdapter
+            val uiState = viewModel.uiState
+            val cities = uiState.cities
+            listAdapter?.setCities(cities)
+            citiesNotFound.isVisible = cities.isEmpty()
         }
     }
 
@@ -56,22 +52,12 @@ class ListFragment : MvpAppCompatFragment(), ListView {
         listAdapter = null
     }
 
-    override fun updateCitiesList(cities: List<City>) {
-        binding?.citiesNotFound?.visibility = if (cities.isEmpty()) View.VISIBLE else View.GONE
-        listAdapter?.setCities(cities)
-    }
-
-    override fun toggleDropDownInfo(position: Int, shown: Boolean) {
-        listAdapter?.run {
-            if (shown) {
-                showDropDownInfo(position)
-                binding?.citiesRecyclerView?.smoothScrollToPosition(position + 1)
-            } else {
-                hideDropDownInfo()
-            }
-            notifyItemChanged(position)
+    private fun navigateToDetails(cityId: Int) {
+        val detailsFragment = CityDetailFragment.newInstance(cityId)
+        parentFragmentManager.commit {
+            replace(R.id.mainFragmentContainer, detailsFragment, "details")
+            addToBackStack("details")
         }
-
     }
 
     companion object {

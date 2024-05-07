@@ -1,7 +1,7 @@
 package ru.dpav.weather.feature.cities_list
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import ru.dpav.weather.R
@@ -10,12 +10,10 @@ import ru.dpav.weather.databinding.ItemRowCityBinding
 import ru.dpav.weather.ui.WeatherIconAssociator
 
 class CitiesAdapter(
-    private val onTitleClick: (position: Int, isDroppedDown: Boolean) -> Unit,
-    private val onDetailsClick: (cityId: Int) -> Unit,
+    private val onCityClick: (cityId: Int) -> Unit,
 ) : RecyclerView.Adapter<CitiesAdapter.CityHolder>() {
 
     private var cities: ArrayList<City> = arrayListOf()
-    private var openedItemPosition = -1
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -29,21 +27,11 @@ class CitiesAdapter(
 
     override fun onBindViewHolder(holder: CityHolder, position: Int) {
         val city = cities[position]
-        val isOpened = position == openedItemPosition
-        holder.bind(city, isOpened)
+        holder.bind(city)
     }
 
-    fun hideDropDownInfo() {
-        openedItemPosition = -1
-    }
-
-    fun showDropDownInfo(position: Int) {
-        notifyItemChanged(openedItemPosition)
-        openedItemPosition = position
-    }
-
+    @SuppressLint("NotifyDataSetChanged")
     fun setCities(newCities: List<City>) {
-        hideDropDownInfo()
         cities.clear()
         cities.addAll(newCities)
         notifyDataSetChanged()
@@ -53,37 +41,21 @@ class CitiesAdapter(
         private val binding: ItemRowCityBinding,
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        private lateinit var bindedCity: City
-        private val context = itemView.context.applicationContext
+        private var attachedCityId: Int = 0
 
         init {
-            binding.cityDetailTitle.setOnClickListener {
-                onTitleClick(adapterPosition, adapterPosition == openedItemPosition)
-            }
-            binding.cityDetail.setOnClickListener { onDetailsClick(bindedCity.id) }
+            binding.root.setOnClickListener { onCityClick(attachedCityId) }
         }
 
-        fun bind(city: City, isOpened: Boolean) {
-            bindedCity = city
-
-            binding.run {
+        fun bind(city: City) {
+            attachedCityId = city.id
+            with(binding) {
                 cityDetailTitle.text = city.name
-
-                val icon = WeatherIconAssociator.getIconByName(city.weather[0].icon)
-                cityDetailTemperature.run {
+                with(cityDetailTemperature) {
                     text = context.getString(R.string.detail_temperature, city.main.temp.toInt())
+                    val icon = WeatherIconAssociator.getIconByName(city.weather[0].icon)
                     setCompoundDrawablesWithIntrinsicBounds(0, 0, icon, 0)
                 }
-
-                cityDetailWind.text =
-                    context.getString(R.string.detail_wind, city.wind.speed.toInt())
-                cityDetailCloudy.text =
-                    context.getString(R.string.detail_cloudy, city.clouds.cloudy)
-                cityDetailPressure.text =
-                    context.getString(R.string.detail_pressure, city.main.pressureInMmHg)
-
-
-                cityDetail.visibility = if (isOpened) View.VISIBLE else View.GONE
             }
         }
     }

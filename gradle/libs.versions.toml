@@ -2,10 +2,9 @@
 androidGradlePlugin = "8.4.0"
 kotlinGradlePlugin = "1.9.23"
 
-androidxConstraintLayout = '2.1.4'
 androidxAppcompat = "1.6.1"
-androidxEspressoCore = "3.2.0"
-androidxLegacySupportV4 = "1.0.0"
+androidxConstraintLayout = '2.1.4'
+androidxFragmentKtx = "1.7.0"
 material = "1.12.0"
 moxy = "1.7.0"
 osmbonuspack = "6.8.0"
@@ -19,6 +18,7 @@ rxkotlin = "2.4.0"
 [libraries]
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidxAppcompat" }
 androidx-constraintLayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "androidxConstraintLayout" }
+androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "androidxFragmentKtx" }
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "androidxRecyclerview" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 moxy-moxy = { module = "tech.schoolhelper:moxy-x", version.ref = "moxy" }
