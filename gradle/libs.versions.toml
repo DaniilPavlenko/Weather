@@ -27,11 +27,8 @@ moxy-compiler = { module = "tech.schoolhelper:moxy-x-compiler", version.ref = "m
 osm-bonuspack = { module = "com.github.MKergall:osmbonuspack", version.ref = "osmbonuspack" }
 osm-map = { module = "org.osmdroid:osmdroid-android", version.ref = "osmMap" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "gmsPlay" }
-retrofit-adapter-rxjava2 = { module = "com.squareup.retrofit2:adapter-rxjava2", version.ref = "retrofit" }
 retrofit-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 retrofit-retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
-rx-android = { module = "io.reactivex.rxjava2:rxandroid", version.ref = "rxandroid" }
-rx-kotlin = { module = "io.reactivex.rxjava2:rxkotlin", version.ref = "rxkotlin" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

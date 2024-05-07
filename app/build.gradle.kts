@@ -51,7 +51,6 @@ dependencies {
     implementation(libs.play.services.location)
 
     // Retrofit
-    implementation(libs.retrofit.adapter.rxjava2)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.retrofit.retrofit)
 
@@ -63,10 +62,6 @@ dependencies {
     // OSMdroid
     implementation(libs.osm.bonuspack)
     implementation(libs.osm.map)
-
-    // Rx
-    implementation(libs.rx.android)
-    implementation(libs.rx.kotlin)
 }
 
 private fun ApplicationDefaultConfig.configureOpenWeatherApi() {

@@ -40,7 +40,6 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.infowindow.InfoWindow
 import ru.dpav.weather.R
 import ru.dpav.weather.api.model.City
-import ru.dpav.weather.data.WeatherRepository
 import ru.dpav.weather.databinding.FragmentMapBinding
 import ru.dpav.weather.feature.cities_list.ListFragment
 import ru.dpav.weather.feature.city_details.CityDetailFragment
@@ -202,9 +201,13 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
         }
     }
 
-    override fun updateCitiesMarkers() {
+    override fun updateCitiesMarkers(cities: List<City>?) {
         mapView?.let { map ->
-            addMarkersOnMap(map, WeatherRepository.cities, markers, R.drawable.ic_marker_city)
+            map.overlays.removeAll(markers)
+            markers.clear()
+            if (cities != null) {
+                addMarkersOnMap(map, cities, R.drawable.ic_marker_city)
+            }
             map.invalidate()
         }
     }
@@ -212,17 +215,12 @@ class MapFragment : MvpAppCompatFragment(), ru.dpav.weather.feature.map.MapView 
     private fun addMarkersOnMap(
         map: MapView,
         cities: List<City>,
-        markersList: ArrayList<Marker>,
         markersIcon: Int,
     ) {
-        map.overlays.removeAll(markersList)
-        markersList.clear()
-        cities.forEachIndexed { _, city ->
-            markersList.add(
-                makeMarker(city, markersIcon)
-            )
+        cities.forEach { city ->
+            markers.add(makeMarker(city, markersIcon))
         }
-        map.overlays.addAll(markersList)
+        map.overlays.addAll(markers)
     }
 
     private fun makeMarker(

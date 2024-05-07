@@ -5,11 +5,12 @@ import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.arellomobile.mvp.viewstate.strategy.OneExecutionStateStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
 import org.osmdroid.util.GeoPoint
+import ru.dpav.weather.api.model.City
 
 @StateStrategyType(AddToEndSingleStrategy::class)
 interface MapView : MvpView {
     fun setMapMarker(point: GeoPoint)
-    fun updateCitiesMarkers()
+    fun updateCitiesMarkers(cities: List<City>?)
     fun openInfoWindow(cityId: String)
     fun closeInfoWindow()
     fun setCurrentPosition(point: GeoPoint, zoom: Double)
