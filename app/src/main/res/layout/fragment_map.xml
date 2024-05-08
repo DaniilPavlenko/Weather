@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -9,23 +10,31 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <ImageButton
-        android:id="@+id/locationButton"
-        android:layout_width="@dimen/location_button_size"
-        android:layout_height="@dimen/location_button_size"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/space_big"
-        android:background="@drawable/location_button"
-        android:contentDescription="@string/enable_or_disable_geo" />
-
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/btnShowListOfCities"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center"
-        android:layout_margin="@dimen/space_big"
-        android:text="@string/map_btn_show_in_list"
-        app:icon="@drawable/ic_view_list_round_24" />
+        android:layout_gravity="bottom|end"
+        android:orientation="horizontal">
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/btnShowListOfCities"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/space_medium"
+            android:layout_marginVertical="@dimen/space_big"
+            android:text="@string/map_btn_show_in_list"
+            app:icon="@drawable/ic_view_list_round_24" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnRequestLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/space_big"
+            android:layout_marginEnd="@dimen/space_big"
+            android:contentDescription="@string/cd_request_weather_at_user_location"
+            app:srcCompat="@drawable/ic_location_on" />
+
+    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/mapUpdateLayout"
@@ -33,7 +42,8 @@
         android:layout_height="match_parent"
         android:background="@color/updateScreenBackground"
         android:clickable="true"
-        android:focusable="true">
+        android:focusable="false"
+        tools:visibility="gone">
 
         <ProgressBar
             android:layout_width="wrap_content"

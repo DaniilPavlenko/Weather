@@ -54,11 +54,6 @@ dependencies {
     implementation(libs.retrofit.converter.gson)
     implementation(libs.retrofit.retrofit)
 
-    // MOXY
-    implementation(libs.moxy.androidx)
-    implementation(libs.moxy.moxy)
-    kapt(libs.moxy.compiler)
-
     // OSMdroid
     implementation(libs.osm.bonuspack)
     implementation(libs.osm.map)

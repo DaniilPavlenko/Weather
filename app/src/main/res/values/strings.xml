@@ -13,7 +13,7 @@
     <string name="connection_error">Отсутствует подключение</string>
     <string name="retry">Повторить</string>
     <string name="geo_disabled">Геолокация отключена</string>
-    <string name="enable_or_disable_geo">Enable or disable geolocation</string>
+    <string name="cd_request_weather_at_user_location">Узнать погоду поблизости</string>
     <string name="list_empty">Список пуст</string>
     <string name="error_unexpected">Произошла непредвиденная ошибка</string>
     <string name="map_btn_show_in_list">Показать в списке</string>
