@@ -118,4 +118,8 @@ class MapViewModel(
     fun onLocationUpdateCompleted() {
         _uiState.update { it.copy(isLocationUpdating = false) }
     }
+
+    fun onLocationUpdateCancel() {
+        _uiState.update { it.copy(isLocationUpdating = false) }
+    }
 }

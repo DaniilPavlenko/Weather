@@ -17,6 +17,7 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -26,8 +27,8 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.osmdroid.api.IGeoPoint
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.DelayedMapListener
@@ -62,12 +63,6 @@ class MapFragment : Fragment(R.layout.fragment_map) {
     private val locationUpdatesCallback by lazy {
         object : LocationCallback() {
             override fun onLocationResult(location: LocationResult) {
-                // FIXME: infinite updating state
-                //  How to reproduce:
-                //  1. Request the user's location
-                //  2. Rotate the device once while the UI is in the updating state
-                //  Potential solution: reset `UiState.isLocationUpdating`
-                //  when location request canceled or view is destroyed.
                 viewModel.onLocationUpdateCompleted()
                 val map = checkNotNull(mapView) { "MapView is null" }
 
@@ -128,21 +123,24 @@ class MapFragment : Fragment(R.layout.fragment_map) {
             viewModel.onLocationServiceUnavailable()
         }
 
-        viewModel.uiState.onEach { uiState ->
-            updateCitiesMarkers(uiState.cities)
-            binding?.run {
-                mapUpdateLayout.isVisible = uiState.isLoading || uiState.isLocationUpdating
-                btnShowListOfCities.isVisible = uiState.cities.isNotEmpty()
-                btnRequestLocation.isEnabled = uiState.isLocationServicesAvailable
-            }
-            if (uiState.hasConnectionError) {
-                showConnectionError()
-            }
-            if (uiState.showTurnedOffGeoInfo) {
-                showSnack(R.string.geo_disabled, viewModel::onShownDisabledGeoInfo)
-            }
-        }.launchIn(viewLifecycleOwner.lifecycleScope)
-
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.uiState
+                .flowWithLifecycle(viewLifecycleOwner.lifecycle)
+                .collectLatest { uiState ->
+                    updateCitiesMarkers(uiState.cities)
+                    binding?.run {
+                        mapUpdateLayout.isVisible = uiState.isLoading || uiState.isLocationUpdating
+                        btnShowListOfCities.isVisible = uiState.cities.isNotEmpty()
+                        btnRequestLocation.isEnabled = uiState.isLocationServicesAvailable
+                    }
+                    if (uiState.hasConnectionError) {
+                        showConnectionError()
+                    }
+                    if (uiState.showTurnedOffGeoInfo) {
+                        showSnack(R.string.geo_disabled, viewModel::onShownDisabledGeoInfo)
+                    }
+                }
+        }
 
         viewLifecycleOwner.lifecycle.addObserver(LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) mapView?.onResume()
@@ -150,6 +148,7 @@ class MapFragment : Fragment(R.layout.fragment_map) {
             if (event == Lifecycle.Event.ON_DESTROY) {
                 if (::fusedLocationProvider.isInitialized) {
                     fusedLocationProvider.removeLocationUpdates(locationUpdatesCallback)
+                    viewModel.onLocationUpdateCancel()
                 }
                 binding = null
                 mapView = null
