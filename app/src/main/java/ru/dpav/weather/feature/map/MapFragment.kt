@@ -9,6 +9,7 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker.PermissionResult
 import androidx.core.view.isVisible
@@ -40,6 +41,7 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.FolderOverlay
 import org.osmdroid.views.overlay.IconOverlay
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
@@ -78,7 +80,9 @@ class MapFragment : Fragment(R.layout.fragment_map) {
     }
 
     private var isInfoWindowOpened: Boolean = false
-    private var markers: ArrayList<Marker> = arrayListOf()
+    private var citiesFolderOverlay: FolderOverlay? = null
+    private var displayedCities = emptyList<City>()
+    private var searchMarker: IconOverlay? = null
 
     private val permissionsRequestLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -150,6 +154,9 @@ class MapFragment : Fragment(R.layout.fragment_map) {
                     fusedLocationProvider.removeLocationUpdates(locationUpdatesCallback)
                     viewModel.onLocationUpdateCancel()
                 }
+                searchMarker = null
+                citiesFolderOverlay = null
+                displayedCities = emptyList()
                 binding = null
                 mapView = null
             }
@@ -167,6 +174,8 @@ class MapFragment : Fragment(R.layout.fragment_map) {
         isVerticalMapRepetitionEnabled = false
         setMapListener(map)
         addEventReceiver(map)
+        citiesFolderOverlay = FolderOverlay()
+        map.overlays.add(citiesFolderOverlay)
     }
 
     private fun setMapListener(map: MapView) {
@@ -211,33 +220,29 @@ class MapFragment : Fragment(R.layout.fragment_map) {
         } else {
             R.drawable.ic_marker_search_final
         }
-        val searchIconOverlay = IconOverlay(
-            point,
-            ContextCompat.getDrawable(requireContext(), icon)
-        )
-        with(map) {
-            if (overlays.lastIndex < OVERLAY_SEARCH_POINT) {
-                overlays.add(OVERLAY_SEARCH_POINT, searchIconOverlay)
-                return
-            }
-            overlays[OVERLAY_SEARCH_POINT] = searchIconOverlay
-            invalidate()
-        }
-    }
+        val searchMarker = searchMarker?.apply { set(point, getDrawable(icon)) }
+            ?: IconOverlay(point, getDrawable(icon)).also { searchMarker = it }
 
-    private fun updateCitiesMarkers(cities: List<City>) {
-        // TODO: try to reduce update count. By checking was the list `cities` changed or not.
-        val map = mapView ?: return
-        map.overlays.removeAll(markers)
-        markers.clear()
-        addMarkersOnMap(map, cities, R.drawable.ic_marker_city)
+        if (searchMarker !in map.overlays) {
+            map.overlays += searchMarker
+        }
+
         map.invalidate()
     }
 
-    private fun addMarkersOnMap(map: MapView, cities: List<City>, markersIcon: Int) {
-        val citiesMarkers = cities.map { makeMarker(map, it, markersIcon) }
-        markers.addAll(citiesMarkers)
-        map.overlays.addAll(citiesMarkers)
+    private fun updateCitiesMarkers(cities: List<City>) {
+        val map = checkNotNull(mapView)
+        if (cities == displayedCities) {
+            return
+        }
+        displayedCities = cities
+        citiesFolderOverlay?.items?.run {
+            clear()
+            for (city in cities) {
+                add(makeMarker(map, city, R.drawable.ic_marker_city))
+            }
+        }
+        map.invalidate()
     }
 
     private fun makeMarker(mapView: MapView, city: City, icon: Int) = Marker(mapView).apply {
@@ -403,11 +408,14 @@ class MapFragment : Fragment(R.layout.fragment_map) {
 
     private fun GeoCoordinate.toGeoPoint(): GeoPoint = GeoPoint(latitude, longitude)
 
+    private fun getDrawable(@DrawableRes drawableRes: Int): Drawable {
+        return requireNotNull(ContextCompat.getDrawable(requireContext(), drawableRes))
+    }
+
     companion object {
         private const val PERMISSION_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION
 
         private const val LOCATION_REQUEST_INTERVAL: Long = 7000
-        private const val OVERLAY_SEARCH_POINT = 1
         private const val ANIMATION_SPEED: Long = 300
         private const val MIN_ZOOM_LEVEL: Double = 2e0
         private const val MAP_LISTENER_DELAY: Long = 200
