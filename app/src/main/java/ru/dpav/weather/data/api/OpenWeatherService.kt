@@ -1,8 +1,8 @@
-package ru.dpav.weather.api
+package ru.dpav.weather.data.api
 
 import retrofit2.http.GET
 import retrofit2.http.Query
-import ru.dpav.weather.api.model.WeatherResponse
+import ru.dpav.weather.data.api.model.WeatherResponse
 
 interface OpenWeatherService {
     @GET("find/?cluster=yes&units=metric&cnt=$CITIES_COUNT&lang=$LANGUAGE")

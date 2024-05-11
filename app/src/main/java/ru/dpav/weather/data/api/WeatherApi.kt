@@ -1,10 +1,10 @@
-package ru.dpav.weather.api
+package ru.dpav.weather.data.api
 
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.dpav.weather.BuildConfig
-import ru.dpav.weather.api.interceptor.OpenWeatherApiKeyInterceptor
+import ru.dpav.weather.data.api.interceptor.OpenWeatherApiKeyInterceptor
 
 object WeatherApi {
     private const val API_BASE_URL = "https://api.openweathermap.org/data/2.5/"

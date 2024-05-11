@@ -1,8 +1,8 @@
 package ru.dpav.weather.data
 
-import ru.dpav.weather.api.WeatherApi
-import ru.dpav.weather.api.model.City
-import ru.dpav.weather.api.model.WeatherResponse
+import ru.dpav.weather.data.api.WeatherApi
+import ru.dpav.weather.data.api.model.City
+import ru.dpav.weather.data.api.model.WeatherResponse
 
 object WeatherRepository {
 
