@@ -17,7 +17,7 @@
             <size
                 android:width="@dimen/marker_size_selected"
                 android:height="@dimen/marker_size_selected" />
-            <solid android:color="#7fbd32" />
+            <solid android:color="@color/cityMarker" />
         </shape>
     </item>
 </layer-list>
