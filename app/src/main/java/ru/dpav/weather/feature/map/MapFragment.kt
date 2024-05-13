@@ -4,12 +4,10 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.drawable.Drawable
 import android.location.LocationManager
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker.PermissionResult
 import androidx.core.view.isVisible
@@ -20,69 +18,24 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import org.osmdroid.api.IGeoPoint
-import org.osmdroid.config.Configuration
-import org.osmdroid.events.DelayedMapListener
-import org.osmdroid.events.MapEventsReceiver
-import org.osmdroid.events.MapListener
-import org.osmdroid.events.ScrollEvent
-import org.osmdroid.events.ZoomEvent
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.CustomZoomButtonsController
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.FolderOverlay
-import org.osmdroid.views.overlay.IconOverlay
-import org.osmdroid.views.overlay.MapEventsOverlay
-import org.osmdroid.views.overlay.Marker
-import org.osmdroid.views.overlay.infowindow.InfoWindow
 import ru.dpav.weather.R
 import ru.dpav.weather.data.api.model.City
 import ru.dpav.weather.databinding.FragmentMapBinding
 import ru.dpav.weather.domain.model.GeoCoordinate
 import ru.dpav.weather.feature.cities_list.ListFragment
 import ru.dpav.weather.feature.city_details.CityDetailFragment
-import ru.dpav.weather.ui.GoogleApiAvailabilityChecker
+import ru.dpav.weather.ui.extension.toGeoCoordinate
 
 class MapFragment : Fragment(R.layout.fragment_map) {
 
     private val viewModel: MapViewModel by viewModels()
-
     private var binding: FragmentMapBinding? = null
-    private var mapView: MapView? = null
-
-    private lateinit var fusedLocationProvider: FusedLocationProviderClient
-    private val locationUpdatesCallback by lazy {
-        object : LocationCallback() {
-            override fun onLocationResult(location: LocationResult) {
-                viewModel.onLocationUpdateCompleted()
-                val map = checkNotNull(mapView) { "MapView is null" }
-
-                val lastLocation = location.lastLocation ?: return
-                val point = GeoPoint(lastLocation.latitude, lastLocation.longitude)
-
-                viewModel.onRequestWeatherAt(point.toGeoCoordinate())
-
-                setMapMarker(point, isUserLocation = true)
-                moveCameraTo(point, map.zoomLevelDouble)
-            }
-        }
-    }
-
-    private var isInfoWindowOpened: Boolean = false
-    private var citiesFolderOverlay: FolderOverlay? = null
-    private var displayedCities = emptyList<City>()
-    private var searchMarker: IconOverlay? = null
+    private var mapFacade: MapFacade? = null
 
     private val permissionsRequestLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -92,46 +45,22 @@ class MapFragment : Fragment(R.layout.fragment_map) {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Configuration.getInstance().userAgentValue = "weather-app"
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         with(FragmentMapBinding.bind(view)) {
             binding = this
 
             btnShowListOfCities.setOnClickListener { navigateToList() }
             btnRequestLocation.setOnClickListener { onClickRequestLocation() }
-
-            mapView = map
-            initMap(map)
         }
 
-        val mapCenter = viewModel.mapCenter.value.toGeoPoint()
-        val zoom = viewModel.mapZoomLevel.value
-
-        moveCameraTo(mapCenter, zoom, animationSpeed = 0)
-        val markerPosition = viewModel.uiState.value.requestedPosition?.toGeoPoint() ?: mapCenter
-        setMapMarker(markerPosition)
-
-        viewModel.onRequestWeatherAt(markerPosition.toGeoCoordinate())
-
-        val activity = requireActivity()
-        if (GoogleApiAvailabilityChecker.isAvailable(activity)) {
-            fusedLocationProvider = LocationServices.getFusedLocationProviderClient(activity)
-            viewModel.onLocationServiceAvailable()
-        } else {
-            viewModel.onLocationServiceUnavailable()
-        }
+        initMapFacade()
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState
                 .flowWithLifecycle(viewLifecycleOwner.lifecycle)
                 .collectLatest { uiState ->
-                    updateCitiesMarkers(uiState.cities)
+                    checkNotNull(mapFacade).updateCities(uiState.cities)
                     binding?.run {
                         mapUpdateLayout.isVisible = uiState.isLoading || uiState.isLocationUpdating
                         btnShowListOfCities.isVisible = uiState.cities.isNotEmpty()
@@ -147,156 +76,39 @@ class MapFragment : Fragment(R.layout.fragment_map) {
         }
 
         viewLifecycleOwner.lifecycle.addObserver(LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) mapView?.onResume()
-            if (event == Lifecycle.Event.ON_PAUSE) mapView?.onPause()
             if (event == Lifecycle.Event.ON_DESTROY) {
-                if (::fusedLocationProvider.isInitialized) {
-                    fusedLocationProvider.removeLocationUpdates(locationUpdatesCallback)
-                    viewModel.onLocationUpdateCancel()
-                }
-                searchMarker = null
-                citiesFolderOverlay = null
-                displayedCities = emptyList()
+                mapFacade = null
                 binding = null
-                mapView = null
             }
         })
     }
 
-    private fun initMap(map: MapView): Unit = with(map) {
-        setTileSource(TileSourceFactory.MAPNIK)
-        setMultiTouchControls(true)
-        val maxMapLatitude = MapView.getTileSystem().maxLatitude
-        setScrollableAreaLimitLatitude(maxMapLatitude, -maxMapLatitude, (height / 2))
-        zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
-        minZoomLevel = MIN_ZOOM_LEVEL
-        controller.setZoom(MapDefaults.ZOOM)
-        isVerticalMapRepetitionEnabled = false
-        setMapListener(map)
-        addEventReceiver(map)
-        citiesFolderOverlay = FolderOverlay()
-        map.overlays.add(citiesFolderOverlay)
-    }
+    private fun initMapFacade() {
+        val mapCenter = viewModel.mapCenter.value.toGeoPoint()
+        val zoom = viewModel.mapZoomLevel.value
+        val markerPosition = viewModel.uiState.value.requestedPosition?.toGeoPoint() ?: mapCenter
 
-    private fun setMapListener(map: MapView) {
-        map.addMapListener(DelayedMapListener(object : MapListener {
-            override fun onScroll(event: ScrollEvent?): Boolean = setCurrentPosition()
-            override fun onZoom(event: ZoomEvent?): Boolean = setCurrentPosition()
-
-            fun setCurrentPosition(): Boolean {
-                val zoomLevel = map.zoomLevelDouble
-                val mapCenter = map.mapCenter.toDoubleArray()
-                viewModel.saveMapState(mapCenter, zoomLevel)
-                return true
-            }
-        }, MAP_LISTENER_DELAY))
-    }
-
-    private fun addEventReceiver(map: MapView) {
-        val eventsOverlay = MapEventsOverlay(object : MapEventsReceiver {
-            override fun longPressHelper(point: GeoPoint): Boolean {
-                closeInfoWindow()
-                return false
-            }
-
-            override fun singleTapConfirmedHelper(point: GeoPoint): Boolean {
-                if (isInfoWindowOpened) {
-                    closeInfoWindow()
-                    return false
-                }
-                viewModel.onRequestWeatherAt(point.toGeoCoordinate())
-                setMapMarker(point)
-                moveCameraTo(point)
-                return true
-            }
-        })
-        map.overlays.add(eventsOverlay)
-    }
-
-    private fun setMapMarker(point: GeoPoint, isUserLocation: Boolean = false) {
-        val map = checkNotNull(mapView)
-        val icon = if (isUserLocation) {
-            R.drawable.ic_marker_location
-        } else {
-            R.drawable.ic_marker_search_final
-        }
-        val searchMarker = searchMarker?.apply { set(point, getDrawable(icon)) }
-            ?: IconOverlay(point, getDrawable(icon)).also { searchMarker = it }
-
-        if (searchMarker !in map.overlays) {
-            map.overlays += searchMarker
-        }
-
-        map.invalidate()
-    }
-
-    private fun updateCitiesMarkers(cities: List<City>) {
-        val map = checkNotNull(mapView)
-        if (cities == displayedCities) {
-            return
-        }
-        displayedCities = cities
-        citiesFolderOverlay?.items?.run {
-            clear()
-            for (city in cities) {
-                add(makeMarker(map, city, R.drawable.ic_marker_city))
-            }
-        }
-        map.invalidate()
-    }
-
-    private fun makeMarker(mapView: MapView, city: City, icon: Int) = Marker(mapView).apply {
-        id = city.id.toString()
-        position = GeoPoint(
-            city.coordinates.latitude,
-            city.coordinates.longitude
+        val mapFacade = MapFacade(
+            initialMarkerPosition = markerPosition,
+            startMapPosition = mapCenter to zoom,
+            onRequestWeatherAt = viewModel::onRequestWeatherAt,
+            onLocationUpdateComplete = viewModel::onLocationUpdateCompleted,
+            onLocationUpdateCancel = viewModel::onLocationUpdateCancel,
+            onOpenDetails = ::navigateToDetails,
+            mapStateSaver = viewModel::saveMapState
         )
-        setAnchor(Marker.ANCHOR_CENTER, 1f)
-        setIcon(ContextCompat.getDrawable(requireContext(), icon))
-        infoWindow = PopInfoWindow(R.layout.info_window_weather, mapView, city) {
-            openDetailDialog(city)
+
+        val mapView = checkNotNull(binding).map
+        mapFacade.attachMap(mapView, viewLifecycleOwner.lifecycle)
+        this.mapFacade = mapFacade
+
+        viewModel.onRequestWeatherAt(markerPosition.toGeoCoordinate())
+
+        if (mapFacade.isLocationServicesAvailable(requireActivity())) {
+            viewModel.onLocationServiceAvailable()
+        } else {
+            viewModel.onLocationServiceUnavailable()
         }
-        setOnMarkerClickListener { marker, _ ->
-            openInfoWindow(marker)
-            return@setOnMarkerClickListener true
-        }
-    }
-
-    private fun openDetailDialog(city: City) {
-        val detailFragment = CityDetailFragment.newInstance(city.id)
-        parentFragmentManager.commit {
-            replace(R.id.mainFragmentContainer, detailFragment, "details")
-            addToBackStack("details")
-        }
-    }
-
-    private fun openInfoWindow(marker: Marker) {
-        closeInfoWindow()
-        isInfoWindowOpened = true
-
-        marker.showInfoWindow()
-        marker.icon = getMarkerIcon(isSelected = true)
-    }
-
-    private fun closeInfoWindow() {
-        isInfoWindowOpened = false
-        val windows = InfoWindow.getOpenedInfoWindowsOn(mapView)
-        windows.forEach { window ->
-            window.close()
-            val relatedObject = window.relatedObject
-            if (relatedObject is Marker) {
-                relatedObject.icon = getMarkerIcon(isSelected = false)
-            }
-        }
-    }
-
-    private fun moveCameraTo(
-        point: GeoPoint,
-        zoom: Double? = null,
-        animationSpeed: Long = ANIMATION_SPEED,
-    ) {
-        val map = mapView ?: return
-        map.controller?.animateTo(point, zoom ?: map.zoomLevelDouble, animationSpeed)
     }
 
     private fun onLocationPermissionGranted() {
@@ -316,13 +128,11 @@ class MapFragment : Fragment(R.layout.fragment_map) {
             viewModel.onLocationTurnedOff()
             return
         }
-        closeInfoWindow()
         requestLocationUpdate()
     }
 
     private fun showConnectionError() {
-        val view = view ?: return
-        Snackbar.make(view, R.string.connection_error, Snackbar.LENGTH_INDEFINITE).apply {
+        Snackbar.make(requireView(), R.string.connection_error, Snackbar.LENGTH_INDEFINITE).apply {
             setAction(R.string.retry) {
                 viewModel.onRetryRequest()
                 dismiss()
@@ -331,16 +141,25 @@ class MapFragment : Fragment(R.layout.fragment_map) {
         }
     }
 
+    private fun navigateToDetails(city: City) {
+        val detailFragment = CityDetailFragment.newInstance(city.id)
+        val screenTag = "details"
+        parentFragmentManager.commit {
+            replace(R.id.mainFragmentContainer, detailFragment, screenTag)
+            addToBackStack(screenTag)
+        }
+    }
+
     private fun navigateToList() {
         parentFragmentManager.commit {
-            replace(R.id.mainFragmentContainer, ListFragment.newInstance(), "list")
-            addToBackStack("list")
+            val screenTag = "list"
+            replace(R.id.mainFragmentContainer, ListFragment.newInstance(), screenTag)
+            addToBackStack(screenTag)
         }
     }
 
     private fun showSnack(resId: Int, shownCallback: () -> Unit) {
-        val view = view ?: return
-        Snackbar.make(view, getString(resId), Snackbar.LENGTH_LONG)
+        Snackbar.make(requireView(), getString(resId), Snackbar.LENGTH_LONG)
             .addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
                 override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
                     super.onDismissed(transientBottomBar, event)
@@ -352,17 +171,8 @@ class MapFragment : Fragment(R.layout.fragment_map) {
 
     private fun askPermission() {
         if (!hasLocationPermission()) {
-            permissionsRequestLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION))
+            permissionsRequestLauncher.launch(arrayOf(PERMISSION_LOCATION))
         }
-    }
-
-    private fun getMarkerIcon(isSelected: Boolean): Drawable {
-        val icon: Int = if (isSelected) {
-            R.drawable.ic_marker_city_selected
-        } else {
-            R.drawable.ic_marker_city
-        }
-        return ContextCompat.getDrawable(requireContext(), icon)!!
     }
 
     private fun isLocationEnabled(): Boolean {
@@ -374,12 +184,7 @@ class MapFragment : Fragment(R.layout.fragment_map) {
     @SuppressLint("MissingPermission")
     private fun requestLocationUpdate() {
         viewModel.onLocationUpdateRequested()
-        val locationRequest = LocationRequest.Builder(LOCATION_REQUEST_INTERVAL)
-            .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-            .setMaxUpdateAgeMillis(1 * 24 * 60 * 60 * 1_000) // 1 day
-            .setMaxUpdates(1)
-            .build()
-        fusedLocationProvider.requestLocationUpdates(locationRequest, locationUpdatesCallback, null)
+        checkNotNull(mapFacade).requestLocationUpdate()
     }
 
     private fun hasLocationPermission(): Boolean {
@@ -391,33 +196,14 @@ class MapFragment : Fragment(R.layout.fragment_map) {
         return permissionCheckResult == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun IGeoPoint.toDoubleArray(): DoubleArray {
-        return DoubleArray(2).apply {
-            set(0, latitude)
-            set(1, longitude)
-        }
-    }
-
     private fun DoubleArray.toGeoPoint(): GeoPoint {
         check(size == 2) { "Invalid array size: $size. Expected 2" }
         return GeoPoint(get(0), get(1))
     }
 
-    private fun GeoPoint.toGeoCoordinate(): GeoCoordinate =
-        GeoCoordinate(latitude = latitude, longitude = longitude)
-
     private fun GeoCoordinate.toGeoPoint(): GeoPoint = GeoPoint(latitude, longitude)
-
-    private fun getDrawable(@DrawableRes drawableRes: Int): Drawable {
-        return requireNotNull(ContextCompat.getDrawable(requireContext(), drawableRes))
-    }
 
     companion object {
         private const val PERMISSION_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION
-
-        private const val LOCATION_REQUEST_INTERVAL: Long = 7000
-        private const val ANIMATION_SPEED: Long = 300
-        private const val MIN_ZOOM_LEVEL: Double = 2e0
-        private const val MAP_LISTENER_DELAY: Long = 200
     }
 }
