@@ -13,7 +13,7 @@ import retrofit2.HttpException
 import ru.dpav.weather.data.WeatherRepository
 import ru.dpav.weather.domain.model.GeoCoordinate
 
-private const val TAG = "MapPresenter"
+private const val TAG = "MapViewModel"
 private const val SAVED_MAP_CENTER = "map_center"
 private const val SAVED_MAP_ZOOM_LEVEL = "map_zoom"
 
