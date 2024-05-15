@@ -193,9 +193,7 @@ internal class MapFacade(
         position = GeoPoint(city.coordinates.latitude, city.coordinates.longitude)
         icon = getCityMarkerIcon(isSelected = false)
         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-        infoWindow = CityWeatherInfoWindow(mapView, city) {
-            onOpenDetails(city)
-        }
+        infoWindow = CityWeatherInfoWindow(mapView, city, onWindowClick = onOpenDetails)
         setOnMarkerClickListener { marker, _ ->
             openInfoWindow(marker)
             return@setOnMarkerClickListener true

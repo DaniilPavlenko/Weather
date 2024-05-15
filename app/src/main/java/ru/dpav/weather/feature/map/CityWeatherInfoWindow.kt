@@ -1,6 +1,5 @@
 package ru.dpav.weather.feature.map
 
-import android.view.View
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.infowindow.InfoWindow
 import ru.dpav.weather.R
@@ -11,11 +10,11 @@ import ru.dpav.weather.ui.WeatherIconAssociator
 open class CityWeatherInfoWindow(
     mapView: MapView,
     private val city: City,
-    private val onClick: View.OnClickListener,
+    private val onWindowClick: (city: City) -> Unit,
 ) : InfoWindow(R.layout.info_window_weather, mapView) {
 
     override fun onOpen(item: Any?) = with(InfoWindowWeatherBinding.bind(mView)) {
-        root.setOnClickListener(onClick)
+        root.setOnClickListener { onWindowClick(city) }
 
         infoWindowTitle.text = city.name
         val icon = WeatherIconAssociator.getIconByName(city.weather[0].icon)
