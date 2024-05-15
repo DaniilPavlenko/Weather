@@ -6,8 +6,7 @@
     android:layout_height="wrap_content"
     android:background="@drawable/background_info_window"
     android:orientation="vertical"
-    android:paddingHorizontal="@dimen/space_medium"
-    android:paddingVertical="@dimen/space_medium">
+    android:padding="@dimen/space_medium">
 
     <TextView
         android:id="@+id/infoWindowTitle"
