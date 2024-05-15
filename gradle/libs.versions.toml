@@ -6,7 +6,6 @@ androidxAppcompat = "1.6.1"
 androidxConstraintLayout = '2.1.4'
 androidxFragmentKtx = "1.7.0"
 material = "1.12.0"
-osmbonuspack = "6.8.0"
 osmMap = "6.1.18"
 gmsPlay = "21.2.0"
 androidxRecyclerview = "1.3.2"
@@ -18,7 +17,6 @@ androidx-constraintLayout = { module = "androidx.constraintlayout:constraintlayo
 androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "androidxFragmentKtx" }
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "androidxRecyclerview" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
-osm-bonuspack = { module = "com.github.MKergall:osmbonuspack", version.ref = "osmbonuspack" }
 osm-map = { module = "org.osmdroid:osmdroid-android", version.ref = "osmMap" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "gmsPlay" }
 retrofit-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }

@@ -9,7 +9,7 @@ internal class OpenWeatherApiKeyInterceptor(
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
-        val urlWithApiKey = originalRequest.url
+        val urlWithApiKey = originalRequest.url()
             .newBuilder()
             .addQueryParameter("appid", openWeatherApiKey)
             .build()

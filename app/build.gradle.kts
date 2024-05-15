@@ -54,8 +54,7 @@ dependencies {
     implementation(libs.retrofit.converter.gson)
     implementation(libs.retrofit.retrofit)
 
-    // OSMdroid
-    implementation(libs.osm.bonuspack)
+    // OpenStreetMap
     implementation(libs.osm.map)
 }
 
