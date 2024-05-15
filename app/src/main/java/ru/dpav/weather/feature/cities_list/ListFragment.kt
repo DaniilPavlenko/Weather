@@ -2,15 +2,14 @@ package ru.dpav.weather.feature.cities_list
 
 import android.os.Bundle
 import android.view.View
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
 import ru.dpav.weather.R
 import ru.dpav.weather.databinding.FragmentListBinding
 import ru.dpav.weather.feature.city_details.CityDetailsFragment
+import ru.dpav.weather.ui.extension.popBackStackToRoot
 
 class ListFragment : Fragment(R.layout.fragment_list) {
 
@@ -20,20 +19,23 @@ class ListFragment : Fragment(R.layout.fragment_list) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        listAdapter = CitiesAdapter(::navigateToDetails)
+        val cities = viewModel.uiState.cities
+
+        if (cities.isEmpty()) {
+            parentFragmentManager.popBackStackToRoot()
+            return
+        }
+
+        listAdapter = CitiesAdapter(::navigateToDetails).apply {
+            setCities(cities)
+        }
         FragmentListBinding.bind(view).apply {
+            toolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
             citiesRecyclerView.run {
                 setHasFixedSize(true)
-                layoutManager = LinearLayoutManager(requireContext())
-                addItemDecoration(
-                    DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
-                )
+                addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
                 adapter = listAdapter
             }
-            val uiState = viewModel.uiState
-            val cities = uiState.cities
-            listAdapter?.setCities(cities)
-            citiesNotFound.isVisible = cities.isEmpty()
         }
     }
 

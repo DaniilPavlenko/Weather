@@ -16,7 +16,7 @@
         android:layout_marginHorizontal="@dimen/space_medium"
         android:layout_weight="1"
         android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-        tools:text="Ростов-на-Дону" />
+        tools:text="@tools:sample/cities" />
 
     <TextView
         android:id="@+id/cityDetailTemperature"

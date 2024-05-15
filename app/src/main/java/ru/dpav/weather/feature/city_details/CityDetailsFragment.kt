@@ -7,6 +7,7 @@ import ru.dpav.weather.R
 import ru.dpav.weather.data.WeatherRepository
 import ru.dpav.weather.databinding.FragmentCityDetailsBinding
 import ru.dpav.weather.ui.WeatherIconAssociator
+import ru.dpav.weather.ui.extension.popBackStackToRoot
 
 class CityDetailsFragment : Fragment(R.layout.fragment_city_details) {
 
@@ -18,7 +19,7 @@ class CityDetailsFragment : Fragment(R.layout.fragment_city_details) {
         val city = WeatherRepository.cities.firstOrNull { it.id == cityId }
         if (city == null) {
             // Just back to the root fragment (map).
-            parentFragmentManager.popBackStack(null, 0)
+            parentFragmentManager.popBackStackToRoot()
             return
         }
 
