@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 import ru.dpav.weather.data.WeatherRepository
 import ru.dpav.weather.domain.model.GeoCoordinate
 
@@ -68,17 +67,7 @@ class MapViewModel(
                     }
                 }
                 .onFailure { throwable ->
-                    Log.e(TAG, "getWeather: ", throwable)
-                    if (throwable is HttpException && throwable.code() == 404) {
-                        currentWeatherListCoordinate = coordinate
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                cities = emptyList()
-                            )
-                        }
-                        return@onFailure
-                    }
+                    Log.e(TAG, "getWeather: on failure", throwable)
                     failedRequestCoordinate = coordinate
                     _uiState.update {
                         it.copy(
