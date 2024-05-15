@@ -25,7 +25,7 @@ class CityDetailFragment : Fragment(R.layout.fragment_city_detail) {
             with(cityDetailTemperature) {
                 text = getString(R.string.detail_temperature, city.main.temp.toInt())
                 val icon = WeatherIconAssociator.getIconByName(city.weather[0].icon)
-                cityDetailTemperature.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0)
+                setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0)
             }
             cityDetailWind.text = getString(R.string.detail_wind, city.wind.speed.toInt())
             cityDetailCloudy.text = getString(R.string.detail_cloudy, city.clouds.cloudy)
