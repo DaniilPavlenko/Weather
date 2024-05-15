@@ -15,7 +15,12 @@ class CityDetailFragment : Fragment(R.layout.fragment_city_detail) {
         val binding = FragmentCityDetailBinding.bind(view)
 
         val cityId = requireNotNull(arguments?.getInt(ARG_CITY_ID))
-        val city = WeatherRepository.cities.first { it.id == cityId }
+        val city = WeatherRepository.cities.firstOrNull { it.id == cityId }
+        if (city == null) {
+            // Just back to the root fragment (map).
+            parentFragmentManager.popBackStack(null, 0)
+            return
+        }
 
         with(binding) {
             with(toolbar) {
