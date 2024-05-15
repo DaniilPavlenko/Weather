@@ -28,7 +28,7 @@ import ru.dpav.weather.data.api.model.City
 import ru.dpav.weather.databinding.FragmentMapBinding
 import ru.dpav.weather.domain.model.GeoCoordinate
 import ru.dpav.weather.feature.cities_list.ListFragment
-import ru.dpav.weather.feature.city_details.CityDetailFragment
+import ru.dpav.weather.feature.city_details.CityDetailsFragment
 import ru.dpav.weather.ui.extension.toGeoCoordinate
 
 class MapFragment : Fragment(R.layout.fragment_map) {
@@ -142,7 +142,7 @@ class MapFragment : Fragment(R.layout.fragment_map) {
     }
 
     private fun navigateToDetails(city: City) {
-        val detailFragment = CityDetailFragment.newInstance(city.id)
+        val detailFragment = CityDetailsFragment.newInstance(city.id)
         val screenTag = "details"
         parentFragmentManager.commit {
             replace(R.id.mainFragmentContainer, detailFragment, screenTag)

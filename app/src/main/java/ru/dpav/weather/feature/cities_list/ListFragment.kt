@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import ru.dpav.weather.R
 import ru.dpav.weather.databinding.FragmentListBinding
-import ru.dpav.weather.feature.city_details.CityDetailFragment
+import ru.dpav.weather.feature.city_details.CityDetailsFragment
 
 class ListFragment : Fragment(R.layout.fragment_list) {
 
@@ -43,7 +43,7 @@ class ListFragment : Fragment(R.layout.fragment_list) {
     }
 
     private fun navigateToDetails(cityId: Int) {
-        val detailsFragment = CityDetailFragment.newInstance(cityId)
+        val detailsFragment = CityDetailsFragment.newInstance(cityId)
         parentFragmentManager.commit {
             replace(R.id.mainFragmentContainer, detailsFragment, "details")
             addToBackStack("details")

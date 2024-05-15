@@ -5,14 +5,14 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import ru.dpav.weather.R
 import ru.dpav.weather.data.WeatherRepository
-import ru.dpav.weather.databinding.FragmentCityDetailBinding
+import ru.dpav.weather.databinding.FragmentCityDetailsBinding
 import ru.dpav.weather.ui.WeatherIconAssociator
 
-class CityDetailFragment : Fragment(R.layout.fragment_city_detail) {
+class CityDetailsFragment : Fragment(R.layout.fragment_city_details) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val binding = FragmentCityDetailBinding.bind(view)
+        val binding = FragmentCityDetailsBinding.bind(view)
 
         val cityId = requireNotNull(arguments?.getInt(ARG_CITY_ID))
         val city = WeatherRepository.cities.firstOrNull { it.id == cityId }
@@ -45,7 +45,7 @@ class CityDetailFragment : Fragment(R.layout.fragment_city_detail) {
     companion object {
         private const val ARG_CITY_ID = "city_id"
 
-        fun newInstance(cityId: Int) = CityDetailFragment().apply {
+        fun newInstance(cityId: Int) = CityDetailsFragment().apply {
             arguments = Bundle(1).apply {
                 putInt(ARG_CITY_ID, cityId)
             }
