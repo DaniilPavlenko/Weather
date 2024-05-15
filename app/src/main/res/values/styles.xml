@@ -2,14 +2,4 @@
 
     <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar" />
 
-    <style name="CityDropDownInfo">
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:textSize">@dimen/drop_down_info_text_size</item>
-        <item name="android:paddingTop">@dimen/padding_small</item>
-    </style>
-
-    <style name="CityDetailInfo" parent="CityDropDownInfo">
-        <item name="android:textColor">@color/cityNameColor</item>
-    </style>
-
 </resources>
