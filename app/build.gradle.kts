@@ -29,7 +29,11 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // Just for simplicity. In real projects I read 'keystore.properties'.
+            signingConfig = signingConfigs.named("debug").get()
+
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
