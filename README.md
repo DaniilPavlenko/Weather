@@ -12,6 +12,9 @@ I don't want to overengineer this simple app, so there is no:
 - Modularization
 - etc.
 
+## Get APK
+💾 You can get an APK of the app on the [➡️ releases page](https://github.com/DaniilPavlenko/weather/releases)
+
 ## How to build the project?
 
 To build the project provide your API key to OpenWeather API in the root `local.properties` file
