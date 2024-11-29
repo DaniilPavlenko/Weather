@@ -2,18 +2,14 @@ import com.android.build.api.dsl.ApplicationDefaultConfig
 import java.util.Properties
 
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    id("kotlin-kapt")
+    id("dpav.android.application")
 }
 
 android {
     namespace = "ru.dpav.weather"
-    compileSdk = 34
+
     defaultConfig {
         applicationId = "ru.dpav.weather"
-        minSdk = 26
-        targetSdk = 34
         versionCode = 1
         versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -39,10 +35,6 @@ android {
                 "proguard-rules.pro"
             )
         }
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 }
 
