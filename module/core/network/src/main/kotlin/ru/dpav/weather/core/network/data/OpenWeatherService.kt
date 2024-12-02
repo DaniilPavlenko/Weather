@@ -2,7 +2,7 @@ package ru.dpav.weather.data.api
 
 import retrofit2.http.GET
 import retrofit2.http.Query
-import ru.dpav.weather.data.api.model.WeatherResponse
+import ru.dpav.weather.core.network.data.model.WeatherResponse
 
 interface OpenWeatherService {
     @GET("find/")

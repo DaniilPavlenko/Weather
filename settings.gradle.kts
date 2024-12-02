@@ -9,3 +9,4 @@ pluginManagement {
 
 include(":app")
 include(":module:core:model")
+include(":module:core:network")

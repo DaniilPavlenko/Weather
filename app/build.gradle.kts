@@ -41,6 +41,9 @@ android {
 }
 
 dependencies {
+    // TODO: After implementing :module:core:data remove this dependency
+    implementation(project(":module:core:network"))
+
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintLayout)
     implementation(libs.androidx.fragment.ktx)

@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import ru.dpav.weather.R
-import ru.dpav.weather.data.api.model.City
+import ru.dpav.weather.core.network.data.model.City
 import ru.dpav.weather.databinding.ItemRowCityBinding
 import ru.dpav.weather.ui.WeatherIconAssociator
 

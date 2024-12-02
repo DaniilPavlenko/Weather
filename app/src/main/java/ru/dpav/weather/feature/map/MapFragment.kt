@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.osmdroid.util.GeoPoint
 import ru.dpav.weather.R
-import ru.dpav.weather.data.api.model.City
+import ru.dpav.weather.core.network.data.model.City
 import ru.dpav.weather.databinding.FragmentMapBinding
 import ru.dpav.weather.domain.model.GeoCoordinate
 import ru.dpav.weather.feature.cities_list.ListFragment

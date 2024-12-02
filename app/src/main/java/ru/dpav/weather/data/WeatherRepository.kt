@@ -2,8 +2,8 @@ package ru.dpav.weather.data
 
 import retrofit2.HttpException
 import ru.dpav.weather.data.api.WeatherApi
-import ru.dpav.weather.data.api.model.City
-import ru.dpav.weather.data.api.model.WeatherResponse
+import ru.dpav.weather.core.network.data.model.City
+import ru.dpav.weather.core.network.data.model.WeatherResponse
 
 object WeatherRepository {
 
