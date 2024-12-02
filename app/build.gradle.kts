@@ -3,6 +3,8 @@ import java.util.Properties
 
 plugins {
     id("dpav.android.application")
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.kotlin.ksp)
 }
 
 android {
@@ -52,6 +54,10 @@ dependencies {
 
     // OpenStreetMap
     implementation(libs.osm.map)
+
+    // Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
 }
 
 private fun ApplicationDefaultConfig.configureOpenWeatherApi() {
