@@ -31,8 +31,8 @@ import org.osmdroid.views.overlay.IconOverlay
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.infowindow.InfoWindow
+import ru.dpav.core.model.CityWeather
 import ru.dpav.weather.R
-import ru.dpav.weather.core.network.data.model.City
 import ru.dpav.weather.domain.model.GeoCoordinate
 import ru.dpav.weather.ui.GoogleApiAvailabilityChecker
 import ru.dpav.weather.ui.extension.toGeoCoordinate
@@ -45,7 +45,7 @@ internal class MapFacade(
     private val onRequestWeatherAt: (coordinate: GeoCoordinate) -> Unit,
     private val onLocationUpdateComplete: () -> Unit,
     private val onLocationUpdateCancel: () -> Unit,
-    private val onOpenDetails: (city: City) -> Unit,
+    private val onOpenDetails: (cityWeather: CityWeather) -> Unit,
     private val mapStateSaver: (mapCenter: DoubleArray, zoom: Double) -> Unit,
 ) {
 
@@ -54,7 +54,7 @@ internal class MapFacade(
 
     private var isInfoWindowOpened: Boolean = false
     private var citiesFolderOverlay: FolderOverlay? = null
-    private var displayedCities: List<City>? = null
+    private var displayedCities: List<CityWeather>? = null
     private var searchMarker: IconOverlay? = null
 
     private var fusedLocationProvider: FusedLocationProviderClient? = null
@@ -74,7 +74,7 @@ internal class MapFacade(
         }
     }
 
-    fun attachMap(mapView: MapView, ownerLifecycle: Lifecycle) {
+    fun attachMap(mapView: MapView, activity: Activity, ownerLifecycle: Lifecycle) {
         Configuration.getInstance().userAgentValue = "weather-app"
 
         this.mapView = mapView
@@ -82,7 +82,6 @@ internal class MapFacade(
 
         initMap(mapView)
 
-        val activity = mapView.context as Activity
         if (isLocationServicesAvailable(activity)) {
             fusedLocationProvider = LocationServices.getFusedLocationProviderClient(activity)
         }
@@ -173,27 +172,30 @@ internal class MapFacade(
         mapView.overlays.add(eventsOverlay)
     }
 
-    fun updateCities(cities: List<City>) {
+    fun updateCities(citiesWeather: List<CityWeather>) {
         val map = requireMap()
-        if (cities == displayedCities) {
+        if (citiesWeather == displayedCities) {
             return
         }
-        displayedCities = cities
+        displayedCities = citiesWeather
         val citiesFolder = checkNotNull(citiesFolderOverlay)
         with(citiesFolder.items) {
             clear()
-            for (city in cities) {
+            for (city in citiesWeather) {
                 add(createCityMarker(map, city))
             }
         }
         map.invalidate()
     }
 
-    private fun createCityMarker(mapView: MapView, city: City) = Marker(mapView).apply {
-        position = GeoPoint(city.coordinates.latitude, city.coordinates.longitude)
+    private fun createCityMarker(
+        mapView: MapView,
+        cityWeather: CityWeather
+    ) = Marker(mapView).apply {
+        position = GeoPoint(cityWeather.coordinate.latitude, cityWeather.coordinate.longitude)
         icon = getCityMarkerIcon(isSelected = false)
         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-        infoWindow = CityWeatherInfoWindow(mapView, city, onWindowClick = onOpenDetails)
+        infoWindow = CityWeatherInfoWindow(mapView, cityWeather, onWindowClick = onOpenDetails)
         setOnMarkerClickListener { marker, _ ->
             openInfoWindow(marker)
             return@setOnMarkerClickListener true

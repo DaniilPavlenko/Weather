@@ -1,4 +1,4 @@
-package ru.dpav.weather.data.api.interceptor
+package ru.dpav.weather.core.network.data.api
 
 import okhttp3.Interceptor
 import okhttp3.Response

@@ -20,17 +20,19 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.osmdroid.util.GeoPoint
+import ru.dpav.core.model.CityWeather
 import ru.dpav.weather.R
-import ru.dpav.weather.core.network.data.model.City
 import ru.dpav.weather.databinding.FragmentMapBinding
 import ru.dpav.weather.domain.model.GeoCoordinate
 import ru.dpav.weather.feature.cities_list.ListFragment
 import ru.dpav.weather.feature.city_details.CityDetailsFragment
 import ru.dpav.weather.ui.extension.toGeoCoordinate
 
+@AndroidEntryPoint
 class MapFragment : Fragment(R.layout.fragment_map) {
 
     private val viewModel: MapViewModel by viewModels()
@@ -40,7 +42,7 @@ class MapFragment : Fragment(R.layout.fragment_map) {
     private val permissionsRequestLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { result ->
-        if (result.getOrDefault(PERMISSION_LOCATION, false)) {
+        if (result[PERMISSION_LOCATION] == true) {
             onLocationPermissionGranted()
         }
     }
@@ -60,10 +62,10 @@ class MapFragment : Fragment(R.layout.fragment_map) {
             viewModel.uiState
                 .flowWithLifecycle(viewLifecycleOwner.lifecycle)
                 .collectLatest { uiState ->
-                    checkNotNull(mapFacade).updateCities(uiState.cities)
+                    checkNotNull(mapFacade).updateCities(uiState.citiesWeather)
                     binding?.run {
                         mapUpdateLayout.isVisible = uiState.isLoading || uiState.isLocationUpdating
-                        btnShowListOfCities.isVisible = uiState.cities.isNotEmpty()
+                        btnShowListOfCities.isVisible = uiState.citiesWeather.isNotEmpty()
                         btnRequestLocation.isEnabled = uiState.isLocationServicesAvailable
                     }
                     if (uiState.hasConnectionError) {
@@ -99,7 +101,7 @@ class MapFragment : Fragment(R.layout.fragment_map) {
         )
 
         val mapView = checkNotNull(binding).map
-        mapFacade.attachMap(mapView, viewLifecycleOwner.lifecycle)
+        mapFacade.attachMap(mapView, requireActivity(), viewLifecycleOwner.lifecycle)
         this.mapFacade = mapFacade
 
         viewModel.onRequestWeatherAt(markerPosition.toGeoCoordinate())
@@ -141,8 +143,8 @@ class MapFragment : Fragment(R.layout.fragment_map) {
         }
     }
 
-    private fun navigateToDetails(city: City) {
-        val detailFragment = CityDetailsFragment.newInstance(city.id)
+    private fun navigateToDetails(cityWeather: CityWeather) {
+        val detailFragment = CityDetailsFragment.newInstance(cityWeather.cityId)
         val screenTag = "details"
         parentFragmentManager.commit {
             replace(R.id.mainFragmentContainer, detailFragment, screenTag)

@@ -1,11 +1,14 @@
 package ru.dpav.weather.feature.cities_list
 
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import ru.dpav.weather.data.WeatherRepository
+import javax.inject.Inject
 
-class ListViewModel : ViewModel() {
+@HiltViewModel
+class ListViewModel @Inject constructor(
+    weatherRepository: WeatherRepository
+) : ViewModel() {
 
-    private val weatherRepository = WeatherRepository
-
-    val uiState = ListUiState(weatherRepository.cities)
+    val uiState = ListUiState(weatherRepository.citiesWeather)
 }

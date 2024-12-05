@@ -6,11 +6,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
+import dagger.hilt.android.AndroidEntryPoint
 import ru.dpav.weather.R
 import ru.dpav.weather.databinding.FragmentListBinding
 import ru.dpav.weather.feature.city_details.CityDetailsFragment
 import ru.dpav.weather.ui.extension.popBackStackToRoot
 
+@AndroidEntryPoint
 class ListFragment : Fragment(R.layout.fragment_list) {
 
     private val viewModel by viewModels<ListViewModel>()
@@ -19,15 +21,15 @@ class ListFragment : Fragment(R.layout.fragment_list) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val cities = viewModel.uiState.cities
+        val citiesWeather = viewModel.uiState.citiesWeather
 
-        if (cities.isEmpty()) {
+        if (citiesWeather.isEmpty()) {
             parentFragmentManager.popBackStackToRoot()
             return
         }
 
         listAdapter = CitiesAdapter(::navigateToDetails).apply {
-            setCities(cities)
+            setCities(citiesWeather)
         }
         FragmentListBinding.bind(view).apply {
             toolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }

@@ -1,26 +1,22 @@
 package ru.dpav.weather.data
 
-import retrofit2.HttpException
-import ru.dpav.weather.data.api.WeatherApi
-import ru.dpav.weather.core.network.data.model.City
-import ru.dpav.weather.core.network.data.model.WeatherResponse
+import ru.dpav.core.model.CityWeather
+import ru.dpav.weather.core.network.WeatherDataSource
+import javax.inject.Inject
+import javax.inject.Singleton
 
-object WeatherRepository {
+// TODO: When WeatherRepository will extend an interface. Remove @Singleton annotation.
+@Singleton
+class WeatherRepository @Inject constructor(
+    private val dataSource: WeatherDataSource
+) {
 
-    private val api = WeatherApi.api
+    var citiesWeather: List<CityWeather> = emptyList()
+        private set
 
-    var cities: List<City> = emptyList(); private set
-
-    suspend fun fetchWeatherAt(latitude: Double, longitude: Double): Result<List<City>> {
-        return runCatching { api.getWeather(latitude, longitude) }
-            .map(WeatherResponse::cities)
-            .recoverCatching { throwable ->
-                if (throwable is HttpException && throwable.code() == 404) {
-                    return@recoverCatching emptyList()
-                }
-                throw throwable
-            }
-            .onSuccess { cities = it }
+    suspend fun fetchWeatherAt(latitude: Double, longitude: Double): Result<List<CityWeather>> {
+        return dataSource.fetchWeatherAt(latitude = latitude, longitude = longitude)
+            .onSuccess { citiesWeather = it }
     }
 
 }

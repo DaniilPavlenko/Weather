@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,12 +12,15 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.dpav.weather.data.WeatherRepository
 import ru.dpav.weather.domain.model.GeoCoordinate
+import javax.inject.Inject
 
 private const val TAG = "MapViewModel"
 private const val SAVED_MAP_CENTER = "map_center"
 private const val SAVED_MAP_ZOOM_LEVEL = "map_zoom"
 
-class MapViewModel(
+@HiltViewModel
+class MapViewModel @Inject constructor(
+    private val weatherRepository: WeatherRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -30,8 +34,6 @@ class MapViewModel(
     private var failedRequestCoordinate: GeoCoordinate? = null
 
     private var getWeatherJob: Job? = null
-
-    private val weatherRepository = WeatherRepository
 
     fun onRequestWeatherAt(coordinate: GeoCoordinate) {
         if (coordinate == currentWeatherListCoordinate) {
@@ -57,12 +59,12 @@ class MapViewModel(
             failedRequestCoordinate = null
 
             weatherRepository.fetchWeatherAt(coordinate.latitude, coordinate.longitude)
-                .onSuccess { cities ->
+                .onSuccess { citiesWeather ->
                     currentWeatherListCoordinate = coordinate
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            cities = cities,
+                            citiesWeather = citiesWeather,
                         )
                     }
                 }

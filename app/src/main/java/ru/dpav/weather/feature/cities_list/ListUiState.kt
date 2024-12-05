@@ -1,7 +1,7 @@
 package ru.dpav.weather.feature.cities_list
 
-import ru.dpav.weather.core.network.data.model.City
+import ru.dpav.core.model.CityWeather
 
 data class ListUiState(
-    val cities: List<City>,
+    val citiesWeather: List<CityWeather>,
 )

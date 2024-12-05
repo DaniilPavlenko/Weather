@@ -1,10 +1,10 @@
-package ru.dpav.weather.data.api
+package ru.dpav.weather.core.network.data.api
 
 import retrofit2.http.GET
 import retrofit2.http.Query
 import ru.dpav.weather.core.network.data.model.WeatherResponse
 
-interface OpenWeatherService {
+internal interface OpenWeatherService {
     @GET("find/")
     suspend fun getWeather(
         @Query("lat") latitude: Double,

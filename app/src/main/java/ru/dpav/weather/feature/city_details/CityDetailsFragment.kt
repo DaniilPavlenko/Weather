@@ -3,21 +3,27 @@ package ru.dpav.weather.feature.city_details
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import dagger.hilt.android.AndroidEntryPoint
 import ru.dpav.weather.R
 import ru.dpav.weather.data.WeatherRepository
 import ru.dpav.weather.databinding.FragmentCityDetailsBinding
 import ru.dpav.weather.ui.WeatherIconAssociator
 import ru.dpav.weather.ui.extension.popBackStackToRoot
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class CityDetailsFragment : Fragment(R.layout.fragment_city_details) {
+
+    @Inject
+    lateinit var weatherRepository: WeatherRepository
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentCityDetailsBinding.bind(view)
 
         val cityId = requireNotNull(arguments?.getInt(ARG_CITY_ID))
-        val city = WeatherRepository.cities.firstOrNull { it.id == cityId }
-        if (city == null) {
+        val cityWeather = weatherRepository.citiesWeather.firstOrNull { it.cityId == cityId }
+        if (cityWeather == null) {
             // Just back to the root fragment (map).
             parentFragmentManager.popBackStackToRoot()
             return
@@ -25,20 +31,25 @@ class CityDetailsFragment : Fragment(R.layout.fragment_city_details) {
 
         with(binding) {
             with(toolbar) {
-                title = city.name
+                title = cityWeather.cityName
                 setNavigationOnClickListener { parentFragmentManager.popBackStack() }
             }
             with(cityDetailTemperature) {
-                text = getString(R.string.detail_temperature, city.main.temp.toInt())
-                val icon = WeatherIconAssociator.getIconByName(city.weather[0].icon)
+                text = getString(R.string.detail_temperature, cityWeather.temperature)
+                val icon = WeatherIconAssociator.getIconByWeatherType(
+                    weatherType = cityWeather.weatherType,
+                    isNight = cityWeather.isNight
+                )
                 setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0)
             }
-            cityDetailWind.text = getString(R.string.detail_wind, city.wind.speed.toInt())
-            cityDetailCloudy.text = getString(R.string.detail_cloudy, city.clouds.cloudy)
-            cityDetailPressure.text = getString(R.string.detail_pressure, city.main.pressureInMmHg)
+            cityDetailWind.text =
+                getString(R.string.detail_wind, cityWeather.windSpeed.metersPerSecond)
+            cityDetailCloudy.text = getString(R.string.detail_cloudy, cityWeather.cloudiness.value)
+            cityDetailPressure.text =
+                getString(R.string.detail_pressure, cityWeather.pressure.millimetersOfMercury)
             cityDetailHumidity.text = getString(
                 R.string.detail_humidity,
-                city.main.humidity.toInt()
+                cityWeather.humidity.value
             )
         }
     }

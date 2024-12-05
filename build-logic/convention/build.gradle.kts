@@ -33,5 +33,13 @@ gradlePlugin {
             id = "dpav.android.application"
             implementationClass = "AndroidApplicationConventionPlugin"
         }
+        register("androidHiltLib") {
+            id = "dpav.hilt.lib"
+            implementationClass = "AndroidHiltLibConventionPlugin"
+        }
+        register("andoridHiltKsp") {
+            id = "dpav.hilt.ksp"
+            implementationClass = "AndroidHiltKspConventionPlugin"
+        }
     }
 }
