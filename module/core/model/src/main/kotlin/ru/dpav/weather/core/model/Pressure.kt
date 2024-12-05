@@ -1,4 +1,4 @@
-package ru.dpav.core.model
+package ru.dpav.weather.core.model
 
 import kotlin.math.roundToInt
 

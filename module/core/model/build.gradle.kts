@@ -2,4 +2,4 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
 }
 
-group = "ru.dpav.core.model"
+group = "ru.dpav.weather.core.model"

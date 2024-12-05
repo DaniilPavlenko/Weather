@@ -1,7 +1,7 @@
 package ru.dpav.weather.core.network.data
 
 import retrofit2.HttpException
-import ru.dpav.core.model.CityWeather
+import ru.dpav.weather.core.model.CityWeather
 import ru.dpav.weather.core.network.WeatherDataSource
 import ru.dpav.weather.core.network.data.api.OpenWeatherService
 import ru.dpav.weather.core.network.data.extension.toCityWeather

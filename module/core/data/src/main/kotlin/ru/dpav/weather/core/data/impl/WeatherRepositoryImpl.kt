@@ -1,7 +1,7 @@
 package ru.dpav.weather.core.data.impl
 
-import ru.dpav.core.model.CityWeather
 import ru.dpav.weather.core.data.WeatherRepository
+import ru.dpav.weather.core.model.CityWeather
 import ru.dpav.weather.core.network.WeatherDataSource
 import javax.inject.Inject
 

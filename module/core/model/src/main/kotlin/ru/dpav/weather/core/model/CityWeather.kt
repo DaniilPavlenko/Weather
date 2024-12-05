@@ -1,4 +1,4 @@
-package ru.dpav.core.model
+package ru.dpav.weather.core.model
 
 data class CityWeather(
     val cityId: Int,

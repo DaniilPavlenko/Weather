@@ -24,10 +24,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.osmdroid.util.GeoPoint
-import ru.dpav.core.model.CityWeather
 import ru.dpav.weather.R
+import ru.dpav.weather.core.model.CityWeather
+import ru.dpav.weather.core.model.GeoCoordinate
 import ru.dpav.weather.databinding.FragmentMapBinding
-import ru.dpav.core.model.GeoCoordinate
 import ru.dpav.weather.feature.cities_list.ListFragment
 import ru.dpav.weather.feature.city_details.CityDetailsFragment
 import ru.dpav.weather.ui.extension.toGeoCoordinate

@@ -1,4 +1,4 @@
-package ru.dpav.core.model
+package ru.dpav.weather.core.model
 
 @JvmInline
 value class Speed private constructor(val metersPerSecond: Int) {

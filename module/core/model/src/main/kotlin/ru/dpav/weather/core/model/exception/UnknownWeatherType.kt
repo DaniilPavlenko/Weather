@@ -1,3 +1,3 @@
-package ru.dpav.core.model.exception
+package ru.dpav.weather.core.model.exception
 
 class UnknownWeatherType(message: String) : IllegalArgumentException(message)

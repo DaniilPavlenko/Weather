@@ -31,9 +31,9 @@ import org.osmdroid.views.overlay.IconOverlay
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.infowindow.InfoWindow
-import ru.dpav.core.model.CityWeather
 import ru.dpav.weather.R
-import ru.dpav.core.model.GeoCoordinate
+import ru.dpav.weather.core.model.CityWeather
+import ru.dpav.weather.core.model.GeoCoordinate
 import ru.dpav.weather.ui.GoogleApiAvailabilityChecker
 import ru.dpav.weather.ui.extension.toGeoCoordinate
 

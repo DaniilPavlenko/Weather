@@ -1,6 +1,6 @@
 package ru.dpav.weather.core.data
 
-import ru.dpav.core.model.CityWeather
+import ru.dpav.weather.core.model.CityWeather
 
 interface WeatherRepository {
     val citiesWeather: List<CityWeather>

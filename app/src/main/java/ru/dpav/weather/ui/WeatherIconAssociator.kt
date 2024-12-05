@@ -1,19 +1,19 @@
 package ru.dpav.weather.ui
 
 import androidx.annotation.DrawableRes
-import ru.dpav.core.model.WeatherType
-import ru.dpav.core.model.WeatherType.CLEAR
-import ru.dpav.core.model.WeatherType.CLOUDY
-import ru.dpav.core.model.WeatherType.DRIZZLE
-import ru.dpav.core.model.WeatherType.FOG
-import ru.dpav.core.model.WeatherType.OVERCAST
-import ru.dpav.core.model.WeatherType.PARTLY_CLOUDY
-import ru.dpav.core.model.WeatherType.RAIN
-import ru.dpav.core.model.WeatherType.SAND
-import ru.dpav.core.model.WeatherType.SNOW
-import ru.dpav.core.model.WeatherType.THUNDERSTORM
-import ru.dpav.core.model.WeatherType.TORNADO
 import ru.dpav.weather.R
+import ru.dpav.weather.core.model.WeatherType
+import ru.dpav.weather.core.model.WeatherType.CLEAR
+import ru.dpav.weather.core.model.WeatherType.CLOUDY
+import ru.dpav.weather.core.model.WeatherType.DRIZZLE
+import ru.dpav.weather.core.model.WeatherType.FOG
+import ru.dpav.weather.core.model.WeatherType.OVERCAST
+import ru.dpav.weather.core.model.WeatherType.PARTLY_CLOUDY
+import ru.dpav.weather.core.model.WeatherType.RAIN
+import ru.dpav.weather.core.model.WeatherType.SAND
+import ru.dpav.weather.core.model.WeatherType.SNOW
+import ru.dpav.weather.core.model.WeatherType.THUNDERSTORM
+import ru.dpav.weather.core.model.WeatherType.TORNADO
 
 internal object WeatherIconAssociator {
     @DrawableRes
