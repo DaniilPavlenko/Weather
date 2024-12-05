@@ -1,7 +1,7 @@
 package ru.dpav.weather.feature.map
 
 import ru.dpav.core.model.CityWeather
-import ru.dpav.weather.domain.model.GeoCoordinate
+import ru.dpav.core.model.GeoCoordinate
 
 data class MapUiState(
     val isLoading: Boolean = true,

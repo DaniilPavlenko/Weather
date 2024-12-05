@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.dpav.weather.core.data.WeatherRepository
-import ru.dpav.weather.domain.model.GeoCoordinate
+import ru.dpav.core.model.GeoCoordinate
 import javax.inject.Inject
 
 private const val TAG = "MapViewModel"

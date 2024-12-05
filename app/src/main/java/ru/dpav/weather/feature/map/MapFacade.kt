@@ -33,7 +33,7 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.infowindow.InfoWindow
 import ru.dpav.core.model.CityWeather
 import ru.dpav.weather.R
-import ru.dpav.weather.domain.model.GeoCoordinate
+import ru.dpav.core.model.GeoCoordinate
 import ru.dpav.weather.ui.GoogleApiAvailabilityChecker
 import ru.dpav.weather.ui.extension.toGeoCoordinate
 

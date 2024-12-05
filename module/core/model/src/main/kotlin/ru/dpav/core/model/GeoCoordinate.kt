@@ -1,6 +1,6 @@
 package ru.dpav.core.model
 
-class GeoCoordinate(
+data class GeoCoordinate(
     val latitude: Double,
     val longitude: Double
 )
