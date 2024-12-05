@@ -2,7 +2,7 @@ package ru.dpav.weather.feature.cities_list
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import ru.dpav.weather.data.WeatherRepository
+import ru.dpav.weather.core.data.WeatherRepository
 import javax.inject.Inject
 
 @HiltViewModel

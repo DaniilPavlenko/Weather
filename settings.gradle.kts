@@ -8,5 +8,6 @@ pluginManagement {
 }
 
 include(":app")
+include(":module:core:data")
 include(":module:core:model")
 include(":module:core:network")

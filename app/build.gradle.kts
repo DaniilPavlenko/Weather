@@ -36,9 +36,7 @@ android {
 }
 
 dependencies {
-    // TODO: After implementing :module:core:data remove this dependency
-    implementation(project(":module:core:network"))
-
+    implementation(project(":module:core:data"))
     implementation(project(":module:core:model"))
 
     implementation(libs.androidx.appcompat)
