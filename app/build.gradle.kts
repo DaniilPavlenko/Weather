@@ -1,7 +1,8 @@
 plugins {
     id("dpav.android.application")
+    id("dpav.hilt.lib")
+    id("dpav.hilt.ksp")
     alias(libs.plugins.hilt.android)
-    alias(libs.plugins.kotlin.ksp)
 }
 
 android {
@@ -36,20 +37,9 @@ android {
 }
 
 dependencies {
-    implementation(project(":module:core:data"))
-    implementation(project(":module:core:model"))
+    implementation(project(":module:feature:cities-list:impl"))
+    implementation(project(":module:feature:details:impl"))
+    implementation(project(":module:feature:map"))
 
     implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.constraintLayout)
-    implementation(libs.androidx.fragment.ktx)
-    implementation(libs.androidx.recyclerview)
-    implementation(libs.material)
-    implementation(libs.play.services.location)
-
-    // OpenStreetMap
-    implementation(libs.osm.map)
-
-    // Hilt
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
 }

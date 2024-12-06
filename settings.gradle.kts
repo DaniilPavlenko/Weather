@@ -8,6 +8,15 @@ pluginManagement {
 }
 
 include(":app")
+include(":module:common:icons")
+include(":module:common:strings")
+include(":module:common:ui")
 include(":module:core:data")
 include(":module:core:model")
+include(":module:core:navigation")
 include(":module:core:network")
+include(":module:feature:cities-list:api")
+include(":module:feature:cities-list:impl")
+include(":module:feature:details:api")
+include(":module:feature:details:impl")
+include(":module:feature:map")

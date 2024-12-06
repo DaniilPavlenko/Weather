@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="updateScreenBackground">#8a000000</color>
+    <color name="cityMarker">#7CB342</color>
+
+</resources>

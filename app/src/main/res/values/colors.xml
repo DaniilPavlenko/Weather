@@ -2,6 +2,4 @@
 <resources>
     <color name="ic_launcher_background">#448FFF</color>
 
-    <color name="updateScreenBackground">#8a000000</color>
-    <color name="cityMarker">#7CB342</color>
 </resources>

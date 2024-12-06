@@ -1,19 +1,4 @@
 <resources>
     <string name="app_name">Погода</string>
-    <string name="marker_snippet" formatted="true">Температура: %+d°C
-		\nВетер: %d м/с
-		\nОблачность: %d%%
-		\nДавление: %d мм
-	</string>
-    <string name="detail_temperature">%+d°C</string>
-    <string name="detail_wind">Ветер: %d м/с</string>
-    <string name="detail_cloudy">Облачность: %d%%</string>
-    <string name="detail_humidity">Влажность: %d%%</string>
-    <string name="detail_pressure">Давление: %d мм</string>
-    <string name="connection_error">Отсутствует подключение</string>
-    <string name="retry">Повторить</string>
-    <string name="geo_disabled">Геолокация отключена</string>
-    <string name="cd_request_weather_at_user_location">Узнать погоду поблизости</string>
-    <string name="cities_list_title">Список городов</string>
-    <string name="map_btn_show_in_list">Показать в списке</string>
+
 </resources>
