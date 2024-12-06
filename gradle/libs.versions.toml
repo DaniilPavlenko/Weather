@@ -3,6 +3,7 @@ androidGradlePlugin = "8.7.2"
 kotlinGradlePlugin = "2.0.21"
 kotlinKsp = "2.0.21-1.0.28"
 
+androidxAnnotation = "1.9.1"
 androidxAppcompat = "1.7.0"
 androidxConstraintLayout = "2.2.0"
 androidxFragmentKtx = "1.8.5"
@@ -17,6 +18,7 @@ dagger = "2.52"
 android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "androidGradlePlugin" }
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinGradlePlugin" }
 
+androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidxAnnotation" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidxAppcompat" }
 androidx-constraintLayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "androidxConstraintLayout" }
 androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "androidxFragmentKtx" }

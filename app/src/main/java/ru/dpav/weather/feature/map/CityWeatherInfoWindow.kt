@@ -3,9 +3,9 @@ package ru.dpav.weather.feature.map
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.infowindow.InfoWindow
 import ru.dpav.weather.R
+import ru.dpav.weather.common.ui.WeatherIconAssociator
 import ru.dpav.weather.core.model.CityWeather
 import ru.dpav.weather.databinding.InfoWindowWeatherBinding
-import ru.dpav.weather.ui.WeatherIconAssociator
 
 open class CityWeatherInfoWindow(
     mapView: MapView,

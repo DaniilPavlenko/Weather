@@ -10,6 +10,7 @@ pluginManagement {
 include(":app")
 include(":module:common:icons")
 include(":module:common:strings")
+include(":module:common:ui")
 include(":module:core:data")
 include(":module:core:model")
 include(":module:core:network")

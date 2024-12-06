@@ -1,4 +1,4 @@
-package ru.dpav.weather.ui.extension
+package ru.dpav.weather.common.ui.extension
 
 import androidx.fragment.app.FragmentManager
 

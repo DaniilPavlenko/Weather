@@ -8,9 +8,9 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
 import ru.dpav.weather.R
+import ru.dpav.weather.common.ui.extension.popBackStackToRoot
 import ru.dpav.weather.databinding.FragmentListBinding
 import ru.dpav.weather.feature.city_details.CityDetailsFragment
-import ru.dpav.weather.ui.extension.popBackStackToRoot
 
 @AndroidEntryPoint
 class ListFragment : Fragment(R.layout.fragment_list) {

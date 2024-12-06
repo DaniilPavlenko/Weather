@@ -1,7 +1,6 @@
-package ru.dpav.weather.ui
+package ru.dpav.weather.common.ui
 
 import androidx.annotation.DrawableRes
-import ru.dpav.weather.R
 import ru.dpav.weather.core.model.WeatherType
 import ru.dpav.weather.core.model.WeatherType.CLEAR
 import ru.dpav.weather.core.model.WeatherType.CLOUDY
@@ -15,7 +14,7 @@ import ru.dpav.weather.core.model.WeatherType.SNOW
 import ru.dpav.weather.core.model.WeatherType.THUNDERSTORM
 import ru.dpav.weather.core.model.WeatherType.TORNADO
 
-internal object WeatherIconAssociator {
+object WeatherIconAssociator {
     @DrawableRes
     fun getIconByWeatherType(weatherType: WeatherType, isNight: Boolean) = when {
         weatherType == CLEAR && !isNight -> R.drawable.weather_icon_01

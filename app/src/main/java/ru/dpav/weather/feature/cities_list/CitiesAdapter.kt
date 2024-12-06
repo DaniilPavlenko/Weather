@@ -4,9 +4,9 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import ru.dpav.weather.common.ui.WeatherIconAssociator
 import ru.dpav.weather.core.model.CityWeather
 import ru.dpav.weather.databinding.ItemRowCityBinding
-import ru.dpav.weather.ui.WeatherIconAssociator
 import ru.dpav.weather.common.strings.R as StringsR
 
 class CitiesAdapter(
