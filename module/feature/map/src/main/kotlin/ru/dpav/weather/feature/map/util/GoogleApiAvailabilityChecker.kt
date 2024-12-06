@@ -1,4 +1,4 @@
-package ru.dpav.weather.ui
+package ru.dpav.weather.feature.map.util
 
 import android.app.Activity
 import com.google.android.gms.common.ConnectionResult

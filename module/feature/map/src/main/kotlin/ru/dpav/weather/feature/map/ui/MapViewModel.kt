@@ -1,4 +1,4 @@
-package ru.dpav.weather.feature.map
+package ru.dpav.weather.feature.map.ui
 
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
@@ -19,7 +19,7 @@ private const val SAVED_MAP_CENTER = "map_center"
 private const val SAVED_MAP_ZOOM_LEVEL = "map_zoom"
 
 @HiltViewModel
-class MapViewModel @Inject constructor(
+internal class MapViewModel @Inject constructor(
     private val weatherRepository: WeatherRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {

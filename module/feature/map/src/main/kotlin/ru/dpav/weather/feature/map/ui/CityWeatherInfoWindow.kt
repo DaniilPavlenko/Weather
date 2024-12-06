@@ -1,13 +1,13 @@
-package ru.dpav.weather.feature.map
+package ru.dpav.weather.feature.map.ui
 
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.infowindow.InfoWindow
-import ru.dpav.weather.R
 import ru.dpav.weather.common.ui.WeatherIconAssociator
 import ru.dpav.weather.core.model.CityWeather
-import ru.dpav.weather.databinding.InfoWindowWeatherBinding
+import ru.dpav.weather.feature.map.R
+import ru.dpav.weather.feature.map.databinding.InfoWindowWeatherBinding
 
-open class CityWeatherInfoWindow(
+internal class CityWeatherInfoWindow(
     mapView: MapView,
     private val cityWeather: CityWeather,
     private val onWindowClick: (cityWeather: CityWeather) -> Unit,

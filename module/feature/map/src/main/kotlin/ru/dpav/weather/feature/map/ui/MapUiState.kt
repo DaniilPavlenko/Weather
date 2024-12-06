@@ -1,9 +1,9 @@
-package ru.dpav.weather.feature.map
+package ru.dpav.weather.feature.map.ui
 
 import ru.dpav.weather.core.model.CityWeather
 import ru.dpav.weather.core.model.GeoCoordinate
 
-data class MapUiState(
+internal data class MapUiState(
     val isLoading: Boolean = true,
     val requestedPosition: GeoCoordinate? = null,
     val citiesWeather: List<CityWeather> = emptyList(),

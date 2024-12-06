@@ -1,4 +1,4 @@
-package ru.dpav.weather.feature.map
+package ru.dpav.weather.feature.map.ui
 
 internal object MapDefaults {
     /**

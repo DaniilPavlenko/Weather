@@ -3,10 +3,4 @@
     <dimen name="space_medium">8dp</dimen>
     <dimen name="space_big">16dp</dimen>
 
-    <dimen name="marker_size">28dp</dimen>
-    <dimen name="marker_location_size">25dp</dimen>
-    <dimen name="marker_size_selected">20dp</dimen>
-    <dimen name="marker_city_border">4dp</dimen>
-    <dimen name="marker_city_border_selected">10dp</dimen>
-
 </resources>

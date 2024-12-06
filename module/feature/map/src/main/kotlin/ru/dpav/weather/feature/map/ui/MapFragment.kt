@@ -1,4 +1,4 @@
-package ru.dpav.weather.feature.map
+package ru.dpav.weather.feature.map.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -9,10 +9,9 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.core.content.PermissionChecker.PermissionResult
+import androidx.core.content.PermissionChecker
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -24,15 +23,15 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.osmdroid.util.GeoPoint
-import ru.dpav.weather.R
 import ru.dpav.weather.core.model.CityWeather
 import ru.dpav.weather.core.model.GeoCoordinate
 import ru.dpav.weather.core.navigation.findFeatureProvider
 import ru.dpav.weather.core.navigation.findNavigator
-import ru.dpav.weather.databinding.FragmentMapBinding
 import ru.dpav.weather.feature.cities_list.api.StupidCitiesListFeatureProvider
 import ru.dpav.weather.feature.details.api.StupidDetailsFeatureProvider
-import ru.dpav.weather.ui.extension.toGeoCoordinate
+import ru.dpav.weather.feature.map.R
+import ru.dpav.weather.feature.map.databinding.FragmentMapBinding
+import ru.dpav.weather.feature.map.ui.extension.toGeoCoordinate
 
 @AndroidEntryPoint
 class MapFragment : Fragment(R.layout.fragment_map) {
@@ -146,12 +145,9 @@ class MapFragment : Fragment(R.layout.fragment_map) {
     }
 
     private fun navigateToDetails(cityWeather: CityWeather) {
-        val detailFragment = findFeatureProvider<StupidDetailsFeatureProvider>()
-            .get(cityWeather.cityId)
-        val screenTag = "details"
-        parentFragmentManager.commit {
-            replace(R.id.mainFragmentContainer, detailFragment, screenTag)
-            addToBackStack(screenTag)
+        val fragment = findFeatureProvider<StupidDetailsFeatureProvider>().get(cityWeather.cityId)
+        findNavigator().run {
+            navigateTo(destinationFragment = fragment, tag = "details")
         }
     }
 
@@ -192,7 +188,7 @@ class MapFragment : Fragment(R.layout.fragment_map) {
     }
 
     private fun hasLocationPermission(): Boolean {
-        @PermissionResult
+        @PermissionChecker.PermissionResult
         val permissionCheckResult = ContextCompat.checkSelfPermission(
             requireContext(),
             PERMISSION_LOCATION

@@ -1,4 +1,4 @@
-package ru.dpav.weather.feature.map
+package ru.dpav.weather.feature.map.ui
 
 import android.Manifest
 import android.app.Activity
@@ -31,13 +31,12 @@ import org.osmdroid.views.overlay.IconOverlay
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.infowindow.InfoWindow
-import ru.dpav.weather.R
 import ru.dpav.weather.core.model.CityWeather
 import ru.dpav.weather.core.model.GeoCoordinate
-import ru.dpav.weather.ui.GoogleApiAvailabilityChecker
-import ru.dpav.weather.ui.extension.toGeoCoordinate
+import ru.dpav.weather.feature.map.R
+import ru.dpav.weather.feature.map.ui.extension.toGeoCoordinate
 
-internal typealias ZoomLevel = Double
+private typealias ZoomLevel = Double
 
 internal class MapFacade(
     private val initialMarkerPosition: GeoPoint,
@@ -190,7 +189,7 @@ internal class MapFacade(
 
     private fun createCityMarker(
         mapView: MapView,
-        cityWeather: CityWeather
+        cityWeather: CityWeather,
     ) = Marker(mapView).apply {
         position = GeoPoint(cityWeather.coordinate.latitude, cityWeather.coordinate.longitude)
         icon = getCityMarkerIcon(isSelected = false)
@@ -246,7 +245,7 @@ internal class MapFacade(
     }
 
     fun isLocationServicesAvailable(activity: Activity): Boolean {
-        return GoogleApiAvailabilityChecker.isAvailable(activity)
+        return ru.dpav.weather.feature.map.util.GoogleApiAvailabilityChecker.isAvailable(activity)
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
