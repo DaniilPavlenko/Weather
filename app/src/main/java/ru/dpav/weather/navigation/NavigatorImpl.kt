@@ -1,7 +1,8 @@
-package ru.dpav.weather
+package ru.dpav.weather.navigation
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
+import ru.dpav.weather.R
 import ru.dpav.weather.core.navigation.Navigator
 
 internal class NavigatorImpl : Navigator {

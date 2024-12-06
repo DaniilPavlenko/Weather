@@ -12,6 +12,6 @@ interface Navigator {
 
 fun Fragment.findNavigator(): Navigator {
     val activity = requireActivity()
-    check(activity is Navigator) { "$activity must implement Navigator." }
-    return activity
+    check(activity is NavigatorProvider) { "$activity must implement NavigatorProvider." }
+    return activity.provideNavigator()
 }
