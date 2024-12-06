@@ -10,6 +10,7 @@ import ru.dpav.weather.databinding.FragmentCityDetailsBinding
 import ru.dpav.weather.ui.WeatherIconAssociator
 import ru.dpav.weather.ui.extension.popBackStackToRoot
 import javax.inject.Inject
+import ru.dpav.weather.common.strings.R as StringsR
 
 @AndroidEntryPoint
 class CityDetailsFragment : Fragment(R.layout.fragment_city_details) {
@@ -35,7 +36,7 @@ class CityDetailsFragment : Fragment(R.layout.fragment_city_details) {
                 setNavigationOnClickListener { parentFragmentManager.popBackStack() }
             }
             with(cityDetailTemperature) {
-                text = getString(R.string.detail_temperature, cityWeather.temperature)
+                text = getString(StringsR.string.detail_temperature, cityWeather.temperature)
                 val icon = WeatherIconAssociator.getIconByWeatherType(
                     weatherType = cityWeather.weatherType,
                     isNight = cityWeather.isNight
@@ -43,12 +44,16 @@ class CityDetailsFragment : Fragment(R.layout.fragment_city_details) {
                 setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0)
             }
             cityDetailWind.text =
-                getString(R.string.detail_wind, cityWeather.windSpeed.metersPerSecond)
-            cityDetailCloudy.text = getString(R.string.detail_cloudy, cityWeather.cloudiness.value)
+                getString(StringsR.string.detail_wind, cityWeather.windSpeed.metersPerSecond)
+            cityDetailCloudy.text =
+                getString(StringsR.string.detail_cloudy, cityWeather.cloudiness.value)
             cityDetailPressure.text =
-                getString(R.string.detail_pressure, cityWeather.pressure.millimetersOfMercury)
+                getString(
+                    StringsR.string.detail_pressure,
+                    cityWeather.pressure.millimetersOfMercury
+                )
             cityDetailHumidity.text = getString(
-                R.string.detail_humidity,
+                StringsR.string.detail_humidity,
                 cityWeather.humidity.value
             )
         }

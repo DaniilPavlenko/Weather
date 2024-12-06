@@ -4,10 +4,10 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import ru.dpav.weather.R
 import ru.dpav.weather.core.model.CityWeather
 import ru.dpav.weather.databinding.ItemRowCityBinding
 import ru.dpav.weather.ui.WeatherIconAssociator
+import ru.dpav.weather.common.strings.R as StringsR
 
 class CitiesAdapter(
     private val onCityClick: (cityId: Int) -> Unit,
@@ -52,7 +52,10 @@ class CitiesAdapter(
             with(binding) {
                 cityDetailTitle.text = cityWeather.cityName
                 with(cityDetailTemperature) {
-                    text = context.getString(R.string.detail_temperature, cityWeather.temperature)
+                    text = context.getString(
+                        StringsR.string.detail_temperature,
+                        cityWeather.temperature
+                    )
                     val icon = WeatherIconAssociator.getIconByWeatherType(
                         weatherType = cityWeather.weatherType,
                         isNight = cityWeather.isNight

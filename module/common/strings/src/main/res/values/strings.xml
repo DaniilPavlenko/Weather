@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="detail_cloudy">Облачность: %d%%</string>
+    <string name="detail_humidity">Влажность: %d%%</string>
+    <string name="detail_pressure">Давление: %d мм</string>
+    <string name="detail_temperature">%+d°C</string>
+    <string name="detail_wind">Ветер: %d м/с</string>
+</resources>

@@ -8,7 +8,8 @@ pluginManagement {
 }
 
 include(":app")
+include(":module:common:icons")
+include(":module:common:strings")
 include(":module:core:data")
 include(":module:core:model")
 include(":module:core:network")
-include(":module:common:icons")
