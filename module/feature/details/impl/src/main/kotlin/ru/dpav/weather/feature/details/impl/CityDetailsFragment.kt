@@ -1,14 +1,13 @@
-package ru.dpav.weather.feature.city_details
+package ru.dpav.weather.feature.details.impl
 
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
-import ru.dpav.weather.R
 import ru.dpav.weather.common.ui.WeatherIconAssociator
 import ru.dpav.weather.common.ui.extension.popBackStackToRoot
 import ru.dpav.weather.core.data.WeatherRepository
-import ru.dpav.weather.databinding.FragmentCityDetailsBinding
+import ru.dpav.weather.feature.details.impl.databinding.FragmentCityDetailsBinding
 import javax.inject.Inject
 import ru.dpav.weather.common.strings.R as StringsR
 

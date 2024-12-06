@@ -27,9 +27,10 @@ import org.osmdroid.util.GeoPoint
 import ru.dpav.weather.R
 import ru.dpav.weather.core.model.CityWeather
 import ru.dpav.weather.core.model.GeoCoordinate
+import ru.dpav.weather.core.navigation.findFeatureProvider
 import ru.dpav.weather.databinding.FragmentMapBinding
 import ru.dpav.weather.feature.cities_list.ListFragment
-import ru.dpav.weather.feature.city_details.CityDetailsFragment
+import ru.dpav.weather.feature.details.api.StupidDetailsFeatureProvider
 import ru.dpav.weather.ui.extension.toGeoCoordinate
 
 @AndroidEntryPoint
@@ -144,7 +145,8 @@ class MapFragment : Fragment(R.layout.fragment_map) {
     }
 
     private fun navigateToDetails(cityWeather: CityWeather) {
-        val detailFragment = CityDetailsFragment.newInstance(cityWeather.cityId)
+        val detailFragment = findFeatureProvider<StupidDetailsFeatureProvider>()
+            .get(cityWeather.cityId)
         val screenTag = "details"
         parentFragmentManager.commit {
             replace(R.id.mainFragmentContainer, detailFragment, screenTag)

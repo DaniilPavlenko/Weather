@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".feature.city_details.CityDetailsFragment">
+    android:orientation="vertical">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -19,27 +18,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingHorizontal="@dimen/space_big"
-        android:paddingBottom="@dimen/space_big">
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="16dp">
 
         <TextView
             android:id="@+id/cityDetailTemperature"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginEnd="@dimen/space_big"
+            android:layout_marginEnd="16dp"
             android:drawablePadding="8dp"
             android:gravity="center"
             android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
             android:textStyle="bold"
-            tools:drawableStart="@drawable/weather_icon_02"
             tools:text="+18" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginEnd="@dimen/space_medium"
+            android:layout_marginEnd="8dp"
             android:orientation="vertical">
 
             <TextView
