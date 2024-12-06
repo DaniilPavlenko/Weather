@@ -36,6 +36,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":module:common:icons"))
     implementation(project(":module:core:data"))
     implementation(project(":module:core:model"))
 

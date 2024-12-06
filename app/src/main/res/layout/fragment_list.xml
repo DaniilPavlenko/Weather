@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:navigationIcon="@drawable/ic_arrow_back_round_24"
+        app:navigationIconTint="?colorOnSurface"
         app:title="@string/cities_list_title" />
 
     <androidx.recyclerview.widget.RecyclerView
