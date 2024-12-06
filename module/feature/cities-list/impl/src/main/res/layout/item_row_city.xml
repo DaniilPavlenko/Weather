@@ -6,14 +6,14 @@
     android:clickable="true"
     android:focusable="true"
     android:orientation="horizontal"
-    android:padding="@dimen/space_medium">
+    android:padding="8dp">
 
     <TextView
         android:id="@+id/cityDetailTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginHorizontal="@dimen/space_medium"
+        android:layout_marginHorizontal="8dp"
         android:layout_weight="1"
         android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
         tools:text="@tools:sample/cities" />

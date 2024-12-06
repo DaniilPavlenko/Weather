@@ -1,16 +1,15 @@
-package ru.dpav.weather.feature.cities_list
+package ru.dpav.weather.feature.cities_list.impl
 
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
-import ru.dpav.weather.R
 import ru.dpav.weather.common.ui.extension.popBackStackToRoot
 import ru.dpav.weather.core.navigation.findFeatureProvider
-import ru.dpav.weather.databinding.FragmentListBinding
+import ru.dpav.weather.core.navigation.findNavigator
+import ru.dpav.weather.feature.cities_list.impl.databinding.FragmentListBinding
 import ru.dpav.weather.feature.details.api.StupidDetailsFeatureProvider
 
 @AndroidEntryPoint
@@ -49,9 +48,8 @@ class ListFragment : Fragment(R.layout.fragment_list) {
 
     private fun navigateToDetails(cityId: Int) {
         val detailsFragment = findFeatureProvider<StupidDetailsFeatureProvider>().get(cityId)
-        parentFragmentManager.commit {
-            replace(R.id.mainFragmentContainer, detailsFragment, "details")
-            addToBackStack("details")
+        findNavigator().run {
+            navigateTo(destinationFragment = detailsFragment, tag = "details")
         }
     }
 

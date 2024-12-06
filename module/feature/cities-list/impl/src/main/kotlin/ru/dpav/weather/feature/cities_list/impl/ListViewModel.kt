@@ -1,4 +1,4 @@
-package ru.dpav.weather.feature.cities_list
+package ru.dpav.weather.feature.cities_list.impl
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel

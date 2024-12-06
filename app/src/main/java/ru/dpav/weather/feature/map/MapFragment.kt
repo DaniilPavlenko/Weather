@@ -28,8 +28,9 @@ import ru.dpav.weather.R
 import ru.dpav.weather.core.model.CityWeather
 import ru.dpav.weather.core.model.GeoCoordinate
 import ru.dpav.weather.core.navigation.findFeatureProvider
+import ru.dpav.weather.core.navigation.findNavigator
 import ru.dpav.weather.databinding.FragmentMapBinding
-import ru.dpav.weather.feature.cities_list.ListFragment
+import ru.dpav.weather.feature.cities_list.api.StupidCitiesListFeatureProvider
 import ru.dpav.weather.feature.details.api.StupidDetailsFeatureProvider
 import ru.dpav.weather.ui.extension.toGeoCoordinate
 
@@ -155,10 +156,9 @@ class MapFragment : Fragment(R.layout.fragment_map) {
     }
 
     private fun navigateToList() {
-        parentFragmentManager.commit {
-            val screenTag = "list"
-            replace(R.id.mainFragmentContainer, ListFragment.newInstance(), screenTag)
-            addToBackStack(screenTag)
+        val fragment = findFeatureProvider<StupidCitiesListFeatureProvider>().get()
+        findNavigator().run {
+            navigateTo(destinationFragment = fragment, tag = "list")
         }
     }
 

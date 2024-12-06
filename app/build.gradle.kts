@@ -41,6 +41,7 @@ dependencies {
     implementation(project(":module:common:ui"))
     implementation(project(":module:core:data"))
     implementation(project(":module:core:model"))
+    implementation(project(":module:feature:cities-list:impl"))
     implementation(project(":module:feature:details:impl"))
 
     implementation(libs.androidx.appcompat)

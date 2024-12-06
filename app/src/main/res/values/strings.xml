@@ -9,6 +9,5 @@
     <string name="retry">Повторить</string>
     <string name="geo_disabled">Геолокация отключена</string>
     <string name="cd_request_weather_at_user_location">Узнать погоду поблизости</string>
-    <string name="cities_list_title">Список городов</string>
     <string name="map_btn_show_in_list">Показать в списке</string>
 </resources>
