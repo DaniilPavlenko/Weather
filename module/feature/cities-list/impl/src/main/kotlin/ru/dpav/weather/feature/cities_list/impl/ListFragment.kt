@@ -10,7 +10,7 @@ import ru.dpav.weather.common.ui.extension.popBackStackToRoot
 import ru.dpav.weather.core.navigation.findFeatureProvider
 import ru.dpav.weather.core.navigation.findNavigator
 import ru.dpav.weather.feature.cities_list.impl.databinding.FragmentListBinding
-import ru.dpav.weather.feature.details.api.StupidDetailsFeatureProvider
+import ru.dpav.weather.feature.details.api.DetailsFeatureProvider
 
 @AndroidEntryPoint
 class ListFragment : Fragment(R.layout.fragment_list) {
@@ -47,7 +47,7 @@ class ListFragment : Fragment(R.layout.fragment_list) {
     }
 
     private fun navigateToDetails(cityId: Int) {
-        val detailsFragment = findFeatureProvider<StupidDetailsFeatureProvider>().get(cityId)
+        val detailsFragment = findFeatureProvider<DetailsFeatureProvider>().get(cityId)
         findNavigator().run {
             navigateTo(destinationFragment = detailsFragment, tag = "details")
         }
