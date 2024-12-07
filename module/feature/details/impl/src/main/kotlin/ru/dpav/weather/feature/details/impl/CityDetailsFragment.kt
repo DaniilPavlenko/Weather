@@ -2,9 +2,13 @@ package ru.dpav.weather.feature.details.impl
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.WindowInsetsCompat.Type.displayCutout
+import androidx.core.view.WindowInsetsCompat.Type.systemBars
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import ru.dpav.weather.common.ui.WeatherIconAssociator
+import ru.dpav.weather.common.ui.extension.consumeWindowInsets
 import ru.dpav.weather.common.ui.extension.popBackStackToRoot
 import ru.dpav.weather.core.data.WeatherRepository
 import ru.dpav.weather.feature.details.impl.databinding.FragmentCityDetailsBinding
@@ -30,6 +34,18 @@ class CityDetailsFragment : Fragment(R.layout.fragment_city_details) {
         }
 
         with(binding) {
+            root.consumeWindowInsets(systemBars() or displayCutout()) { insets ->
+                toolbar.updatePadding(
+                    left = insets.left,
+                    top = insets.top,
+                    right = insets.right
+                )
+                root.updatePadding(
+                    left = insets.left,
+                    right = insets.right,
+                    bottom = insets.bottom
+                )
+            }
             with(toolbar) {
                 title = cityWeather.cityName
                 setNavigationOnClickListener { parentFragmentManager.popBackStack() }

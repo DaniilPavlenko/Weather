@@ -2,10 +2,14 @@ package ru.dpav.weather.feature.cities_list.impl
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.WindowInsetsCompat.Type.displayCutout
+import androidx.core.view.WindowInsetsCompat.Type.systemBars
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
+import ru.dpav.weather.common.ui.extension.consumeWindowInsets
 import ru.dpav.weather.common.ui.extension.popBackStackToRoot
 import ru.dpav.weather.core.navigation.findFeatureProvider
 import ru.dpav.weather.core.navigation.findNavigator
@@ -32,6 +36,18 @@ class ListFragment : Fragment(R.layout.fragment_list) {
             setCities(citiesWeather)
         }
         FragmentListBinding.bind(view).apply {
+            root.consumeWindowInsets(systemBars() or displayCutout()) { insets ->
+                toolbar.updatePadding(
+                    left = insets.left,
+                    top = insets.top,
+                    right = insets.right
+                )
+                citiesRecyclerView.updatePadding(
+                    left = insets.left,
+                    right = insets.right,
+                    bottom = insets.bottom
+                )
+            }
             toolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
             citiesRecyclerView.run {
                 setHasFixedSize(true)
