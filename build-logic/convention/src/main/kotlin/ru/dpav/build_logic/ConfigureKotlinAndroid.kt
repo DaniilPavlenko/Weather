@@ -18,12 +18,11 @@ internal fun Project.configureKotlinAndroid(
             minSdk = ANDROID_MIN_SDK
         }
         compileOptions {
-            targetCompatibility = JavaVersion.VERSION_1_8
+            sourceCompatibility = JavaVersion.VERSION_11
+            targetCompatibility = JavaVersion.VERSION_11
         }
     }
     configure<KotlinAndroidProjectExtension> {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_1_8)
-        }
+        compilerOptions.jvmTarget.set(JvmTarget.JVM_11)
     }
 }
