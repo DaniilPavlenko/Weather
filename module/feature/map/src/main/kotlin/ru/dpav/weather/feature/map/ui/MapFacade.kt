@@ -102,6 +102,7 @@ internal class MapFacade(
         val tileSource = TileSourceFactory.MAPNIK
         setTileSource(tileSource)
         setMultiTouchControls(true)
+        isTilesScaledToDpi = true
 
         zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
         maxZoomLevel = tileSource.maximumZoomLevel.toDouble()
