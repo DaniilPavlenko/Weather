@@ -16,7 +16,7 @@ import javax.inject.Inject
 import ru.dpav.weather.common.strings.R as StringsR
 
 @AndroidEntryPoint
-class CityDetailsFragment : Fragment(R.layout.fragment_city_details) {
+internal class CityDetailsFragment : Fragment(R.layout.fragment_city_details) {
 
     @Inject
     lateinit var weatherRepository: WeatherRepository
