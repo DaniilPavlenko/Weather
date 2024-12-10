@@ -2,9 +2,9 @@ import com.android.build.api.dsl.ApplicationDefaultConfig
 import java.util.Properties
 
 plugins {
-    id("dpav.android.library")
-    id("dpav.hilt.lib")
-    id("dpav.hilt.ksp")
+    alias(libs.plugins.dpav.android.library)
+    alias(libs.plugins.dpav.hilt.lib)
+    alias(libs.plugins.dpav.hilt.ksp)
 }
 
 android {

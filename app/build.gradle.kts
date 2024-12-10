@@ -1,8 +1,7 @@
 plugins {
-    id("dpav.android.application")
-    id("dpav.hilt.lib")
-    id("dpav.hilt.ksp")
-    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.dpav.android.application)
+    alias(libs.plugins.dpav.hilt.lib)
+    alias(libs.plugins.dpav.hilt.ksp)
 }
 
 android {

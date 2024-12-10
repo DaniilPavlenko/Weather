@@ -1,5 +1,5 @@
 plugins {
-    id("dpav.android.library")
+    alias(libs.plugins.dpav.android.library)
 }
 
 android {
