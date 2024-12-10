@@ -15,11 +15,6 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
 
-    buildFeatures {
-        buildConfig = true
-        viewBinding = true
-    }
-
     buildTypes {
         release {
             // Just for simplicity. In real projects I read 'keystore.properties'.
