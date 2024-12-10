@@ -9,6 +9,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":module:core:model"))
+    api(project(":module:core:model"))
+
     implementation(project(":module:core:network"))
 }

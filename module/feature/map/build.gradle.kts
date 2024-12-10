@@ -15,7 +15,6 @@ android {
 dependencies {
     implementation(project(":module:common:ui"))
     implementation(project(":module:core:data"))
-    implementation(project(":module:core:model"))
     implementation(project(":module:feature:cities-list:api"))
     implementation(project(":module:feature:details:api"))
 

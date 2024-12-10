@@ -18,7 +18,6 @@ dependencies {
     implementation(project(":module:common:strings"))
     implementation(project(":module:common:ui"))
     implementation(project(":module:core:data"))
-    implementation(project(":module:core:model"))
     implementation(project(":module:feature:details:api"))
 
     implementation(libs.material)
