@@ -27,7 +27,6 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.FolderOverlay
-import org.osmdroid.views.overlay.IconOverlay
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.infowindow.InfoWindow
@@ -54,7 +53,7 @@ internal class MapFacade(
     private var isInfoWindowOpened: Boolean = false
     private var citiesFolderOverlay: FolderOverlay? = null
     private var displayedCities: List<CityWeather>? = null
-    private var searchMarker: IconOverlay? = null
+    private var searchMarker: RequestPointIconOverlay? = null
 
     private var fusedLocationProvider: FusedLocationProviderClient? = null
     private val locationUpdatesCallback by lazy {
@@ -223,13 +222,14 @@ internal class MapFacade(
 
     private fun setSearchMarker(point: GeoPoint, isUserLocation: Boolean = false) {
         val map = requireMap()
-        val icon = if (isUserLocation) {
-            R.drawable.ic_marker_location
-        } else {
-            R.drawable.ic_marker_search_final
+
+        val searchMarker = searchMarker
+            ?: RequestPointIconOverlay(map.resources).also { searchMarker = it }
+
+        searchMarker.apply {
+            this.isUserLocation = isUserLocation
+            this.position = point
         }
-        val searchMarker = searchMarker?.apply { set(point, getDrawable(icon)) }
-            ?: IconOverlay(point, getDrawable(icon)).also { searchMarker = it }
 
         if (searchMarker !in map.overlays) {
             map.overlays += searchMarker
