@@ -9,8 +9,8 @@ import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import ru.dpav.weather.common.ui.WeatherIconAssociator
 import ru.dpav.weather.common.ui.extension.consumeWindowInsets
-import ru.dpav.weather.common.ui.extension.popBackStackToRoot
 import ru.dpav.weather.core.data.WeatherRepository
+import ru.dpav.weather.core.navigation.findNavigator
 import ru.dpav.weather.feature.details.impl.databinding.FragmentCityDetailsBinding
 import javax.inject.Inject
 import ru.dpav.weather.common.strings.R as StringsR
@@ -29,7 +29,7 @@ class CityDetailsFragment : Fragment(R.layout.fragment_city_details) {
         val cityWeather = weatherRepository.citiesWeather.firstOrNull { it.cityId == cityId }
         if (cityWeather == null) {
             // Just back to the root fragment (map).
-            parentFragmentManager.popBackStackToRoot()
+            findNavigator().run { navigateBackToRoot() }
             return
         }
 
@@ -48,7 +48,9 @@ class CityDetailsFragment : Fragment(R.layout.fragment_city_details) {
             }
             with(toolbar) {
                 title = cityWeather.cityName
-                setNavigationOnClickListener { parentFragmentManager.popBackStack() }
+                setNavigationOnClickListener {
+                    findNavigator().run { navigateBack() }
+                }
             }
             with(cityDetailTemperature) {
                 text = getString(StringsR.string.detail_temperature, cityWeather.temperature)

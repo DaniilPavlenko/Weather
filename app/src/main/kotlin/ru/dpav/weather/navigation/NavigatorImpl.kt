@@ -18,4 +18,12 @@ internal class NavigatorImpl : Navigator {
             }
         }
     }
+
+    override fun Fragment.navigateBack() {
+        parentFragmentManager.popBackStack()
+    }
+
+    override fun Fragment.navigateBackToRoot() {
+        parentFragmentManager.popBackStack(null, 0)
+    }
 }

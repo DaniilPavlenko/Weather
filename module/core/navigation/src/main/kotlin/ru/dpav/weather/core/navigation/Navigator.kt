@@ -8,6 +8,10 @@ interface Navigator {
         tag: String,
         shouldAddToBackStack: Boolean = true,
     )
+
+    fun Fragment.navigateBack()
+
+    fun Fragment.navigateBackToRoot()
 }
 
 fun Fragment.findNavigator(): Navigator {

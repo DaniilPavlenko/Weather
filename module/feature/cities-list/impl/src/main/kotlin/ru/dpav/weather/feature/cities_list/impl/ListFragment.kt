@@ -10,7 +10,6 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
 import ru.dpav.weather.common.ui.extension.consumeWindowInsets
-import ru.dpav.weather.common.ui.extension.popBackStackToRoot
 import ru.dpav.weather.core.navigation.findFeatureProvider
 import ru.dpav.weather.core.navigation.findNavigator
 import ru.dpav.weather.feature.cities_list.impl.databinding.FragmentListBinding
@@ -28,7 +27,7 @@ class ListFragment : Fragment(R.layout.fragment_list) {
         val citiesWeather = viewModel.uiState.citiesWeather
 
         if (citiesWeather.isEmpty()) {
-            parentFragmentManager.popBackStackToRoot()
+            findNavigator().run { navigateBackToRoot() }
             return
         }
 
@@ -48,7 +47,9 @@ class ListFragment : Fragment(R.layout.fragment_list) {
                     bottom = insets.bottom
                 )
             }
-            toolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
+            toolbar.setNavigationOnClickListener {
+                findNavigator().run { navigateBack() }
+            }
             citiesRecyclerView.run {
                 setHasFixedSize(true)
                 addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
