@@ -9,7 +9,7 @@ import ru.dpav.weather.core.model.CityWeather
 import ru.dpav.weather.feature.cities_list.impl.databinding.ItemRowCityBinding
 import ru.dpav.weather.common.strings.R as StringsR
 
-class CitiesAdapter(
+internal class CitiesAdapter(
     private val onCityClick: (cityId: Int) -> Unit,
 ) : RecyclerView.Adapter<CitiesAdapter.CityHolder>() {
 

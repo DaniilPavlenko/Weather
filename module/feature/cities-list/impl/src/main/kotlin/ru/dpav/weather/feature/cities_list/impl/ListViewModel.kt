@@ -6,7 +6,7 @@ import ru.dpav.weather.core.data.WeatherRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class ListViewModel @Inject constructor(
+internal class ListViewModel @Inject constructor(
     weatherRepository: WeatherRepository
 ) : ViewModel() {
 

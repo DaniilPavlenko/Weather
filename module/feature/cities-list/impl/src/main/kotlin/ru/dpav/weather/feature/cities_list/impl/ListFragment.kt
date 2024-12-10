@@ -16,7 +16,7 @@ import ru.dpav.weather.feature.cities_list.impl.databinding.FragmentListBinding
 import ru.dpav.weather.feature.details.api.DetailsFeatureProvider
 
 @AndroidEntryPoint
-class ListFragment : Fragment(R.layout.fragment_list) {
+internal class ListFragment : Fragment(R.layout.fragment_list) {
 
     private val viewModel by viewModels<ListViewModel>()
 
