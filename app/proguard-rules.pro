@@ -5,6 +5,3 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 -renamesourcefileattribute SourceFile
-
-# GSON
--keep,allowobfuscation class ru.dpav.weather.data.api.model.** { <fields>; }

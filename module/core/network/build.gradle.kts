@@ -15,6 +15,11 @@ android {
     buildFeatures {
         buildConfig = true
     }
+    buildTypes {
+        release {
+            consumerProguardFiles("consumer-rules.pro")
+        }
+    }
 }
 
 dependencies {
