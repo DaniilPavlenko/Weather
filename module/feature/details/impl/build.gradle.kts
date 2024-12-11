@@ -15,7 +15,6 @@ android {
 dependencies {
     api(project(":module:feature:details:api"))
 
-    implementation(project(":module:common:icons"))
     implementation(project(":module:common:strings"))
     implementation(project(":module:common:ui"))
     implementation(project(":module:core:data"))
